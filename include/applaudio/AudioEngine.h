@@ -128,26 +128,41 @@ namespace applaudio
     {
       std::vector<short> mix_buffer(frame_count * channels, 0);
       
-      for (auto& src_pair : m_sources)
+      for (auto& [id, src] : m_sources)
       {
-        Source& src = src_pair.second;
         if (!src.playing) continue;
         
         const auto& buf = m_buffers[src.buffer_id];
-        for (size_t i = 0; i < frame_count * channels; i++)
+        double pos = src.play_pos;
+        
+        for (int f = 0; f < frame_count; ++f)
         {
-          int sample = mix_buffer[i] + buf.data[src.play_pos + i] * src.volume;
-          mix_buffer[i] = std::clamp(sample, -32768, 32767);
+          size_t idx = static_cast<size_t>(pos) * channels;
+          if (idx + channels > buf.data.size())
+          {
+            if (src.looping)
+            {
+              pos = 0.0; // wrap
+              idx = 0;
+            }
+            else
+            {
+              src.playing = false;
+              break;
+            }
+          }
+          
+          for (int c = 0; c < channels; ++c)
+          {
+            int sample = mix_buffer[f * channels + c] +
+            static_cast<int>(buf.data[idx + c] * src.volume);
+            mix_buffer[f * channels + c] = std::clamp(sample, -32768, 32767);
+          }
+          
+          pos += src.pitch; // pitch = playback speed
         }
         
-        src.play_pos += frame_count * channels;
-        if (src.play_pos >= buf.data.size())
-        {
-          if (src.looping)
-            src.play_pos = 0;
-          else
-            src.playing = false;
-        }
+        src.play_pos = pos;
       }
       
       m_device->write_samples(mix_buffer.data(), frame_count);
