@@ -105,6 +105,24 @@ namespace applaudio
     
     int get_sample_rate() const override { return sample_rate; }
     
+    virtual int get_buffer_size_frames() const override
+    {
+      UInt32 buffer_frame_size = 0;
+      UInt32 size = sizeof(buffer_frame_size);
+      
+      if (audio_unit != nullptr)
+      {
+        AudioUnitGetProperty(audio_unit,
+                             kAudioUnitProperty_MaximumFramesPerSlice,
+                             kAudioUnitScope_Global,
+                             0,
+                             &buffer_frame_size,
+                             &size);
+      }
+      
+      return static_cast<int>(buffer_frame_size);
+    }
+    
     virtual std::string device_name() const override { return "MacOS : AudioToolBox"; }
     
   private:
