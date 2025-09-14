@@ -10,6 +10,10 @@
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BDBB9F2E773FB8002ACC96 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		07BDBBA02E773FB8002ACC96 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		07BDBBA42E77401F002ACC96 /* Win_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Win_Internal.h; sourceTree = "<group>"; };
+		07BDBBA52E77406A002ACC96 /* Linux_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Linux_Internal.h; sourceTree = "<group>"; };
+		07BDBBA62E774073002ACC96 /* MacOS_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacOS_Internal.h; sourceTree = "<group>"; };
+		07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IApplaudio_Internal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -28,6 +32,7 @@
 			children = (
 				07BDBB9F2E773FB8002ACC96 /* LICENSE */,
 				07BDBBA02E773FB8002ACC96 /* README.md */,
+				07BDBBA32E774016002ACC96 /* applaudio */,
 				07BDBB982E773DAF002ACC96 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -38,6 +43,18 @@
 				07BDBB972E773DAF002ACC96 /* libapplaudio.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		07BDBBA32E774016002ACC96 /* applaudio */ = {
+			isa = PBXGroup;
+			children = (
+				07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */,
+				07BDBBA62E774073002ACC96 /* MacOS_Internal.h */,
+				07BDBBA52E77406A002ACC96 /* Linux_Internal.h */,
+				07BDBBA42E77401F002ACC96 /* Win_Internal.h */,
+			);
+			name = applaudio;
+			path = include/applaudio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
