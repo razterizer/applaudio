@@ -79,7 +79,7 @@ namespace applaudio
     
     void shutdown() override
     {
-      if (audio_unit)
+      if (audio_unit != nullptr)
       {
         AudioOutputUnitStop(audio_unit);
         AudioUnitUninitialize(audio_unit);
