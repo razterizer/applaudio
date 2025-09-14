@@ -109,6 +109,8 @@ namespace applaudio
       shutdown();
     }
     
+    virtual std::string device_name() const override { return "Linux : ALSA"; }
+    
   private:
     snd_pcm_t* m_pcm_handle = nullptr;
     snd_pcm_hw_params_t* m_hw_params = nullptr;

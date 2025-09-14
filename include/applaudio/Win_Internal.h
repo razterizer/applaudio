@@ -181,6 +181,8 @@ namespace applaudio
       shutdown();
     }
     
+    virtual std::string device_name() const override { return "Win : WASAPI"; }
+    
   private:
     IMMDevice* m_device = nullptr;
     IAudioClient* m_audio_client = nullptr;

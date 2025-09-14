@@ -105,6 +105,8 @@ namespace applaudio
     
     int get_sample_rate() const override { return sample_rate; }
     
+    virtual std::string device_name() const override { return "MacOS : AudioToolBox"; }
+    
   private:
     OSStatus render(AudioUnitRenderActionFlags*,
                     const AudioTimeStamp*,
