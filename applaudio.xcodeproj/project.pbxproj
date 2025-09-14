@@ -6,6 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		07BDBBB62E77495D002ACC96 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		07BDBBAA2E7743B7002ACC96 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BDBB9F2E773FB8002ACC96 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -14,13 +30,32 @@
 		07BDBBA52E77406A002ACC96 /* Linux_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Linux_Internal.h; sourceTree = "<group>"; };
 		07BDBBA62E774073002ACC96 /* MacOS_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacOS_Internal.h; sourceTree = "<group>"; };
 		07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IApplaudio_Internal.h; sourceTree = "<group>"; };
+		07BDBBAC2E7743B7002ACC96 /* Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Test; sourceTree = BUILT_PRODUCTS_DIR; };
+		07BDBBB32E77444B002ACC96 /* AudioEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioEngine.h; sourceTree = "<group>"; };
+		07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		07BDBBAD2E7743B7002ACC96 /* Test */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Test;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		07BDBB952E773DAF002ACC96 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		07BDBBA92E7743B7002ACC96 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				07BDBBB62E77495D002ACC96 /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +68,8 @@
 				07BDBB9F2E773FB8002ACC96 /* LICENSE */,
 				07BDBBA02E773FB8002ACC96 /* README.md */,
 				07BDBBA32E774016002ACC96 /* applaudio */,
+				07BDBBAD2E7743B7002ACC96 /* Test */,
+				07BDBBB42E77495D002ACC96 /* Frameworks */,
 				07BDBB982E773DAF002ACC96 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				07BDBB972E773DAF002ACC96 /* libapplaudio.a */,
+				07BDBBAC2E7743B7002ACC96 /* Test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +86,7 @@
 		07BDBBA32E774016002ACC96 /* applaudio */ = {
 			isa = PBXGroup;
 			children = (
+				07BDBBB32E77444B002ACC96 /* AudioEngine.h */,
 				07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */,
 				07BDBBA62E774073002ACC96 /* MacOS_Internal.h */,
 				07BDBBA52E77406A002ACC96 /* Linux_Internal.h */,
@@ -55,6 +94,14 @@
 			);
 			name = applaudio;
 			path = include/applaudio;
+			sourceTree = "<group>";
+		};
+		07BDBBB42E77495D002ACC96 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -89,6 +136,28 @@
 			productReference = 07BDBB972E773DAF002ACC96 /* libapplaudio.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		07BDBBAB2E7743B7002ACC96 /* Test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 07BDBBB02E7743B7002ACC96 /* Build configuration list for PBXNativeTarget "Test" */;
+			buildPhases = (
+				07BDBBA82E7743B7002ACC96 /* Sources */,
+				07BDBBA92E7743B7002ACC96 /* Frameworks */,
+				07BDBBAA2E7743B7002ACC96 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				07BDBBAD2E7743B7002ACC96 /* Test */,
+			);
+			name = Test;
+			packageProductDependencies = (
+			);
+			productName = Test;
+			productReference = 07BDBBAC2E7743B7002ACC96 /* Test */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -99,6 +168,9 @@
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					07BDBB962E773DAF002ACC96 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					07BDBBAB2E7743B7002ACC96 = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -118,12 +190,20 @@
 			projectRoot = "";
 			targets = (
 				07BDBB962E773DAF002ACC96 /* applaudio */,
+				07BDBBAB2E7743B7002ACC96 /* Test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
 		07BDBB942E773DAF002ACC96 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		07BDBBA82E7743B7002ACC96 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -186,6 +266,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../include;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -242,6 +323,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../include;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -272,6 +354,28 @@
 			};
 			name = Release;
 		};
+		07BDBBB12E7743B7002ACC96 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HFL2Q84SZB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		07BDBBB22E7743B7002ACC96 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HFL2Q84SZB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -289,6 +393,15 @@
 			buildConfigurations = (
 				07BDBB9C2E773DAF002ACC96 /* Debug */,
 				07BDBB9D2E773DAF002ACC96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		07BDBBB02E7743B7002ACC96 /* Build configuration list for PBXNativeTarget "Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				07BDBBB12E7743B7002ACC96 /* Debug */,
+				07BDBBB22E7743B7002ACC96 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
