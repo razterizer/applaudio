@@ -19,7 +19,6 @@ namespace applaudio
   struct Buffer
   {
     std::vector<short> data;
-    int sample_rate = 0;
   };
   
   struct Source
@@ -118,11 +117,10 @@ namespace applaudio
       m_buffers.erase(buf_id);
     }
     
-    void set_buffer_data(unsigned int buf_id, const std::vector<short>& data, int sample_rate)
+    void set_buffer_data(unsigned int buf_id, const std::vector<short>& data)
     {
       auto& buf = m_buffers[buf_id];
       buf.data = data;
-      buf.sample_rate = sample_rate;
     }
     
     void attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
