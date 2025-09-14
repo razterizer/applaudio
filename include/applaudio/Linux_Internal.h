@@ -109,6 +109,14 @@ namespace applaudio
       return m_sample_rate;
     }
     
+    virtual int get_buffer_size_frames() const override
+    {
+      snd_pcm_uframes_t size = 0;
+      if (m_pcm_handle != nullptr)
+        snd_pcm_get_params(m_pcm_handle, &size, nullptr);
+      return static_cast<int>(size);
+    }
+    
     virtual std::string device_name() const override { return "Linux : ALSA"; }
     
   private:
