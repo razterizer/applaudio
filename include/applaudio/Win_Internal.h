@@ -134,7 +134,7 @@ namespace applaudio
       CoUninitialize();
     }
     
-    void writeSamples(const short* data, size_t frames) override
+    void write_samples(const short* data, size_t frames) override
     {
       if (!m_audio_client || !m_render_client) return;
       
@@ -176,7 +176,7 @@ namespace applaudio
       }
     }
     
-    int getSampleRate() const override
+    int get_sample_rate() const override
     {
       return m_sample_rate;
     }
