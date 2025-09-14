@@ -153,6 +153,69 @@ namespace applaudio
       m_device->write_samples(mix_buffer.data(), frame_count);
     }
     
+    // Play the source
+    void play_source(unsigned int src_id)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        Source& src = it->second;
+        src.playing = true;
+        src.play_pos = 0;  // start from beginning
+      }
+    }
+    
+    // Check if a source is playing
+    bool is_source_playing(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.playing;
+      return false;
+    }
+    
+    // Pause the source
+    void pause_source(unsigned int src_id)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        it->second.playing = false;
+    }
+    
+    // Stop the source
+    void stop_source(unsigned int src_id)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        it->second.playing = false;
+        it->second.play_pos = 0;
+      }
+    }
+    
+    // Set volume
+    void set_source_volume(unsigned int src_id, float vol)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        it->second.volume = vol;
+    }
+    
+    // Set pitch (note: not yet implemented in mixer)
+    void set_source_pitch(unsigned int src_id, float pitch)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        it->second.pitch = pitch;
+    }
+    
+    // Set looping
+    void set_source_looping(unsigned int src_id, bool loop)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        it->second.looping = loop;
+    }
     
     void print_device_name() const
     {
