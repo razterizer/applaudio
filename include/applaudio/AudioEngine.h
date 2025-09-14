@@ -16,6 +16,22 @@
 namespace applaudio
 {
 
+  struct Buffer
+  {
+    std::vector<short> data;
+    int sample_rate = 0;
+  };
+  
+  struct Source
+  {
+    unsigned int buffer_id = 0;
+    bool looping = false;
+    float volume = 1.0f;
+    float pitch = 1.0f;
+    bool playing = false;
+    size_t play_pos = 0;
+  };
+
   class AudioEngine
   {
     std::unique_ptr<IApplaudio_Internal> device;
