@@ -181,6 +181,14 @@ namespace applaudio
       return m_sample_rate;
     }
     
+    virtual int get_buffer_size_frames() const override
+    {
+      UINT32 buffer_frames = 0;
+      if (m_audio_client != nullptr)
+        m_audio_client->GetBufferSize(&buffer_frames);
+      return static_cast<int>(buffer_frames);
+    }
+    
     virtual std::string device_name() const override { return "Win : WASAPI"; }
     
   private:
