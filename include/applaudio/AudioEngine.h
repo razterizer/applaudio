@@ -10,6 +10,7 @@
 #include "Linux_Internal.h"
 #include "Win_Internal.h"
 #include <memory>
+#include <iostream>
 
 
 namespace applaudio
@@ -29,6 +30,14 @@ namespace applaudio
 #elif defined(__linux__)
       device = std::make_unique<Linux_Internal>();
 #endif
+    }
+    
+    void print_device_name() const
+    {
+      if (device != nullptr)
+        std::cout << device->device_name() << std::endl;
+      else
+        std::cout << "Unknown device" << std::endl;
     }
     
   };
