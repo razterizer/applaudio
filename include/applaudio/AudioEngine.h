@@ -7,6 +7,7 @@
 
 #pragma once
 #include "MacOS_Internal.h"
+#include "Linux_Internal.h"
 #include <memory>
 
 
@@ -24,6 +25,7 @@ namespace applaudio
 #elif defined(__APPLE__)
       device = std::make_unique<MacOS_Internal>();
 #elif defined(__linux__)
+      device = std::make_unique<Linux_Internal>();
 #endif
     }
     
