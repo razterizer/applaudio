@@ -11,6 +11,7 @@
 #include "Win_Internal.h"
 #include <memory>
 #include <iostream>
+#include <thread>
 
 
 namespace applaudio
@@ -30,6 +31,8 @@ namespace applaudio
     bool playing = false;
     size_t play_pos = 0;
   };
+  
+  // //////////////
 
   class AudioEngine
   {
@@ -42,6 +45,18 @@ namespace applaudio
     std::unordered_map<unsigned int, Buffer> m_buffers;
     unsigned int m_next_source_id = 1;
     unsigned int m_next_buffer_id = 1;
+    
+    std::atomic<bool> m_running{false};
+    std::thread m_thread;
+    
+    void enter_audio_thread_loop()
+    {
+      while (m_running)
+      {
+        mix();  // mix the next chunk
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));  // adjust based on frame count & sample rate
+      }
+    }
     
   public:
     AudioEngine()
@@ -81,16 +96,21 @@ namespace applaudio
           << frame_count << " frames per mix\n";
       }
       
+      m_running = true;
+      m_thread = std::thread(&AudioEngine::enter_audio_thread_loop, this);
+      
       return true;
     }
 
     
     void shutdown()
     {
+      m_running = false;
+      if (m_thread.joinable())
+        m_thread.join();
+      
       if (m_device != nullptr)
-      {
         m_device->shutdown();
-      }
     }
 
     unsigned int create_source()
