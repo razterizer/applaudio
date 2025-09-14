@@ -8,6 +8,7 @@
 #pragma once
 #include "MacOS_Internal.h"
 #include "Linux_Internal.h"
+#include "Win_Internal.h"
 #include <memory>
 
 
@@ -22,6 +23,7 @@ namespace applaudio
     AudioEngine()
     {
 #if defined(_WIN32)
+      device = std::make_unique<Win_Internal>();
 #elif defined(__APPLE__)
       device = std::make_unique<MacOS_Internal>();
 #elif defined(__linux__)
