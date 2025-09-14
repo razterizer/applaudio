@@ -23,6 +23,11 @@ namespace applaudio
   public:
     Linux_Internal() = default;
     
+    ~Linux_Internal()
+    {
+      shutdown();
+    }
+    
     bool init(int sample_rate, int channels) override
     {
       int err = snd_pcm_open(&m_pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
@@ -102,11 +107,6 @@ namespace applaudio
     int get_sample_rate() const override
     {
       return m_sample_rate;
-    }
-    
-    ~Linux_Internal()
-    {
-      shutdown();
     }
     
     virtual std::string device_name() const override { return "Linux : ALSA"; }

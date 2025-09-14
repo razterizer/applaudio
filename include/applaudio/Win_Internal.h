@@ -23,6 +23,11 @@ namespace applaudio
   public:
     Win_Internal() = default;
     
+    ~Win_Internal()
+    {
+      shutdown();
+    }
+    
     bool init(int sample_rate, int channels) override
     {
       m_sample_rate = sample_rate;
@@ -174,11 +179,6 @@ namespace applaudio
     int getSampleRate() const override
     {
       return m_sample_rate;
-    }
-    
-    ~Win_Internal()
-    {
-      shutdown();
     }
     
     virtual std::string device_name() const override { return "Win : WASAPI"; }
