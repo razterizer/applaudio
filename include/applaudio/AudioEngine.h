@@ -56,11 +56,11 @@ namespace applaudio
 #endif
     }
     
-    bool init(int sample_rate, int num_channels = 2, bool verbose = false)
+    bool startup(int sample_rate, int num_channels = 2, bool verbose = false)
     {
       channels = num_channels;
       
-      if (m_device == nullptr || !m_device->init(sample_rate, channels))
+      if (m_device == nullptr || !m_device->startup(sample_rate, channels))
       {
         std::cerr << "AudioEngine: Failed to initialize device\n";
         return false;

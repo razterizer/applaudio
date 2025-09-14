@@ -44,7 +44,7 @@ namespace applaudio
     MacOS_Internal() = default;
     ~MacOS_Internal() override { shutdown(); }
     
-    bool init(int sr, int ch) override
+    bool startup(int sr, int ch) override
     {
       sample_rate = sr;
       channels = ch;
@@ -56,7 +56,7 @@ namespace applaudio
       desc.componentManufacturer = kAudioUnitManufacturer_Apple;
       
       AudioComponent comp = AudioComponentFindNext(nullptr, &desc);
-      if (!comp) return false;
+      if (comp == nullptr) return false;
       
       if (AudioComponentInstanceNew(comp, &audio_unit) != noErr) return false;
       

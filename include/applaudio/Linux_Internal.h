@@ -28,7 +28,7 @@ namespace applaudio
       shutdown();
     }
     
-    bool init(int sample_rate, int channels) override
+    bool startup(int sample_rate, int channels) override
     {
       int err = snd_pcm_open(&m_pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
       if (err < 0)

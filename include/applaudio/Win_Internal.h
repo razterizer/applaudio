@@ -28,7 +28,7 @@ namespace applaudio
       shutdown();
     }
     
-    bool init(int sample_rate, int channels) override
+    bool startup(int sample_rate, int channels) override
     {
       m_sample_rate = sample_rate;
       m_channels = channels;
