@@ -38,8 +38,9 @@ namespace applaudio
   {
     std::unique_ptr<IApplaudio_Internal> m_device;
     
-    int frame_count = 0;
-    int channels = 0;
+    int m_frame_count = 0;
+    int m_channels = 0;
+    int m_sample_rate = 0;
     
     std::unordered_map<unsigned int, Source> m_sources;
     std::unordered_map<unsigned int, Buffer> m_buffers;
@@ -54,7 +55,9 @@ namespace applaudio
       while (m_running)
       {
         mix();  // mix the next chunk
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));  // adjust based on frame count & sample rate
+        auto ms_per_frame = 1000.0 / m_sample_rate;   // ms per frame
+        auto ms_per_chunk = ms_per_frame * m_frame_count; // chunk duration
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(ms_per_chunk)));
       }
     }
     
@@ -72,28 +75,30 @@ namespace applaudio
     
     bool startup(int sample_rate, int num_channels = 2, bool verbose = false)
     {
-      channels = num_channels;
+      m_sample_rate = sample_rate;
+      m_channels = num_channels;
       
-      if (m_device == nullptr || !m_device->startup(sample_rate, channels))
+      if (m_device == nullptr || !m_device->startup(sample_rate, m_channels))
       {
         std::cerr << "AudioEngine: Failed to initialize device\n";
         return false;
       }
       
       // Query the backend for its preferred frame count
-      frame_count = m_device->get_buffer_size_frames();
+      m_frame_count = m_device->get_buffer_size_frames();
       
-      if (frame_count <= 0)
+      if (m_frame_count <= 0)
       {
         // fallback if the backend didn't report a valid size
-        frame_count = 512;
+        m_frame_count = 512;
       }
       
       if (verbose)
       {
         std::cout << "AudioEngine initialized: "
-          << channels << " channels, "
-          << frame_count << " frames per mix\n";
+          << "Fs = " << m_sample_rate << " Hz, "
+          << m_channels << " channels, "
+          << m_frame_count << " frames per mix\n";
       }
       
       m_running = true;
@@ -151,7 +156,7 @@ namespace applaudio
     
     void mix()
     {
-      std::vector<short> mix_buffer(frame_count * channels, 0);
+      std::vector<short> mix_buffer(m_frame_count * m_channels, 0);
       
       for (auto& [id, src] : m_sources)
       {
@@ -160,10 +165,10 @@ namespace applaudio
         const auto& buf = m_buffers[src.buffer_id];
         double pos = src.play_pos;
         
-        for (int f = 0; f < frame_count; ++f)
+        for (int f = 0; f < m_frame_count; ++f)
         {
-          size_t idx = static_cast<size_t>(pos) * channels;
-          if (idx + channels > buf.data.size())
+          size_t idx = static_cast<size_t>(pos) * m_channels;
+          if (idx + m_channels > buf.data.size())
           {
             if (src.looping)
             {
@@ -177,11 +182,11 @@ namespace applaudio
             }
           }
           
-          for (int c = 0; c < channels; ++c)
+          for (int c = 0; c < m_channels; ++c)
           {
-            int sample = mix_buffer[f * channels + c] +
+            int sample = mix_buffer[f * m_channels + c] +
             static_cast<int>(buf.data[idx + c] * src.volume);
-            mix_buffer[f * channels + c] = std::clamp(sample, -32768, 32767);
+            mix_buffer[f * m_channels + c] = std::clamp(sample, -32768, 32767);
           }
           
           pos += src.pitch; // pitch = playback speed
@@ -190,7 +195,7 @@ namespace applaudio
         src.play_pos = pos;
       }
       
-      m_device->write_samples(mix_buffer.data(), frame_count);
+      m_device->write_samples(mix_buffer.data(), m_frame_count);
     }
     
     // Play the source
