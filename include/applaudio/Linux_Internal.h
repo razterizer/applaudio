@@ -82,7 +82,7 @@ namespace applaudio
     
     void shutdown() override
     {
-      if (m_pcm_handle)
+      if (m_pcm_handle != nullptr)
       {
         snd_pcm_close(m_pcm_handle);
         m_pcm_handle = nullptr;
@@ -91,7 +91,7 @@ namespace applaudio
     
     void write_samples(const short* data, size_t frames) override
     {
-      if (!m_pcm_handle) return;
+      if (m_pcm_handle == nullptr) return;
       
       snd_pcm_sframes_t written = snd_pcm_writei(m_pcm_handle, data, frames);
       if (written < 0)
