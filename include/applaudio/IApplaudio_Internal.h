@@ -6,6 +6,7 @@
 //
 
 #pragma once
+#include <string>
 
 namespace applaudio
 {
@@ -17,6 +18,7 @@ namespace applaudio
     virtual void shutdown() = 0;
     virtual void write_samples(const short* data, size_t frames) = 0;
     virtual int get_sample_rate() const = 0;
+    virtual std::string device_name() const = 0;
   };
   
 }
