@@ -108,24 +108,24 @@ namespace applaudio
     
     void shutdown() override
     {
-      if (m_audio_client)
+      if (m_audio_client != nullptr)
       {
         m_audio_client->Stop();
       }
       
-      if (m_render_client)
+      if (m_render_client != nullptr)
       {
         m_render_client->Release();
         m_render_client = nullptr;
       }
       
-      if (m_audio_client)
+      if (m_audio_client != nullptr)
       {
         m_audio_client->Release();
         m_audio_client = nullptr;
       }
       
-      if (m_device)
+      if (m_device != nullptr)
       {
         m_device->Release();
         m_device = nullptr;
@@ -136,7 +136,7 @@ namespace applaudio
     
     void write_samples(const short* data, size_t frames) override
     {
-      if (!m_audio_client || !m_render_client) return;
+      if (m_audio_client == nullptr || m_render_client == nullptr) return;
       
       UINT32 padding = 0;
       if (FAILED(m_audio_client->GetCurrentPadding(&padding)))
