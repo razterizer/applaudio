@@ -210,7 +210,7 @@ namespace applaudio
         }
         
         const auto& buf = buf_it->second;
-        double pos = src.play_pos;
+        double pos = static_cast<double>(src.play_pos);
         
         for (int f = 0; f < m_frame_count; ++f)
         {
