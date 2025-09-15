@@ -52,12 +52,18 @@ namespace applaudio
     
     void enter_audio_thread_loop()
     {
+      auto next_frame_time = std::chrono::high_resolution_clock::now();
+      
       while (m_running)
       {
         mix();  // mix the next chunk
-        auto ms_per_frame = 1000.0 / m_sample_rate;   // ms per frame
-        auto ms_per_chunk = ms_per_frame * m_frame_count; // chunk duration
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(ms_per_chunk)));
+        
+        // advance time by the chunk duration
+        next_frame_time += std::chrono::microseconds(
+                                                     static_cast<long long>(1e6 * m_frame_count / m_sample_rate)
+                                                     );
+        
+        std::this_thread::sleep_until(next_frame_time);
       }
     }
     
