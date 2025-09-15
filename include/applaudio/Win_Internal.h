@@ -184,9 +184,9 @@ namespace applaudio
     virtual int get_buffer_size_frames() const override
     {
       UINT32 buffer_frames = 0;
-      if (m_audio_client != nullptr)
-        m_audio_client->GetBufferSize(&buffer_frames);
-      return static_cast<int>(buffer_frames);
+      if (m_audio_client != nullptr && SUCCEEDED(m_audio_client->GetBufferSize(&buffer_frames)))
+        return static_cast<int>(buffer_frames);
+      return 1024; // Fallback value
     }
     
     virtual std::string device_name() const override { return "Win : WASAPI"; }
