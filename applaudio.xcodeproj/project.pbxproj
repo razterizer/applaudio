@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BDBB9F2E773FB8002ACC96 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		07BDBBA02E773FB8002ACC96 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -67,6 +68,7 @@
 			children = (
 				07BDBB9F2E773FB8002ACC96 /* LICENSE */,
 				07BDBBA02E773FB8002ACC96 /* README.md */,
+				0799EFCB2E78313100BAE112 /* CMakeLists.txt */,
 				07BDBBA32E774016002ACC96 /* applaudio */,
 				07BDBBAD2E7743B7002ACC96 /* Test */,
 				07BDBBB42E77495D002ACC96 /* Frameworks */,
@@ -172,6 +174,7 @@
 					};
 					07BDBBAB2E7743B7002ACC96 = {
 						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
 					};
 				};
 			};
@@ -357,22 +360,27 @@
 		07BDBBB12E7743B7002ACC96 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HFL2Q84SZB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
 		07BDBBB22E7743B7002ACC96 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HFL2Q84SZB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
