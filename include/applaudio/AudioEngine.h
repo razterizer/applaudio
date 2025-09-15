@@ -12,6 +12,8 @@
 #include <memory>
 #include <iostream>
 #include <thread>
+#include <chrono>
+#include <atomic>
 
 
 namespace applaudio
