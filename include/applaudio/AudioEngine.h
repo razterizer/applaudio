@@ -187,6 +187,11 @@ namespace applaudio
       {
         if (!src.playing) continue;
         
+        if (src.buffer_id == 0) // invalid source id
+          continue;
+        if (!src.playing)
+          continue;
+        
         const auto& buf = m_buffers[src.buffer_id];
         double pos = src.play_pos;
         
