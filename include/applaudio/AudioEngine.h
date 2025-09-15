@@ -131,6 +131,11 @@ namespace applaudio
       return id;
     }
     
+    // 1. Source stops playing immediately.
+    // 2. Source is permanently removed from the system.
+    // 3. Source ID becomes invalid.
+    // 4. Any attached buffer is automatically detached.
+    // 5. Resources are freed.
     void destroy_source(unsigned int src_id)
     {
       m_sources.erase(src_id);
@@ -157,6 +162,20 @@ namespace applaudio
     void attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
     {
       m_sources[src_id].buffer_id = buf_id;
+    }
+    
+    // 1. Detaches buffer from source.
+    // 2. Stops playback.
+    // 3. Resets the buffer position.
+    void detach_buffer_from_source(unsigned int src_id)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        it->second.buffer_id = 0; // Detach by setting buffer_id to 0
+        it->second.playing = false; // Stop playback
+        it->second.play_pos = 0; // Reset position
+      }
     }
     
     
