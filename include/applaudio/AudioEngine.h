@@ -192,7 +192,17 @@ namespace applaudio
         if (!src.playing)
           continue;
         
-        const auto& buf = m_buffers[src.buffer_id];
+        // Safety check: make sure the buffer actually exists
+        auto buf_it = m_buffers.find(src.buffer_id);
+        if (buf_it == m_buffers.end())
+        {
+          // Buffer was destroyed but source still references it
+          src.buffer_id = 0; // Auto-detach invalid buffer
+          src.playing = false;
+          continue;
+        }
+        
+        const auto& buf = buf_it->second;
         double pos = src.play_pos;
         
         for (int f = 0; f < m_frame_count; ++f)
