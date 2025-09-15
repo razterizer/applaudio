@@ -44,6 +44,7 @@ int main(int argc, const char* argv[])
   engine.attach_buffer_to_source(src_id, buf_id);
   engine.set_source_volume(src_id, 0.1f);
   engine.set_source_looping(src_id, false);
+  engine.set_source_pitch(src_id, 1.f);
 
   // --- 4. Play the source ---
   engine.play_source(src_id);
