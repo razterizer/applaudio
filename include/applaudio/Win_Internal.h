@@ -138,6 +138,8 @@ namespace applaudio
     {
       if (m_audio_client == nullptr || m_render_client == nullptr) return;
       
+      UINT32 frames_uint32 = static_cast<UINT32>(frames);
+      
       UINT32 padding = 0;
       if (FAILED(m_audio_client->GetCurrentPadding(&padding)))
       {
@@ -153,23 +155,23 @@ namespace applaudio
       }
       
       UINT32 available = bufferSize - padding;
-      if (available < frames)
+      if (available < frames_uint32)
       {
         // Too much data queued; drop samples
-        frames = available;
+        frames_uint32 = available;
       }
       
       BYTE* pData = nullptr;
-      if (FAILED(m_render_client->GetBuffer(frames, &pData)))
+      if (FAILED(m_render_client->GetBuffer(frames_uint32, &pData)))
       {
         std::cerr << "WASAPI: GetBuffer failed\n";
         return;
       }
       
       // Copy data
-      memcpy(pData, data, frames * m_channels * sizeof(short));
+      memcpy(pData, data, frames_uint32 * m_channels * sizeof(short));
       
-      if (FAILED(m_render_client->ReleaseBuffer(frames, 0)))
+      if (FAILED(m_render_client->ReleaseBuffer(frames_uint32, 0)))
       {
         std::cerr << "WASAPI: ReleaseBuffer failed\n";
         return;
