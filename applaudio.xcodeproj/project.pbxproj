@@ -24,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		0799EFCC2E7831F900BAE112 /* applaudioConfig.cmake.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = applaudioConfig.cmake.in; sourceTree = "<group>"; };
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BDBB9F2E773FB8002ACC96 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		07BDBBA02E773FB8002ACC96 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -63,12 +64,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0799EFCD2E7831F900BAE112 /* cmake */ = {
+			isa = PBXGroup;
+			children = (
+				0799EFCC2E7831F900BAE112 /* applaudioConfig.cmake.in */,
+			);
+			path = cmake;
+			sourceTree = "<group>";
+		};
 		07BDBB8E2E773DAF002ACC96 = {
 			isa = PBXGroup;
 			children = (
 				07BDBB9F2E773FB8002ACC96 /* LICENSE */,
 				07BDBBA02E773FB8002ACC96 /* README.md */,
 				0799EFCB2E78313100BAE112 /* CMakeLists.txt */,
+				0799EFCD2E7831F900BAE112 /* cmake */,
 				07BDBBA32E774016002ACC96 /* applaudio */,
 				07BDBBAD2E7743B7002ACC96 /* Test */,
 				07BDBBB42E77495D002ACC96 /* Frameworks */,
