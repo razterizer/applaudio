@@ -29,6 +29,8 @@ namespace applaudio
     size_t write_pos = 0;
     std::mutex buffer_mutex;
     
+    AudioStreamBasicDescription audio_format;
+    
     static OSStatus render_cb(void* user,
                               AudioUnitRenderActionFlags* flags,
                               const AudioTimeStamp* ts,
@@ -48,7 +50,7 @@ namespace applaudio
     {
       sample_rate = sr;
       channels = ch;
-      ring_buffer.resize(sr * ch); // 1s buffer
+      ring_buffer.resize(sr * ch * 2); // 2s buffer for safety
       
       AudioComponentDescription desc = {0};
       desc.componentType = kAudioUnitType_Output;
@@ -59,6 +61,27 @@ namespace applaudio
       if (comp == nullptr) return false;
       
       if (AudioComponentInstanceNew(comp, &audio_unit) != noErr) return false;
+      
+      // Set up the audio format FIRST
+      audio_format.mSampleRate = sample_rate;
+      audio_format.mFormatID = kAudioFormatLinearPCM;
+      audio_format.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+      audio_format.mFramesPerPacket = 1;
+      audio_format.mChannelsPerFrame = channels;
+      audio_format.mBytesPerFrame = sizeof(short) * channels;
+      audio_format.mBytesPerPacket = sizeof(short) * channels;
+      audio_format.mBitsPerChannel = 16;
+      
+      // Set the format on the audio unit
+      if (AudioUnitSetProperty(audio_unit,
+                               kAudioUnitProperty_StreamFormat,
+                               kAudioUnitScope_Input,
+                               0,
+                               &audio_format,
+                               sizeof(audio_format)) != noErr)
+      {
+        return false;
+      }
       
       AURenderCallbackStruct cb = { render_cb, this };
       if (AudioUnitSetProperty(audio_unit,
@@ -91,14 +114,17 @@ namespace applaudio
     void write_samples(const short* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
-      size_t samples = frames * channels;
-      for (size_t i = 0; i < samples; i++)
+      size_t samples_to_write = frames * channels;
+      
+      for (size_t i = 0; i < samples_to_write; i++)
       {
         ring_buffer[write_pos] = data[i];
         write_pos = (write_pos + 1) % ring_buffer.size();
-        if (write_pos == read_pos) // overwrite oldest
+        
+        // If buffer is full, move read pointer to avoid overwriting unread data
+        if ((write_pos + 1) % ring_buffer.size() == read_pos)
         {
-          read_pos = (read_pos + channels) % ring_buffer.size();
+          read_pos = (read_pos + 1) % ring_buffer.size();
         }
       }
     }
@@ -107,20 +133,27 @@ namespace applaudio
     
     virtual int get_buffer_size_frames() const override
     {
-      UInt32 buffer_frame_size = 0;
-      UInt32 size = sizeof(buffer_frame_size);
+      UInt32 buffer_size_frames = 0;
+      UInt32 size = sizeof(buffer_size_frames);
       
       if (audio_unit != nullptr)
       {
+        // Get the actual buffer size from the output scope
         AudioUnitGetProperty(audio_unit,
-                             kAudioUnitProperty_MaximumFramesPerSlice,
-                             kAudioUnitScope_Global,
+                             kAudioDevicePropertyBufferFrameSize,
+                             kAudioUnitScope_Output,
                              0,
-                             &buffer_frame_size,
+                             &buffer_size_frames,
                              &size);
       }
       
-      return static_cast<int>(buffer_frame_size);
+      if (buffer_size_frames == 0)
+      {
+        // Fallback to a reasonable default
+        buffer_size_frames = 512;
+      }
+      
+      return static_cast<int>(buffer_size_frames);
     }
     
     virtual std::string device_name() const override { return "MacOS : AudioToolBox"; }
@@ -134,13 +167,16 @@ namespace applaudio
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
       
-      //size_t samples = num_frames * channels;
+      // Calculate how many samples we need
+      //size_t samples_needed = num_frames * channels;
+      
       for (UInt32 buf = 0; buf < io_data->mNumberBuffers; buf++)
       {
         short* out = reinterpret_cast<short*>(io_data->mBuffers[buf].mData);
-        size_t outSamples = io_data->mBuffers[buf].mDataByteSize / sizeof(short);
+        size_t out_samples = io_data->mBuffers[buf].mDataByteSize / sizeof(short);
         
-        for (size_t i = 0; i < outSamples; i++)
+        // Fill the buffer
+        for (size_t i = 0; i < out_samples; i++)
         {
           if (read_pos != write_pos)
           {
@@ -149,10 +185,12 @@ namespace applaudio
           }
           else
           {
-            out[i] = 0; // underrun -> silence
+            // Underrun - fill with silence
+            out[i] = 0;
           }
         }
       }
+      
       return noErr;
     }
   };
