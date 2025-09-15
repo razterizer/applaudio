@@ -79,6 +79,11 @@ namespace applaudio
 #endif
     }
     
+    int num_channels()
+    {
+      return m_channels;
+    }
+    
     bool startup(int sample_rate, int num_channels = 2, bool verbose = false)
     {
       m_sample_rate = sample_rate;
