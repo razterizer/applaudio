@@ -14,6 +14,7 @@
 #include <vector>
 #include <mutex>
 #include <cstring>
+#include <iostream>
 
 namespace applaudio
 {
@@ -61,6 +62,12 @@ namespace applaudio
       if (comp == nullptr) return false;
       
       if (AudioComponentInstanceNew(comp, &audio_unit) != noErr) return false;
+      auto result = AudioComponentInstanceNew(comp, &audio_unit);
+      if (result != noErr)
+      {
+        std::cerr << "AudioComponentInstanceNew failed: " << result << std::endl;
+        return false;
+      }
       
       // Set up the audio format FIRST
       audio_format.mSampleRate = sample_rate;
