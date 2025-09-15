@@ -239,7 +239,7 @@ namespace applaudio
           pos += src.pitch; // pitch = playback speed
         }
         
-        src.play_pos = pos;
+        src.play_pos = static_cast<size_t>(pos);
       }
       
       m_device->write_samples(mix_buffer.data(), m_frame_count);
