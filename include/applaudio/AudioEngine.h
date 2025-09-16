@@ -24,6 +24,8 @@ namespace applaudio
   struct Buffer
   {
     std::vector<short> data;
+    int channels = 0;
+    int sample_rate = 0;
   };
   
   struct Source
@@ -43,8 +45,8 @@ namespace applaudio
     std::unique_ptr<IApplaudio_Internal> m_device;
     
     int m_frame_count = 0;
-    int m_channels = 0;
-    int m_sample_rate = 0;
+    int m_output_channels = 0;
+    int m_output_sample_rate = 0;
     
     std::unordered_map<unsigned int, Source> m_sources;
     std::unordered_map<unsigned int, Buffer> m_buffers;
@@ -64,8 +66,7 @@ namespace applaudio
         
         // advance time by the chunk duration
         next_frame_time += std::chrono::microseconds(
-                                                     static_cast<long long>(1e6 * m_frame_count / m_sample_rate)
-                                                     );
+          static_cast<long long>(1e6 * m_frame_count / m_output_sample_rate));
         
         std::this_thread::sleep_until(next_frame_time);
       }
@@ -85,15 +86,15 @@ namespace applaudio
     
     int num_channels()
     {
-      return m_channels;
+      return m_output_channels;
     }
     
-    bool startup(int sample_rate, int num_channels = 2, bool verbose = false)
+    bool startup(int out_sample_rate, int out_num_channels = 2, bool verbose = false)
     {
-      m_sample_rate = sample_rate;
-      m_channels = num_channels;
+      m_output_sample_rate = out_sample_rate;
+      m_output_channels = out_num_channels;
       
-      if (m_device == nullptr || !m_device->startup(sample_rate, m_channels))
+      if (m_device == nullptr || !m_device->startup(m_output_sample_rate, m_output_channels))
       {
         std::cerr << "AudioEngine: Failed to initialize device\n";
         return false;
@@ -111,8 +112,8 @@ namespace applaudio
       if (verbose)
       {
         std::cout << "AudioEngine initialized: "
-          << "Fs = " << m_sample_rate << " Hz, "
-          << m_channels << " channels, "
+          << "Fs_out = " << m_output_sample_rate << " Hz, "
+          << m_output_channels << " output channels, "
           << m_frame_count << " frames per mix\n";
       }
       
@@ -162,43 +163,57 @@ namespace applaudio
       m_buffers.erase(buf_id);
     }
     
-    void set_buffer_data(unsigned int buf_id, const std::vector<short>& data)
+    bool set_buffer_data(unsigned int buf_id, const std::vector<short>& data,
+                         int channels, int sample_rate)
     {
-      auto& buf = m_buffers[buf_id];
-      buf.data = data;
+      auto buf_it = m_buffers.find(buf_id);
+      if (buf_it != m_buffers.end())
+      {
+        buf_it->second.data = data;
+        buf_it->second.channels = channels;
+        buf_it->second.sample_rate = sample_rate;
+      }
+      return false;
     }
     
-    void attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
+    bool attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
     {
-      m_sources[src_id].buffer_id = buf_id;
+      auto src_it = m_sources.find(src_id);
+      if (src_it != m_sources.end())
+      {
+        src_it->second.buffer_id = buf_id;
+        return true;
+      }
+      return false;
     }
     
     // 1. Detaches buffer from source.
     // 2. Stops playback.
     // 3. Resets the buffer position.
-    void detach_buffer_from_source(unsigned int src_id)
+    bool detach_buffer_from_source(unsigned int src_id)
     {
-      auto it = m_sources.find(src_id);
-      if (it != m_sources.end())
+      auto src_it = m_sources.find(src_id);
+      if (src_it != m_sources.end())
       {
-        it->second.buffer_id = 0; // Detach by setting buffer_id to 0
-        it->second.playing = false; // Stop playback
-        it->second.play_pos = 0; // Reset position
+        src_it->second.buffer_id = 0; // Detach by setting buffer_id to 0
+        src_it->second.playing = false; // Stop playback
+        src_it->second.play_pos = 0; // Reset position
+        return true;
       }
+      return false;
     }
     
     
     void mix()
     {
-      std::vector<short> mix_buffer(m_frame_count * m_channels, 0);
+      std::vector<short> mix_buffer(m_frame_count * m_output_channels, 0);
       
       for (auto& [id, src] : m_sources)
       {
-        if (!src.playing) continue;
+        if (!src.playing)
+          continue;
         
         if (src.buffer_id == 0) // invalid source id
-          continue;
-        if (!src.playing)
           continue;
         
         // Safety check: make sure the buffer actually exists
@@ -214,10 +229,15 @@ namespace applaudio
         const auto& buf = buf_it->second;
         double pos = static_cast<double>(src.play_pos);
         
+        // Calculate pitch adjustment for sample rate conversion.
+        double sample_rate_ratio = static_cast<double>(buf.sample_rate) / m_output_sample_rate;
+        double pitch_adjusted_step = src.pitch * sample_rate_ratio;
+        
+        size_t buf_size = buf.data.size();
         for (int f = 0; f < m_frame_count; ++f)
         {
-          size_t idx = static_cast<size_t>(pos) * m_channels;
-          if (idx + m_channels > buf.data.size())
+          size_t idx = static_cast<size_t>(pos) * buf.channels;
+          if (idx + buf.channels > buf_size)
           {
             if (src.looping)
             {
@@ -231,14 +251,32 @@ namespace applaudio
             }
           }
           
-          for (int c = 0; c < m_channels; ++c)
+          if (buf.channels == m_output_channels)
           {
-            int sample = mix_buffer[f * m_channels + c] +
-            static_cast<int>(buf.data[idx + c] * src.volume);
-            mix_buffer[f * m_channels + c] = std::clamp(sample, -32768, 32767);
+            for (int c = 0; c < m_output_channels; ++c)
+            {
+              int sample = mix_buffer[f * m_output_channels + c] +
+                static_cast<int>(buf.data[idx + c] * src.volume);
+              mix_buffer[f * m_output_channels + c] = std::clamp(sample, -32768, 32767);
+            }
+          }
+          else if (buf.channels == 1 && m_output_channels == 2)
+          {
+            // Mono to stereo - duplicate channel
+            int mono_sample = static_cast<int>(buf.data[idx] * src.volume);
+            mix_buffer[f * m_output_channels] = std::clamp(mix_buffer[f * m_output_channels] + mono_sample, -32768, 32767);
+            mix_buffer[f * m_output_channels + 1] = std::clamp(mix_buffer[f * m_output_channels + 1] + mono_sample, -32768, 32767);
+          }
+          else if (buf.channels == 2 && m_output_channels == 1)
+          {
+            // Stereo to mono - average channels
+            int left = buf.data[idx];
+            int right = buf.data[idx + 1];
+            int mono_sample = static_cast<int>((left + right) * 0.5f * src.volume);
+            mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, -32768, 32767);
           }
           
-          pos += src.pitch; // pitch = playback speed
+          pos += pitch_adjusted_step; // pitch = playback speed
         }
         
         src.play_pos = static_cast<size_t>(pos);
