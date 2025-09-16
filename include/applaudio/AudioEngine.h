@@ -35,7 +35,7 @@ namespace applaudio
     float volume = 1.0f;
     float pitch = 1.0f;
     bool playing = false;
-    size_t play_pos = 0;
+    double play_pos = 0;
   };
   
   // //////////////
@@ -197,7 +197,7 @@ namespace applaudio
       {
         src_it->second.buffer_id = 0; // Detach by setting buffer_id to 0
         src_it->second.playing = false; // Stop playback
-        src_it->second.play_pos = 0; // Reset position
+        src_it->second.play_pos = 0.0; // Reset position
         return true;
       }
       return false;
@@ -227,7 +227,7 @@ namespace applaudio
         }
         
         const auto& buf = buf_it->second;
-        double pos = static_cast<double>(src.play_pos);
+        double pos = src.play_pos;
         
         // Calculate pitch adjustment for sample rate conversion.
         double sample_rate_ratio = static_cast<double>(buf.sample_rate) / m_output_sample_rate;
@@ -279,7 +279,7 @@ namespace applaudio
           pos += pitch_adjusted_step; // pitch = playback speed
         }
         
-        src.play_pos = static_cast<size_t>(pos);
+        src.play_pos = pos;
       }
       
       m_device->write_samples(mix_buffer.data(), m_frame_count);
@@ -293,7 +293,7 @@ namespace applaudio
       {
         Source& src = it->second;
         src.playing = true;
-        src.play_pos = 0;  // start from beginning
+        src.play_pos = 0.0;  // start from beginning
       }
     }
     
@@ -321,7 +321,7 @@ namespace applaudio
       if (it != m_sources.end())
       {
         it->second.playing = false;
-        it->second.play_pos = 0;
+        it->second.play_pos = 0.0;
       }
     }
     
