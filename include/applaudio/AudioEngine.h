@@ -17,6 +17,9 @@
 #include <vector>
 #include <unordered_map>
 
+#define APL_SHORT_MIN -32768
+#define APL_SHORT_MAX +32767
+
 
 namespace applaudio
 {
@@ -251,29 +254,50 @@ namespace applaudio
             }
           }
           
+          // Linear interpolation between samples
+          //   because pos is not an integer.
+          
+          size_t idx_curr = idx;
+          size_t idx_next = idx_curr + buf.channels;
+          double frac = pos - floor(pos);
+          
           if (buf.channels == m_output_channels)
           {
-            for (int c = 0; c < m_output_channels; ++c)
+            // 1→1 or 2→2 (direct copy with interpolation)
+            for (int c = 0; c < buf.channels; ++c)
             {
-              int sample = mix_buffer[f * m_output_channels + c] +
-                static_cast<int>(buf.data[idx + c] * src.volume);
-              mix_buffer[f * m_output_channels + c] = std::clamp(sample, -32768, 32767);
+              auto s1 = buf.data[idx_curr + c];
+              auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
+              auto sample = static_cast<short>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+              
+              mix_buffer[f * m_output_channels + c] =
+              std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SHORT_MIN, APL_SHORT_MAX);
             }
           }
           else if (buf.channels == 1 && m_output_channels == 2)
           {
-            // Mono to stereo - duplicate channel
-            int mono_sample = static_cast<int>(buf.data[idx] * src.volume);
-            mix_buffer[f * m_output_channels] = std::clamp(mix_buffer[f * m_output_channels] + mono_sample, -32768, 32767);
-            mix_buffer[f * m_output_channels + 1] = std::clamp(mix_buffer[f * m_output_channels + 1] + mono_sample, -32768, 32767);
+            // Mono → Stereo
+            auto s1 = buf.data[idx_curr];
+            auto s2 = (idx_next < buf_size) ? buf.data[idx_next] : s1;
+            auto sample = static_cast<short>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+            
+            for (int c = 0; c < 2; ++c)
+              mix_buffer[f * 2 + c] = std::clamp(mix_buffer[f * 2 + c] + sample, APL_SHORT_MIN, APL_SHORT_MAX);
           }
           else if (buf.channels == 2 && m_output_channels == 1)
           {
-            // Stereo to mono - average channels
-            int left = buf.data[idx];
-            int right = buf.data[idx + 1];
-            int mono_sample = static_cast<int>((left + right) * 0.5f * src.volume);
-            mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, -32768, 32767);
+            // Stereo → Mono (average channels, then interpolate between frames)
+            auto l1 = buf.data[idx_curr + 0];
+            auto r1 = buf.data[idx_curr + 1];
+            auto l2 = (idx_next + 0 < buf_size) ? buf.data[idx_next + 0] : l1;
+            auto r2 = (idx_next + 1 < buf_size) ? buf.data[idx_next + 1] : r1;
+            
+            auto s1 = (l1 + r1) / 2.0;
+            auto s2 = (l2 + r2) / 2.0;
+            
+            auto mono_sample = static_cast<short>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+            
+            mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, APL_SHORT_MIN, APL_SHORT_MAX);
           }
           
           pos += pitch_adjusted_step; // pitch = playback speed
