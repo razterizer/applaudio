@@ -36,7 +36,7 @@ namespace applaudio
       HRESULT hr;
       
       // Get default audio endpoint
-      hr = CoInitialize(nullptr);
+      hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
       if (FAILED(hr))
       {
         std::cerr << "WASAPI: CoInitialize failed\n";
