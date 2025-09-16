@@ -5,7 +5,9 @@
 //  Created by Rasmus Anthin on 2025-09-14.
 //
 
+#define _USE_MATH_DEFINES
 #include <applaudio/AudioEngine.h>
+#include <cmath>
 #include <iostream>
 
 int main(int argc, const char* argv[])
