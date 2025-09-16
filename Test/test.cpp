@@ -26,20 +26,22 @@ int main(int argc, const char* argv[])
   }
 
   // --- 2. Create a buffer with a sine wave ---
-  const double frequency = 440.0; // A4
-  const double duration = 2.0;    // 2 seconds
-  size_t frame_count = static_cast<size_t>(duration * sample_rate);
+  const double buf_frequency = 440.0; // A4
+  const double buf_duration = 2.0;    // 2 seconds
+  const int buf_Fs = 30'000;
+  const int buf_channels = 1;
+  size_t frame_count = static_cast<size_t>(buf_duration * buf_Fs);
 
   std::vector<short> pcm_data(frame_count * channels);
   for (size_t i = 0; i < frame_count; ++i)
   {
-    short sample = static_cast<short>(std::sin(2.0 * M_PI * frequency * i / sample_rate) * 30000);
-    for (int c = 0; c < channels; ++c)
+    short sample = static_cast<short>(std::sin(2.0 * M_PI * buf_frequency * i / buf_Fs) * 30000);
+    for (int c = 0; c < buf_channels; ++c)
       pcm_data[i * channels + c] = sample; // same sample for all channels
   }
 
   unsigned int buf_id = engine.create_buffer();
-  engine.set_buffer_data(buf_id, pcm_data);
+  engine.set_buffer_data(buf_id, pcm_data, channels, buf_Fs);
 
   // --- 3. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
