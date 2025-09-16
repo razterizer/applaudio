@@ -84,7 +84,7 @@ namespace applaudio
 #endif
     }
     
-    int num_channels()
+    int num_output_channels()
     {
       return m_output_channels;
     }
