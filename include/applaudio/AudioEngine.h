@@ -16,6 +16,7 @@
 #include <atomic>
 #include <vector>
 #include <unordered_map>
+#include <cmath>
 
 #define APL_SHORT_MIN -32768
 #define APL_SHORT_MAX +32767
@@ -259,7 +260,7 @@ namespace applaudio
           
           size_t idx_curr = idx;
           size_t idx_next = idx_curr + buf.channels;
-          double frac = pos - floor(pos);
+          double frac = pos - std::floor(pos);
           
           if (buf.channels == m_output_channels)
           {
