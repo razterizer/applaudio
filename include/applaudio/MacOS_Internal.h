@@ -162,7 +162,7 @@ namespace applaudio
       return static_cast<int>(buffer_size_frames);
     }
     
-    virtual std::string device_name() const override { return "MacOS : AudioToolBox"; }
+    virtual std::string device_name() const override { return "MacOS : CoreAudio"; }
     
   private:
     OSStatus render(AudioUnitRenderActionFlags*,
