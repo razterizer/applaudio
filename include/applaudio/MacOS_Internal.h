@@ -45,9 +45,9 @@ namespace applaudio
     
   public:
     MacOS_Internal() = default;
-    ~MacOS_Internal() override { shutdown(); }
+    virtual ~MacOS_Internal() override { shutdown(); }
     
-    bool startup(int sr, int ch) override
+    virtual bool startup(int sr, int ch) override
     {
       sample_rate = sr;
       channels = ch;
@@ -107,7 +107,7 @@ namespace applaudio
       return true;
     }
     
-    void shutdown() override
+    virtual void shutdown() override
     {
       if (audio_unit != nullptr)
       {
@@ -118,7 +118,7 @@ namespace applaudio
       }
     }
     
-    bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const short* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
       size_t samples_to_write = frames * channels;
@@ -135,7 +135,7 @@ namespace applaudio
       return true;
     }
     
-    int get_sample_rate() const override { return sample_rate; }
+    virtual int get_sample_rate() const override { return sample_rate; }
     
     virtual int get_buffer_size_frames() const override
     {

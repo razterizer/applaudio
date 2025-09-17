@@ -27,9 +27,9 @@ namespace applaudio
   {
   public:
     Win_Internal() = default;
-    ~Win_Internal() override { shutdown(); }
+    virtual ~Win_Internal() override { shutdown(); }
     
-    bool startup(int sample_rate, int channels) override
+    virtual bool startup(int sample_rate, int channels) override
     {
       m_sample_rate = sample_rate;
       m_channels = channels;
@@ -121,7 +121,7 @@ namespace applaudio
       return true;
     }
     
-    void shutdown() override
+    virtual void shutdown() override
     {
       m_running = false;
       if (m_render_thread.joinable())
@@ -157,7 +157,7 @@ namespace applaudio
       CoUninitialize();
     }
     
-    bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const short* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(m_buffer_mutex);
       size_t samples = frames * m_channels;
@@ -171,12 +171,12 @@ namespace applaudio
       return true;
     }
     
-    int get_sample_rate() const override
+    virtual int get_sample_rate() const override
     {
       return m_sample_rate;
     }
     
-    int get_buffer_size_frames() const override
+    virtual int get_buffer_size_frames() const override
     {
       UINT32 buffer_frames = 0;
       if (m_audio_client && SUCCEEDED(m_audio_client->GetBufferSize(&buffer_frames)))
@@ -184,7 +184,7 @@ namespace applaudio
       return 512; // fallback
     }
     
-    std::string device_name() const override { return "Win : WASAPI (Event-Driven)"; }
+    virtual std::string device_name() const override { return "Win : WASAPI (Event-Driven)"; }
     
   private:
     void render_loop()

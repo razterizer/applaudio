@@ -22,9 +22,9 @@ namespace applaudio
   {
   public:
     Linux_Internal() = default;
-    ~Linux_Internal() { shutdown(); }
+    virtual ~Linux_Internal() override { shutdown(); }
     
-    bool startup(int sample_rate, int channels) override
+    virtual bool startup(int sample_rate, int channels) override
     {
       int err = snd_pcm_open(&m_pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
       if (err < 0)
@@ -76,7 +76,7 @@ namespace applaudio
       return true;
     }
     
-    void shutdown() override
+    virtual void shutdown() override
     {
       if (m_pcm_handle != nullptr)
       {
@@ -85,7 +85,7 @@ namespace applaudio
       }
     }
     
-    bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const short* data, size_t frames) override
     {
       if (m_pcm_handle == nullptr) return;
       
@@ -100,7 +100,7 @@ namespace applaudio
       return true;
     }
     
-    int get_sample_rate() const override
+    virtual int get_sample_rate() const override
     {
       return m_sample_rate;
     }
