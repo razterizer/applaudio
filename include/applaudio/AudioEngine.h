@@ -45,7 +45,7 @@ namespace applaudio
 
   class AudioEngine
   {
-    std::unique_ptr<IApplaudio_Internal> m_device;
+    std::unique_ptr<IApplaudio_Internal> m_backend;
     
     int m_frame_count = 0;
     int m_output_channels = 0;
@@ -79,11 +79,11 @@ namespace applaudio
     AudioEngine()
     {
 #if defined(_WIN32)
-      m_device = std::make_unique<Win_Internal>();
+      m_backend = std::make_unique<Win_Internal>();
 #elif defined(__APPLE__)
-      m_device = std::make_unique<MacOS_Internal>();
+      m_backend = std::make_unique<MacOS_Internal>();
 #elif defined(__linux__)
-      m_device = std::make_unique<Linux_Internal>();
+      m_backend = std::make_unique<Linux_Internal>();
 #endif
     }
     
@@ -97,14 +97,14 @@ namespace applaudio
       m_output_sample_rate = out_sample_rate;
       m_output_channels = out_num_channels;
       
-      if (m_device == nullptr || !m_device->startup(m_output_sample_rate, m_output_channels))
+      if (m_backend == nullptr || !m_backend->startup(m_output_sample_rate, m_output_channels))
       {
         std::cerr << "AudioEngine: Failed to initialize device\n";
         return false;
       }
       
       // Query the backend for its preferred frame count
-      m_frame_count = m_device->get_buffer_size_frames();
+      m_frame_count = m_backend->get_buffer_size_frames();
       
       if (m_frame_count <= 0)
       {
@@ -133,8 +133,8 @@ namespace applaudio
       if (m_thread.joinable())
         m_thread.join();
       
-      if (m_device != nullptr)
-        m_device->shutdown();
+      if (m_backend != nullptr)
+        m_backend->shutdown();
     }
 
     unsigned int create_source()
@@ -306,7 +306,7 @@ namespace applaudio
         src.play_pos = pos;
       }
       
-      m_device->write_samples(mix_buffer.data(), m_frame_count);
+      m_backend->write_samples(mix_buffer.data(), m_frame_count);
     }
     
     // Play the source
@@ -375,8 +375,8 @@ namespace applaudio
     
     void print_device_name() const
     {
-      if (m_device != nullptr)
-        std::cout << m_device->device_name() << std::endl;
+      if (m_backend != nullptr)
+        std::cout << m_backend->device_name() << std::endl;
       else
         std::cout << "Unknown device" << std::endl;
     }
