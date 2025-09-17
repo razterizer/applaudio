@@ -19,7 +19,7 @@ namespace applaudio
     virtual bool write_samples(const short* data, size_t frames) = 0;
     virtual int get_sample_rate() const = 0;
     virtual int get_buffer_size_frames() const = 0;
-    virtual std::string device_name() const = 0;
+    virtual std::string backend_name() const = 0;
   };
   
 }

@@ -184,7 +184,7 @@ namespace applaudio
       return 512; // fallback
     }
     
-    virtual std::string device_name() const override { return "Win : WASAPI (Event-Driven)"; }
+    virtual std::string backend_name() const override { return "Win : WASAPI (Event-Driven)"; }
     
   private:
     void render_loop()

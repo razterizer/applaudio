@@ -13,7 +13,7 @@
 int main(int argc, const char* argv[])
 {
   applaudio::AudioEngine engine;
-  engine.print_device_name();
+  engine.print_backend_name();
 
   // --- 1. Create and start the engine ---
   int sample_rate = 44100;

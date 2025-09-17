@@ -113,7 +113,7 @@ namespace applaudio
       return static_cast<int>(size);
     }
     
-    virtual std::string device_name() const override { return "Linux : ALSA"; }
+    virtual std::string backend_name() const override { return "Linux : ALSA"; }
     
   private:
     snd_pcm_t* m_pcm_handle = nullptr;

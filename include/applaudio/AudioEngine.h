@@ -373,10 +373,10 @@ namespace applaudio
         it->second.looping = loop;
     }
     
-    void print_device_name() const
+    void print_backend_name() const
     {
       if (m_backend != nullptr)
-        std::cout << m_backend->device_name() << std::endl;
+        std::cout << m_backend->backend_name() << std::endl;
       else
         std::cout << "Unknown device" << std::endl;
     }
