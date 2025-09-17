@@ -89,19 +89,19 @@ namespace applaudio
       }
     }
     
-    void write_samples(const short* data, size_t frames) override
+    bool write_samples(const short* data, size_t frames) override
     {
       if (m_pcm_handle == nullptr) return;
       
       snd_pcm_sframes_t written = snd_pcm_writei(m_pcm_handle, data, frames);
       if (written < 0)
-      {
         written = snd_pcm_recover(m_pcm_handle, written, 1);
-      }
       if (written < 0)
       {
         std::cerr << "ALSA: write error: " << snd_strerror((int)written) << std::endl;
+        return false;
       }
+      return true;
     }
     
     int get_sample_rate() const override

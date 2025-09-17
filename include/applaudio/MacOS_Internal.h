@@ -118,7 +118,7 @@ namespace applaudio
       }
     }
     
-    void write_samples(const short* data, size_t frames) override
+    bool write_samples(const short* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
       size_t samples_to_write = frames * channels;
@@ -130,10 +130,9 @@ namespace applaudio
         
         // If buffer is full, move read pointer to avoid overwriting unread data
         if ((write_pos + 1) % ring_buffer.size() == read_pos)
-        {
           read_pos = (read_pos + 1) % ring_buffer.size();
-        }
       }
+      return true;
     }
     
     int get_sample_rate() const override { return sample_rate; }

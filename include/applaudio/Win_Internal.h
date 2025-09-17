@@ -138,9 +138,10 @@ namespace applaudio
     
     bool write_samples(const short* data, size_t frames) override
     {
-      if (m_audio_client == nullptr || m_render_client == nullptr) return;
+      if (m_audio_client == nullptr || m_render_client == nullptr)
+        return false;
       
-      // Append new samples to pending
+      // Append new samples to pending.
       size_t samples = frames * m_channels;
       m_pending.insert(m_pending.end(), data, data + samples);
       
@@ -161,7 +162,8 @@ namespace applaudio
         }
         
         UINT32 available = bufferSize - padding;
-        if (available == 0) break; // no space yet → wait for next call
+        if (available == 0)
+          break; // no space yet → wait for next call.
         
         UINT32 frames_to_write = std::min<UINT32>(available, m_pending.size() / m_channels);
         
@@ -180,7 +182,7 @@ namespace applaudio
           return false;
         }
         
-        // Remove written samples from pending
+        // Remove written samples from pending.
         m_pending.erase(m_pending.begin(), m_pending.begin() + frames_to_write * m_channels);
       }
       return true;
