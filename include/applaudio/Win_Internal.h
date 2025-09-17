@@ -20,6 +20,8 @@ namespace applaudio
   
   class Win_Internal : public IApplaudio_Internal
   {
+    std::vector<short> m_pending;
+    
   public:
     Win_Internal() = default;
     
@@ -134,48 +136,54 @@ namespace applaudio
       CoUninitialize();
     }
     
-    void write_samples(const short* data, size_t frames) override
+    bool write_samples(const short* data, size_t frames) override
     {
       if (m_audio_client == nullptr || m_render_client == nullptr) return;
       
-      UINT32 frames_uint32 = static_cast<UINT32>(frames);
+      // Append new samples to pending
+      size_t samples = frames * m_channels;
+      m_pending.insert(m_pending.end(), data, data + samples);
       
-      UINT32 padding = 0;
-      if (FAILED(m_audio_client->GetCurrentPadding(&padding)))
+      while (!m_pending.empty())
       {
-        std::cerr << "WASAPI: GetCurrentPadding failed\n";
-        return;
+        UINT32 padding = 0;
+        UINT32 bufferSize = 0;
+        
+        if (FAILED(m_audio_client->GetCurrentPadding(&padding)))
+        {
+          std::cerr << "WASAPI: GetCurrentPadding failed!\n";
+          return false;
+        }
+        if (FAILED(m_audio_client->GetBufferSize(&bufferSize)))
+        {
+          std::cerr << "WASAPI: GetBufferSize failed!n";
+          return false;
+        }
+        
+        UINT32 available = bufferSize - padding;
+        if (available == 0) break; // no space yet → wait for next call
+        
+        UINT32 frames_to_write = std::min<UINT32>(available, m_pending.size() / m_channels);
+        
+        BYTE* pData = nullptr;
+        if (FAILED(m_render_client->GetBuffer(frames_to_write, &pData)))
+        {
+          std::cerr << "WASAPI: GetBuffer failed!\n";
+          return false;
+        }
+        
+        memcpy(pData, m_pending.data(), frames_to_write * m_channels * sizeof(short));
+        
+        if (FAILED(m_render_client->ReleaseBuffer(frames_to_write, 0)))
+        {
+          std::cerr << "WASAPI: ReleaseBuffer failed!\n";
+          return false;
+        }
+        
+        // Remove written samples from pending
+        m_pending.erase(m_pending.begin(), m_pending.begin() + frames_to_write * m_channels);
       }
-      
-      UINT32 bufferSize = 0;
-      if (FAILED(m_audio_client->GetBufferSize(&bufferSize)))
-      {
-        std::cerr << "WASAPI: GetBufferSize failed\n";
-        return;
-      }
-      
-      UINT32 available = bufferSize - padding;
-      if (available < frames_uint32)
-      {
-        // Too much data queued; drop samples
-        frames_uint32 = available;
-      }
-      
-      BYTE* pData = nullptr;
-      if (FAILED(m_render_client->GetBuffer(frames_uint32, &pData)))
-      {
-        std::cerr << "WASAPI: GetBuffer failed\n";
-        return;
-      }
-      
-      // Copy data
-      memcpy(pData, data, frames_uint32 * m_channels * sizeof(short));
-      
-      if (FAILED(m_render_client->ReleaseBuffer(frames_uint32, 0)))
-      {
-        std::cerr << "WASAPI: ReleaseBuffer failed\n";
-        return;
-      }
+      return true;
     }
     
     int get_sample_rate() const override
