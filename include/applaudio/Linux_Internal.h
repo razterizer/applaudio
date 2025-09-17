@@ -22,11 +22,7 @@ namespace applaudio
   {
   public:
     Linux_Internal() = default;
-    
-    ~Linux_Internal()
-    {
-      shutdown();
-    }
+    ~Linux_Internal() { shutdown(); }
     
     bool startup(int sample_rate, int channels) override
     {
