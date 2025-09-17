@@ -6,7 +6,7 @@
 //
 
 #pragma once
-#include "IApplaudio_Internal.h"
+#include "IBackend.h"
 
 #ifdef _WIN32
 
@@ -23,7 +23,7 @@
 namespace applaudio
 {
   
-  class Win_Internal : public IApplaudio_Internal
+  class Win_Internal : public IBackend
   {
   public:
     Win_Internal() = default;

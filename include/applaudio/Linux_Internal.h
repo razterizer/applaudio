@@ -6,7 +6,7 @@
 //
 
 #pragma once
-#include "IApplaudio_Internal.h" // defines IMyLib_internal
+#include "IBackend.h" // defines IMyLib_internal
 
 #ifdef __linux__
 
@@ -18,7 +18,7 @@
 namespace applaudio
 {
   
-  class Linux_Internal : public IApplaudio_Internal
+  class Linux_Internal : public IBackend
   {
   public:
     Linux_Internal() = default;

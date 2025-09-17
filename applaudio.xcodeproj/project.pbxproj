@@ -31,7 +31,7 @@
 		07BDBBA42E77401F002ACC96 /* Win_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Win_Internal.h; sourceTree = "<group>"; };
 		07BDBBA52E77406A002ACC96 /* Linux_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Linux_Internal.h; sourceTree = "<group>"; };
 		07BDBBA62E774073002ACC96 /* MacOS_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacOS_Internal.h; sourceTree = "<group>"; };
-		07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IApplaudio_Internal.h; sourceTree = "<group>"; };
+		07BDBBA72E774105002ACC96 /* IBackend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IBackend.h; sourceTree = "<group>"; };
 		07BDBBAC2E7743B7002ACC96 /* Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Test; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BDBBB32E77444B002ACC96 /* AudioEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioEngine.h; sourceTree = "<group>"; };
 		07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -99,7 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				07BDBBB32E77444B002ACC96 /* AudioEngine.h */,
-				07BDBBA72E774105002ACC96 /* IApplaudio_Internal.h */,
+				07BDBBA72E774105002ACC96 /* IBackend.h */,
 				07BDBBA62E774073002ACC96 /* MacOS_Internal.h */,
 				07BDBBA52E77406A002ACC96 /* Linux_Internal.h */,
 				07BDBBA42E77401F002ACC96 /* Win_Internal.h */,

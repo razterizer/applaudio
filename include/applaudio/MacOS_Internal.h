@@ -6,7 +6,7 @@
 //
 
 #pragma once
-#include "IApplaudio_Internal.h"
+#include "IBackend.h"
 
 #ifdef __APPLE__
 
@@ -19,7 +19,7 @@
 namespace applaudio
 {
   
-  class MacOS_Internal : public IApplaudio_Internal
+  class MacOS_Internal : public IBackend
   {
     AudioComponentInstance audio_unit = nullptr;
     int sample_rate = 44100;

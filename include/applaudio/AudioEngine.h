@@ -45,7 +45,7 @@ namespace applaudio
 
   class AudioEngine
   {
-    std::unique_ptr<IApplaudio_Internal> m_backend;
+    std::unique_ptr<IBackend> m_backend;
     
     int m_frame_count = 0;
     int m_output_channels = 0;

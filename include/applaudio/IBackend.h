@@ -1,5 +1,5 @@
 //
-//  IApplaudio_Internal.h
+//  IBackend.h
 //  applaudio
 //
 //  Created by Rasmus Anthin on 2025-09-14.
@@ -11,9 +11,9 @@
 namespace applaudio
 {
   
-  struct IApplaudio_Internal
+  struct IBackend
   {
-    virtual ~IApplaudio_Internal() {}
+    virtual ~IBackend() {}
     virtual bool startup(int sample_rate, int channels) = 0;
     virtual void shutdown() = 0;
     virtual bool write_samples(const short* data, size_t frames) = 0;
