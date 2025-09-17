@@ -1,5 +1,5 @@
 //
-//  MacOS_Internal.h
+//  Backend_MacOS_CoreAudio.h
 //  applaudio
 //
 //  Created by Rasmus Anthin on 2025-09-14.
@@ -19,7 +19,7 @@
 namespace applaudio
 {
   
-  class MacOS_Internal : public IBackend
+  class Backend_MacOS_CoreAudio : public IBackend
   {
     AudioComponentInstance audio_unit = nullptr;
     int sample_rate = 44100;
@@ -39,13 +39,13 @@ namespace applaudio
                               UInt32 num_frames,
                               AudioBufferList* io_data)
     {
-      return reinterpret_cast<MacOS_Internal*>(user)
+      return reinterpret_cast<Backend_MacOS_CoreAudio*>(user)
         ->render(flags, ts, bus, num_frames, io_data);
     }
     
   public:
-    MacOS_Internal() = default;
-    virtual ~MacOS_Internal() override { shutdown(); }
+    Backend_MacOS_CoreAudio() = default;
+    virtual ~Backend_MacOS_CoreAudio() override { shutdown(); }
     
     virtual bool startup(int sr, int ch) override
     {

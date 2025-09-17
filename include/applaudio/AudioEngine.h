@@ -6,9 +6,9 @@
 //
 
 #pragma once
-#include "MacOS_Internal.h"
-#include "Linux_Internal.h"
-#include "Win_Internal.h"
+#include "Backend_MacOS_CoreAudio.h"
+#include "Backend_Linux_ALSA.h"
+#include "Backend_Windows_WASAPI.h"
 #include <memory>
 #include <iostream>
 #include <thread>
@@ -79,11 +79,11 @@ namespace applaudio
     AudioEngine()
     {
 #if defined(_WIN32)
-      m_backend = std::make_unique<Win_Internal>();
+      m_backend = std::make_unique<Backend_Windows_WASAPI>();
 #elif defined(__APPLE__)
-      m_backend = std::make_unique<MacOS_Internal>();
+      m_backend = std::make_unique<Backend_MacOS_CoreAudio>();
 #elif defined(__linux__)
-      m_backend = std::make_unique<Linux_Internal>();
+      m_backend = std::make_unique<Backend_Linux_ALSA>();
 #endif
     }
     

@@ -1,5 +1,5 @@
 //
-//  Linux_Internal.h
+//  Backend_Linux_ALSA.h
 //  applaudio
 //
 //  Created by Rasmus Anthin on 2025-09-14.
@@ -18,11 +18,11 @@
 namespace applaudio
 {
   
-  class Linux_Internal : public IBackend
+  class Backend_Linux_ALSA : public IBackend
   {
   public:
-    Linux_Internal() = default;
-    virtual ~Linux_Internal() override { shutdown(); }
+    Backend_Linux_ALSA() = default;
+    virtual ~Backend_Linux_ALSA() override { shutdown(); }
     
     virtual bool startup(int sample_rate, int channels) override
     {

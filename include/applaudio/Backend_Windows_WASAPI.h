@@ -1,5 +1,5 @@
 //
-//  Win_Internal.h
+//  Backend_Windows_WASAPI.h
 //  applaudio
 //
 //  Created by Rasmus Anthin on 2025-09-14.
@@ -23,11 +23,11 @@
 namespace applaudio
 {
   
-  class Win_Internal : public IBackend
+  class Backend_Windows_WASAPI : public IBackend
   {
   public:
-    Win_Internal() = default;
-    virtual ~Win_Internal() override { shutdown(); }
+    Backend_Windows_WASAPI() = default;
+    virtual ~Backend_Windows_WASAPI() override { shutdown(); }
     
     virtual bool startup(int sample_rate, int channels) override
     {
@@ -116,7 +116,7 @@ namespace applaudio
       }
       
       m_running = true;
-      m_render_thread = std::thread(&Win_Internal::render_loop, this);
+      m_render_thread = std::thread(&Backend_Windows_WASAPI::render_loop, this);
       
       return true;
     }
