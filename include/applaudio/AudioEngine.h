@@ -6,9 +6,11 @@
 //
 
 #pragma once
+#include "Backend_NoAudio.h"
 #include "Backend_MacOS_CoreAudio.h"
 #include "Backend_Linux_ALSA.h"
 #include "Backend_Windows_WASAPI.h"
+#include <Core/System.h>
 #include <memory>
 #include <iostream>
 #include <thread>
@@ -84,7 +86,14 @@ namespace applaudio
 #elif defined(__APPLE__)
       m_backend = std::make_unique<Backend_MacOS_CoreAudio>();
 #elif defined(__linux__)
-      m_backend = std::make_unique<Backend_Linux_ALSA>();
+      if (sys::is_wsl())
+      {
+        std::cout << "WARNING: No audio support for Ubuntu WSL!\n";
+        std::cout << "  Reverting to Backend_NoAudio.\n";
+        m_backend = std::make_unique<Backend_NoAudio>();
+      }
+      else
+        m_backend = std::make_unique<Backend_Linux_ALSA>();
 #endif
     }
     

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		07980B5E2E7BEAB3007A0EB4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		07BDBBAA2E7743B7002ACC96 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -19,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Backend_NoAudio.h; sourceTree = "<group>"; };
 		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		0799EFCC2E7831F900BAE112 /* applaudioConfig.cmake.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = applaudioConfig.cmake.in; sourceTree = "<group>"; };
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07980B5E2E7BEAB3007A0EB4 /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +101,7 @@
 			children = (
 				07BDBBB32E77444B002ACC96 /* AudioEngine.h */,
 				07BDBBA72E774105002ACC96 /* IBackend.h */,
+				07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */,
 				07BDBBA62E774073002ACC96 /* Backend_MacOS_CoreAudio.h */,
 				07BDBBA52E77406A002ACC96 /* Backend_Linux_ALSA.h */,
 				07BDBBA42E77401F002ACC96 /* Backend_Windows_WASAPI.h */,
@@ -274,7 +281,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../include;
+				HEADER_SEARCH_PATHS = "\"../include ../../Core/include\"";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -331,7 +338,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../include;
+				HEADER_SEARCH_PATHS = "\"../include ../../Core/include\"";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -348,7 +355,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					../include,
-					../../lib/Core/include,
+					../../Core/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -363,7 +370,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					../include,
-					../../lib/Core/include,
+					../../Core/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -379,7 +386,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
 					include,
-					../lib/Core/include,
+					../Core/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -396,7 +403,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
 					include,
-					../lib/Core/include,
+					../Core/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 6.0;
