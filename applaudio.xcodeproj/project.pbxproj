@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		07BDBBB62E77495D002ACC96 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		07BDBBAA2E7743B7002ACC96 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -57,7 +53,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07BDBBB62E77495D002ACC96 /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
