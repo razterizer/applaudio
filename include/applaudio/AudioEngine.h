@@ -102,7 +102,7 @@ namespace applaudio
       return m_output_channels;
     }
     
-    bool startup(int out_sample_rate, int out_num_channels = 2, bool verbose = false)
+    bool startup(int out_sample_rate = 48'000, int out_num_channels = 2, bool verbose = false)
     {
       m_output_sample_rate = out_sample_rate;
       m_output_channels = out_num_channels;
