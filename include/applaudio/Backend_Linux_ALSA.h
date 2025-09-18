@@ -87,7 +87,8 @@ namespace applaudio
     
     virtual bool write_samples(const short* data, size_t frames) override
     {
-      if (m_pcm_handle == nullptr) return;
+      if (m_pcm_handle == nullptr)
+        return false;
       
       snd_pcm_sframes_t written = snd_pcm_writei(m_pcm_handle, data, frames);
       if (written < 0)
