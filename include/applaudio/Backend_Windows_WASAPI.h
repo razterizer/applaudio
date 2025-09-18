@@ -84,7 +84,7 @@ namespace applaudio
       
       hr = m_audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                       AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                                      200'000, // 20ms buffer
+                                      0, //200'000, // 20ms buffer
                                       0,
                                       &wf,
                                       nullptr);
