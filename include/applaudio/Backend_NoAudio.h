@@ -11,7 +11,7 @@
 namespace applaudio
 {
 
-  class Backend_NoAudio : IBackend
+  class Backend_NoAudio : public IBackend
   {
     virtual bool startup(int /*sample_rate*/, int /*channels*/) override { return true; };
     virtual void shutdown() override {};
