@@ -11,9 +11,12 @@
 #ifdef __linux__
 
 #include <alsa/asoundlib.h>
-#include <stdexcept>
-#include <string>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <vector>
 #include <iostream>
+#include <cstring>
 
 namespace applaudio
 {
@@ -73,11 +76,21 @@ namespace applaudio
         return false;
       }
       
+      m_ring_buffer.resize(sample_rate * channels * 2); // 2s buffer
+      std::fill(m_ring_buffer.begin(), m_ring_buffer.end(), 0);
+      
+      m_running = true;
+      m_render_thread = std::thread(&Linux_Internal::render_loop, this);
+      
       return true;
     }
     
     virtual void shutdown() override
     {
+      m_running = false;
+      if (m_render_thread.joinable())
+        m_render_thread.join();
+      
       if (m_pcm_handle != nullptr)
       {
         snd_pcm_close(m_pcm_handle);
@@ -89,14 +102,15 @@ namespace applaudio
     {
       if (m_pcm_handle == nullptr)
         return false;
-      
-      snd_pcm_sframes_t written = snd_pcm_writei(m_pcm_handle, data, frames);
-      if (written < 0)
-        written = snd_pcm_recover(m_pcm_handle, written, 1);
-      if (written < 0)
+    
+      std::lock_guard<std::mutex> lock(m_buffer_mutex);
+      size_t samples = frames * m_channels;
+      for (size_t i = 0; i < samples; ++i)
       {
-        std::cerr << "ALSA: write error: " << snd_strerror((int)written) << std::endl;
-        return false;
+        m_ring_buffer[m_write_pos] = data[i];
+        m_write_pos = (m_write_pos + 1) % m_ring_buffer.size();
+        if (m_write_pos == m_read_pos)
+          m_read_pos = (m_read_pos + 1) % m_ring_buffer.size(); // prevent overwrite
       }
       return true;
     }
@@ -117,13 +131,52 @@ namespace applaudio
     virtual std::string backend_name() const override { return "Linux : ALSA"; }
     
   private:
+    void render_loop()
+    {
+      const size_t frame_chunk = 512;
+      std::vector<short> temp_buffer(frame_chunk * m_channels);
+      
+      while (m_running)
+      {
+        {
+          std::lock_guard<std::mutex> lock(m_buffer_mutex);
+          for (size_t i = 0; i < temp_buffer.size(); ++i)
+          {
+            if (m_read_pos != m_write_pos)
+            {
+              temp_buffer[i] = m_ring_buffer[m_read_pos];
+              m_read_pos = (m_read_pos + 1) % m_ring_buffer.size();
+            }
+            else
+              temp_buffer[i] = 0; // underrun
+          }
+        }
+        
+        snd_pcm_sframes_t written = snd_pcm_writei(m_pcm_handle, temp_buffer.data(), frame_chunk);
+        if (written < 0)
+          written = snd_pcm_recover(m_pcm_handle, written, 1);
+        if (written < 0)
+          std::cerr << "ALSA: write error: " << snd_strerror((int)written) << std::endl;
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // pacing
+      }
+    }
+    
     snd_pcm_t* m_pcm_handle = nullptr;
     snd_pcm_hw_params_t* m_hw_params = nullptr;
     int m_sample_rate = 0;
     int m_channels = 0;
+    
+    std::vector<short> m_ring_buffer;
+    size_t m_read_pos = 0;
+    size_t m_write_pos = 0;
+    std::mutex m_buffer_mutex;
+    
+    std::atomic<bool> m_running{false};
+    std::thread m_render_thread;
   };
   
   
 }
 
-#endif // __linux__
+#endif
