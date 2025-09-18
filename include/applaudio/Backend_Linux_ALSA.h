@@ -80,7 +80,7 @@ namespace applaudio
       std::fill(m_ring_buffer.begin(), m_ring_buffer.end(), 0);
       
       m_running = true;
-      m_render_thread = std::thread(&Linux_Internal::render_loop, this);
+      m_render_thread = std::thread(&Backend_Linux_ALSA::render_loop, this);
       
       return true;
     }
