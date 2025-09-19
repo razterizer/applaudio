@@ -30,20 +30,29 @@ int main(int argc, const char* argv[])
   const double buf_duration = 2.0;    // 2 seconds
   const int buf_Fs = 25'000;
   const int buf_channels = 1;
+#ifdef APL_32
+  const auto buf_scale = 1.f;
+#else
+  const auto buf_scale = 30'000;
+#endif
   size_t frame_count = static_cast<size_t>(buf_duration * buf_Fs);
   size_t cycles = static_cast<size_t>(buf_frequency * buf_duration);
   frame_count = static_cast<size_t>(cycles * buf_Fs / buf_frequency); // adjust to full cycles
 
-  std::vector<short> pcm_data(frame_count * buf_channels);
+  std::vector<APL_SAMPLE_TYPE> pcm_data(frame_count * buf_channels);
   for (size_t i = 0; i < frame_count; ++i)
   {
-    short sample = static_cast<short>(std::sin(2.0 * M_PI * buf_frequency * i / buf_Fs) * 30'000);
+    auto sample = static_cast<APL_SAMPLE_TYPE>(std::sin(2.0 * M_PI * buf_frequency * i / buf_Fs) * buf_scale);
     for (int c = 0; c < buf_channels; ++c)
       pcm_data[i * buf_channels + c] = sample; // same sample for all channels
   }
 
   unsigned int buf_id = engine.create_buffer();
-  engine.set_buffer_data(buf_id, pcm_data, buf_channels, buf_Fs);
+#ifdef APL_32
+  engine.set_buffer_data_32f(buf_id, pcm_data, buf_channels, buf_Fs);
+#else
+  engine.set_buffer_data_16s(buf_id, pcm_data, buf_channels, buf_Fs);
+#endif
 
   // --- 3. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();

@@ -19,6 +19,7 @@
 #include <mutex>
 #include <atomic>
 #include <cstring>
+#include <stddef.h> // For sizeof
 
 namespace applaudio
 {
@@ -67,10 +68,16 @@ namespace applaudio
       }
       
       WAVEFORMATEX wf = {0};
-      wf.wFormatTag = WAVE_FORMAT_PCM;
       wf.nChannels = (WORD)m_channels;
       wf.nSamplesPerSec = m_sample_rate;
-      wf.wBitsPerSample = 16;
+      wf.wBitsPerSample = 8 * sizeof(APL_SAMPLE_TYPE);
+#ifdef APL_32
+      // Request 32-bit Float format
+      wf.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;  // ← CRITICAL: Request float, not PCM
+#else
+      // Request 16-bit Integer format
+      wf.wFormatTag = WAVE_FORMAT_PCM;
+#endif
       wf.nBlockAlign = wf.nChannels * wf.wBitsPerSample / 8;
       wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
       wf.cbSize = 0;
@@ -82,9 +89,14 @@ namespace applaudio
         return false;
       }
       
+#ifdef APL_32
+      REFERENCE_TIME buffer_duration = 20 * 10000; // 20ms in 100-nanosecond units
+#else // 16bit
+      REFERENCE_TIME buffer_duration = 0 * 10000; // 20ms in 100-nanosecond units
+#endif
       hr = m_audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                       AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                                      0, //200'000, // 20ms buffer
+                                      buffer_duration, //200'000, // 20ms buffer
                                       0,
                                       &wf,
                                       nullptr);
@@ -157,7 +169,7 @@ namespace applaudio
       CoUninitialize();
     }
     
-    virtual bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const APL_SAMPLE_TYPE* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(m_buffer_mutex);
       size_t samples = frames * m_channels;
@@ -209,7 +221,7 @@ namespace applaudio
           continue;
         
         std::lock_guard<std::mutex> lock(m_buffer_mutex);
-        short* out = reinterpret_cast<short*>(pData);
+        APL_SAMPLE_TYPE* out = reinterpret_cast<APL_SAMPLE_TYPE*>(pData);
         for (UINT32 s = 0; s < available * m_channels; ++s)
         {
           if (m_read_pos != m_write_pos) {
@@ -218,7 +230,7 @@ namespace applaudio
           }
           else
           {
-            out[s] = 0; // underrun
+            out[s] = static_cast<APL_SAMPLE_TYPE>(0); // underrun
           }
         }
         
@@ -234,7 +246,7 @@ namespace applaudio
     int m_sample_rate = 0;
     int m_channels = 0;
     
-    std::vector<short> m_ring_buffer;
+    std::vector<APL_SAMPLE_TYPE> m_ring_buffer;
     size_t m_read_pos = 0;
     size_t m_write_pos = 0;
     std::mutex m_buffer_mutex;

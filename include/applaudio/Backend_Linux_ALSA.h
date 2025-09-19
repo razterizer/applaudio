@@ -57,8 +57,13 @@ namespace applaudio
         return false;
       }
       
-      // Set sample format
-      if ((err = snd_pcm_hw_params_set_format(m_pcm_handle, hw_params, SND_PCM_FORMAT_S16_LE)) < 0)
+      // Set sample format based on APL_SAMPLE_TYPE
+#ifdef APL_32
+      snd_pcm_format_t format = SND_PCM_FORMAT_FLOAT_LE; // 32-bit float
+#else
+      snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;   // 16-bit integer
+#endif
+      if ((err = snd_pcm_hw_params_set_format(m_pcm_handle, hw_params, format)) < 0)
       {
         std::cerr << "ALSA: cannot set sample format: " << snd_strerror(err) << std::endl;
         return false;
@@ -133,7 +138,7 @@ namespace applaudio
       }
     }
     
-    virtual bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const APL_SAMPLE_TYPE* data, size_t frames) override
     {
       if (m_pcm_handle == nullptr)
         return false;
@@ -180,7 +185,7 @@ namespace applaudio
     void render_loop()
     {
       const size_t frames_per_chunk = 512;
-      std::vector<short> temp_buffer(frames_per_chunk * m_channels);
+      std::vector<APL_SAMPLE_TYPE> temp_buffer(frames_per_chunk * m_channels);
       
       while (m_running)
       {
@@ -208,7 +213,7 @@ namespace applaudio
             else
             {
               // Buffer underrun - fill with silence
-              temp_buffer[i] = 0;
+              temp_buffer[i] = static_cast<APL_SAMPLE_TYPE>(0);
             }
           }
         }
@@ -233,7 +238,7 @@ namespace applaudio
     int m_sample_rate = 0;
     int m_channels = 0;
     
-    std::vector<short> m_ring_buffer;
+    std::vector<APL_SAMPLE_TYPE> m_ring_buffer;
     size_t m_read_pos = 0;
     size_t m_write_pos = 0;
     std::mutex m_buffer_mutex;

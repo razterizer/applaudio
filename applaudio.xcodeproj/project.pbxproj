@@ -24,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Backend_NoAudio.h; sourceTree = "<group>"; };
+		07980B632E7D36A1007A0EB4 /* defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		0799EFCC2E7831F900BAE112 /* applaudioConfig.cmake.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = applaudioConfig.cmake.in; sourceTree = "<group>"; };
 		07BDBB972E773DAF002ACC96 /* libapplaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapplaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +100,7 @@
 		07BDBBA32E774016002ACC96 /* applaudio */ = {
 			isa = PBXGroup;
 			children = (
+				07980B632E7D36A1007A0EB4 /* defines.h */,
 				07BDBBB32E77444B002ACC96 /* AudioEngine.h */,
 				07BDBBA72E774105002ACC96 /* IBackend.h */,
 				07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */,

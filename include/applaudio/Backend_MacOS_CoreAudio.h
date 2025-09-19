@@ -25,7 +25,7 @@ namespace applaudio
     int sample_rate = 44100;
     int channels = 2;
     
-    std::vector<short> ring_buffer;
+    std::vector<APL_SAMPLE_TYPE> ring_buffer;
     size_t read_pos = 0;
     size_t write_pos = 0;
     std::mutex buffer_mutex;
@@ -72,12 +72,21 @@ namespace applaudio
       // Set up the audio format FIRST
       audio_format.mSampleRate = sample_rate;
       audio_format.mFormatID = kAudioFormatLinearPCM;
+      
+      // Configure format based on APL_SAMPLE_TYPE
+#ifdef APL_32
+      // Configure for 32-bit Float
+      audio_format.mFormatFlags = kAudioFormatFlagIsFloat | kAudioFormatFlagIsPacked;
+#else
+      // Configure for 16-bit Integer
       audio_format.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+#endif
+      
       audio_format.mFramesPerPacket = 1;
       audio_format.mChannelsPerFrame = channels;
-      audio_format.mBytesPerFrame = sizeof(short) * channels;
-      audio_format.mBytesPerPacket = sizeof(short) * channels;
-      audio_format.mBitsPerChannel = 16;
+      audio_format.mBytesPerFrame = sizeof(APL_SAMPLE_TYPE) * channels;
+      audio_format.mBytesPerPacket = sizeof(APL_SAMPLE_TYPE) * channels;
+      audio_format.mBitsPerChannel = 8 * sizeof(APL_SAMPLE_TYPE);
       
       // Set the format on the audio unit
       if (AudioUnitSetProperty(audio_unit,
@@ -118,7 +127,7 @@ namespace applaudio
       }
     }
     
-    virtual bool write_samples(const short* data, size_t frames) override
+    virtual bool write_samples(const APL_SAMPLE_TYPE* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
       size_t samples_to_write = frames * channels;
@@ -178,8 +187,8 @@ namespace applaudio
       
       for (UInt32 buf = 0; buf < io_data->mNumberBuffers; buf++)
       {
-        short* out = reinterpret_cast<short*>(io_data->mBuffers[buf].mData);
-        size_t out_samples = io_data->mBuffers[buf].mDataByteSize / sizeof(short);
+        APL_SAMPLE_TYPE* out = reinterpret_cast<APL_SAMPLE_TYPE*>(io_data->mBuffers[buf].mData);
+        size_t out_samples = io_data->mBuffers[buf].mDataByteSize / sizeof(APL_SAMPLE_TYPE);
         
         // Fill the buffer
         for (size_t i = 0; i < out_samples; i++)
@@ -192,7 +201,7 @@ namespace applaudio
           else
           {
             // Underrun - fill with silence
-            out[i] = 0;
+            out[i] = static_cast<APL_SAMPLE_TYPE>(0);
           }
         }
       }
