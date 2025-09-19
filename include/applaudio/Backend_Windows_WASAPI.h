@@ -90,9 +90,9 @@ namespace applaudio
       }
       
 #ifdef APL_32
-      REFERENCE_TIME buffer_duration = 20 * 10000; // 20ms in 100-nanosecond units
+      REFERENCE_TIME buffer_duration = 0; //20 * 10000; // 20ms in 100-nanosecond units
 #else // 16bit
-      REFERENCE_TIME buffer_duration = 0 * 10000; // 20ms in 100-nanosecond units
+      REFERENCE_TIME buffer_duration = 0; //20 * 10000; // 20ms in 100-nanosecond units
 #endif
       hr = m_audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                       AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
