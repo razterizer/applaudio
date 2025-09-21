@@ -130,22 +130,27 @@ namespace applaudio
     }
     
   public:
-    AudioEngine()
+    AudioEngine(bool enable_audio = true)
     {
-#if defined(_WIN32)
-      m_backend = std::make_unique<Backend_Windows_WASAPI>();
-#elif defined(__APPLE__)
-      m_backend = std::make_unique<Backend_MacOS_CoreAudio>();
-#elif defined(__linux__)
-      if (sys::is_wsl())
-      {
-        std::cout << "WARNING: No audio support for Ubuntu WSL!\n";
-        std::cout << "  Reverting to Backend_NoAudio.\n";
+      if (!enable_audio)
         m_backend = std::make_unique<Backend_NoAudio>();
-      }
       else
-        m_backend = std::make_unique<Backend_Linux_ALSA>();
+      {
+#if defined(_WIN32)
+        m_backend = std::make_unique<Backend_Windows_WASAPI>();
+#elif defined(__APPLE__)
+        m_backend = std::make_unique<Backend_MacOS_CoreAudio>();
+#elif defined(__linux__)
+        if (sys::is_wsl())
+        {
+          std::cout << "WARNING: No audio support for Ubuntu WSL!\n";
+          std::cout << "  Reverting to Backend_NoAudio.\n";
+          m_backend = std::make_unique<Backend_NoAudio>();
+        }
+        else
+          m_backend = std::make_unique<Backend_Linux_ALSA>();
 #endif
+      }
     }
     
     int num_output_channels()
