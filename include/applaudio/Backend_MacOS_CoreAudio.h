@@ -22,8 +22,9 @@ namespace applaudio
   class Backend_MacOS_CoreAudio : public IBackend
   {
     AudioComponentInstance audio_unit = nullptr;
-    int sample_rate = 44100;
-    int channels = 2;
+    int m_sample_rate = 44100;
+    int m_channels = 2;
+    int m_bits = 32;
     
     std::vector<APL_SAMPLE_TYPE> ring_buffer;
     size_t read_pos = 0;
@@ -47,11 +48,11 @@ namespace applaudio
     Backend_MacOS_CoreAudio() = default;
     virtual ~Backend_MacOS_CoreAudio() override { shutdown(); }
     
-    virtual bool startup(int sr, int ch) override
+    virtual bool startup(int request_sample_rate, int request_channels, bool /*request_exclusive_mode_if_supported*/, bool /*verbose*/) override
     {
-      sample_rate = sr;
-      channels = ch;
-      ring_buffer.resize(sr * ch * 2); // 2s buffer for safety
+      m_sample_rate = request_sample_rate;
+      m_channels = request_channels;
+      ring_buffer.resize(m_sample_rate * m_channels * 2); // 2s buffer for safety
       
       AudioComponentDescription desc = {0};
       desc.componentType = kAudioUnitType_Output;
@@ -70,7 +71,7 @@ namespace applaudio
       }
       
       // Set up the audio format FIRST
-      audio_format.mSampleRate = sample_rate;
+      audio_format.mSampleRate = m_sample_rate;
       audio_format.mFormatID = kAudioFormatLinearPCM;
       
       // Configure format based on APL_SAMPLE_TYPE
@@ -83,10 +84,11 @@ namespace applaudio
 #endif
       
       audio_format.mFramesPerPacket = 1;
-      audio_format.mChannelsPerFrame = channels;
-      audio_format.mBytesPerFrame = sizeof(APL_SAMPLE_TYPE) * channels;
-      audio_format.mBytesPerPacket = sizeof(APL_SAMPLE_TYPE) * channels;
+      audio_format.mChannelsPerFrame = m_channels;
+      audio_format.mBytesPerFrame = sizeof(APL_SAMPLE_TYPE) * m_channels;
+      audio_format.mBytesPerPacket = sizeof(APL_SAMPLE_TYPE) * m_channels;
       audio_format.mBitsPerChannel = 8 * sizeof(APL_SAMPLE_TYPE);
+      m_bits = audio_format.mBitsPerChannel;
       
       // Set the format on the audio unit
       if (AudioUnitSetProperty(audio_unit,
@@ -130,7 +132,7 @@ namespace applaudio
     virtual bool write_samples(const APL_SAMPLE_TYPE* data, size_t frames) override
     {
       std::lock_guard<std::mutex> lock(buffer_mutex);
-      size_t samples_to_write = frames * channels;
+      size_t samples_to_write = frames * m_channels;
       
       for (size_t i = 0; i < samples_to_write; i++)
       {
@@ -144,7 +146,10 @@ namespace applaudio
       return true;
     }
     
-    virtual int get_sample_rate() const override { return sample_rate; }
+    virtual int get_sample_rate() const override { return m_sample_rate; }
+
+    virtual int get_num_channels() const { return m_channels; }
+    virtual int get_bit_format() const override { return m_bits; }
     
     virtual int get_buffer_size_frames() const override
     {
@@ -183,7 +188,7 @@ namespace applaudio
       std::lock_guard<std::mutex> lock(buffer_mutex);
       
       // Calculate how many samples we need
-      //size_t samples_needed = num_frames * channels;
+      //size_t samples_needed = num_frames * m_channels;
       
       for (UInt32 buf = 0; buf < io_data->mNumberBuffers; buf++)
       {

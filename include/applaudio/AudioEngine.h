@@ -51,6 +51,7 @@ namespace applaudio
     int m_frame_count = 0;
     int m_output_channels = 0;
     int m_output_sample_rate = 0;
+    int m_bits = 32;
     
     std::unordered_map<unsigned int, Source> m_sources;
     std::unordered_map<unsigned int, Buffer> m_buffers;
@@ -152,22 +153,51 @@ namespace applaudio
 #endif
       }
     }
+
+    AudioEngine(const AudioEngine&) = delete;
+    AudioEngine& operator=(const AudioEngine&) = delete;
+    AudioEngine(AudioEngine&&) = delete;
+    AudioEngine& operator=(AudioEngine&&) = delete;
+
+    int output_sample_rate() const
+    {
+      return m_output_sample_rate;
+    }
     
-    int num_output_channels()
+    int num_output_channels() const
     {
       return m_output_channels;
     }
-    
-    bool startup(int out_sample_rate = 48'000, int out_num_channels = 2, bool verbose = false)
+
+    int num_bits_per_sample() const
     {
-      m_output_sample_rate = out_sample_rate;
-      m_output_channels = out_num_channels;
-      
-      if (m_backend == nullptr || !m_backend->startup(m_output_sample_rate, m_output_channels))
+      return m_bits;
+    }
+
+    
+    bool startup(int request_out_sample_rate = 48'000, 
+                 int request_out_num_channels = 2, 
+                 bool request_exclusive_mode_if_supported = false, 
+                 bool verbose = false)
+    {
+      m_output_sample_rate = request_out_sample_rate;
+      m_output_channels = request_out_num_channels;
+
+      if (!m_backend)
       {
-        std::cerr << "AudioEngine: Failed to initialize device\n";
+        std::cerr << "AudioEngine: Failed to assign backend!\n";
         return false;
       }
+      
+      if (!m_backend->startup(m_output_sample_rate, m_output_channels, request_exclusive_mode_if_supported, verbose))
+      {
+        std::cerr << "AudioEngine: Failed to initialize backend!\n";
+        return false;
+      }
+
+      m_output_sample_rate = m_backend->get_sample_rate();
+      m_output_channels = m_backend->get_num_channels();
+      m_bits = m_backend->get_bit_format();
       
       // Query the backend for its preferred frame count
       m_frame_count = m_backend->get_buffer_size_frames();
@@ -486,7 +516,7 @@ namespace applaudio
       if (m_backend != nullptr)
         std::cout << m_backend->backend_name() << std::endl;
       else
-        std::cout << "Unknown device" << std::endl;
+        std::cout << "Unknown backend!" << std::endl;
     }
     
   };

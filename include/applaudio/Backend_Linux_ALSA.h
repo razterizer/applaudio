@@ -28,7 +28,7 @@ namespace applaudio
     Backend_Linux_ALSA() = default;
     virtual ~Backend_Linux_ALSA() override { shutdown(); }
     
-    virtual bool startup(int sample_rate, int channels) override
+    virtual bool startup(int request_sample_rate, int request_channels, bool request_exclusive_mode_if_supported, bool verbose) override
     {
       int err = 0;
       
@@ -70,14 +70,14 @@ namespace applaudio
       }
       
       // Set channels
-      if ((err = snd_pcm_hw_params_set_channels(m_pcm_handle, hw_params, channels)) < 0)
+      if ((err = snd_pcm_hw_params_set_channels(m_pcm_handle, hw_params, request_channels)) < 0)
       {
         std::cerr << "ALSA: cannot set channels: " << snd_strerror(err) << std::endl;
         return false;
       }
       
       // Set sample rate
-      unsigned int rate = sample_rate;
+      unsigned int rate = request_sample_rate;
       if ((err = snd_pcm_hw_params_set_rate_near(m_pcm_handle, hw_params, &rate, 0)) < 0)
       {
         std::cerr << "ALSA: cannot set sample rate: " << snd_strerror(err) << std::endl;
@@ -102,7 +102,8 @@ namespace applaudio
       }
       
       m_sample_rate = rate;
-      m_channels = channels;
+      m_channels = request_channels;
+      m_bits = snd_pcm_format_physical_width(format);
       
       // Prepare PCM
       if ((err = snd_pcm_prepare(m_pcm_handle)) < 0)
@@ -169,6 +170,9 @@ namespace applaudio
     }
     
     virtual int get_sample_rate() const override { return m_sample_rate; }
+
+    virtual int get_num_channels() const { return m_channels; }
+    virtual int get_bit_format() const override { return m_bits; }
     
     virtual int get_buffer_size_frames() const override
     {
@@ -237,6 +241,7 @@ namespace applaudio
     snd_pcm_t* m_pcm_handle = nullptr;
     int m_sample_rate = 0;
     int m_channels = 0;
+    int m_bits = 32;
     
     std::vector<APL_SAMPLE_TYPE> m_ring_buffer;
     size_t m_read_pos = 0;
