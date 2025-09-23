@@ -148,7 +148,7 @@ namespace applaudio
     
     virtual int get_sample_rate() const override { return m_sample_rate; }
 
-    virtual int get_num_channels() const { return m_channels; }
+    virtual int get_num_channels() const override { return m_channels; }
     virtual int get_bit_format() const override { return m_bits; }
     
     virtual int get_buffer_size_frames() const override
