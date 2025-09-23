@@ -113,7 +113,7 @@ namespace applaudio
       }
       
       // Initialize ring buffer (4 seconds)
-      size_t buffer_samples = sample_rate * channels * 4;
+      size_t buffer_samples = m_sample_rate * m_channels * 4;
       m_ring_buffer.resize(buffer_samples);
       std::fill(m_ring_buffer.begin(), m_ring_buffer.end(), 0);
       
