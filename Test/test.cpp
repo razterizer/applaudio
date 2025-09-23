@@ -18,8 +18,9 @@ int main(int argc, const char* argv[])
   // --- 1. Create and start the engine ---
   int sample_rate = 44100;
   int channels = 2;
+  bool request_exclusive_mode = false;
   bool verbose = true;
-  if (!engine.startup(sample_rate, channels, verbose))
+  if (!engine.startup(sample_rate, channels, request_exclusive_mode, verbose))
   {
     std::cerr << "Failed to start AudioEngine\n";
     return EXIT_FAILURE;
