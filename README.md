@@ -1,6 +1,10 @@
 # aupplaudio
 A simple cross-platform audio library that is not GPL-based.
 
+![GitHub License](https://img.shields.io/github/license/razterizer/applaudio?color=blue)
+![Static Badge](https://img.shields.io/badge/linkage-header_only-yellow)
+![Static Badge](https://img.shields.io/badge/C%2B%2B-20-yellow)
+
 ## Structure
 
 ```
