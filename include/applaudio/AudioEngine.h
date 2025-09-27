@@ -476,6 +476,17 @@ namespace applaudio
         it->second.playing = false;
     }
     
+    // Play the source
+    void resume_source(unsigned int src_id)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        Source& src = it->second;
+        src.playing = true;
+      }
+    }
+    
     // Stop the source
     void stop_source(unsigned int src_id)
     {
