@@ -105,6 +105,7 @@ The important part here is c++20.
 * `void play_source(unsigned int src_id)` : Starts playing a sound source. It always starts from the beginning.
 * `bool is_source_playing(unsigned int src_id) const` : Checks if a given sound source is already playing and returns true if it plays, false otherwise.
 * `void pause_source(unsigned int src_id)` : Pauses the supplied sound source. If it is already paused, then nothing happens.
+* `void resume_source(unsigned int src_id)` : Resumes the supplied sound source. An already playing source will be unaffected by the operation.
 * `void stop_source(unsigned int src_id)` : Stops the supplied sound source.
 * `void set_source_volume(unsigned int src_id, float vol)` : Sets the volume for the supplied sound source.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
