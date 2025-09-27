@@ -13,6 +13,7 @@ AudioLibSwitcher_applaudio // different repo that implements the IAudioLibSwitch
  +--- adapter implementation details in AudioLibSwitcher_applaudio code in that repo ---
    |
    +--> AudioEngine  ("front end" of this lib)
+           |
            +--> IBackend
                   |--> Backend_NoAudio
                   |--> Backend_MacOS_CoreAudio
