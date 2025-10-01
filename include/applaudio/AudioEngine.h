@@ -11,7 +11,7 @@
 #include "Backend_MacOS_CoreAudio.h"
 #include "Backend_Linux_ALSA.h"
 #include "Backend_Windows_WASAPI.h"
-#include <Core/System.h>
+#include "System.h"
 #include <memory>
 #include <iostream>
 #include <thread>
