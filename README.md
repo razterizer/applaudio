@@ -13,6 +13,7 @@ The idea with this library is to have a library that has the following propertie
 * A light-weight library that doesn't contribute much to your executable file size. Also less code to read.
 * Modern C++ (C++20) that make the code easier to read and understand.
 * Cross-platform, so that you can run it on as many farily famous platforms as possibles. Temple OS will probably never be supported, but I intend to make a backend for BSD distros / OSS in the future. Perhaps I'll even add mobile OS backends in the future too.
+* Standalone audio lib. No other dependencies except for system headers.
 
 ## Structure
 
@@ -42,21 +43,21 @@ AudioLibSwitcher_applaudio // different repo that implements the IAudioLibSwitch
 ### MacOS Compiler Flags
 
 ```sh
--std=c++20 -I<path to applaudio/include> -I<path to Core/include> -framework AudioToolbox -framework CoreAudio -framework CoreFoundation
+-std=c++20 -I<path to applaudio/include> -framework AudioToolbox -framework CoreAudio -framework CoreFoundation
 ```
 
 ### Linux Compiler Flags
 
 ```sh
 export BUILD_PKG_CONFIG_MODULES='alsa'
--std=c++20 -I<path to applaudio/include> -I<path to Core/include> $(pkg-config --cflags --libs $BUILD_PKG_CONFIG_MODULES)
+-std=c++20 -I<path to applaudio/include> $(pkg-config --cflags --libs $BUILD_PKG_CONFIG_MODULES)
 ```
 
 ### Windows vcxproj File
 
 ```xml
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>$(SolutionDir)<<Path to Core\include>>;<<Path to applaudio\include>>;$(VC_IncludePath);$(WindowsSDK_IncludePath)</ExternalIncludePath>
+    <ExternalIncludePath><<Path to applaudio\include>>;$(VC_IncludePath);$(WindowsSDK_IncludePath)</ExternalIncludePath>
   </PropertyGroup>
 ```
 
