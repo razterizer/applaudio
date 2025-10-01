@@ -142,7 +142,7 @@ namespace applaudio
 #elif defined(__APPLE__)
         m_backend = std::make_unique<Backend_MacOS_CoreAudio>();
 #elif defined(__linux__)
-        if (sys::is_wsl())
+        if (apl_sys::is_wsl())
         {
           std::cout << "WARNING: No audio support for Ubuntu WSL!\n";
           std::cout << "  Reverting to Backend_NoAudio.\n";

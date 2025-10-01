@@ -9,7 +9,7 @@
 #include <string>
 
 
-namespace str
+namespace apl_str
 {
 
   // char or wchar_t

@@ -9,7 +9,7 @@
 #include "StringUtils.h"
 #include <fstream>
 
-namespace sys
+namespace apl_sys
 {
 
   bool is_wsl()
@@ -24,7 +24,7 @@ namespace sys
     std::string version;
     if (version_file && std::getline(version_file, version))
     {
-      auto version_lower = str::to_lower(version);
+      auto version_lower = apl_str::to_lower(version);
       //std::cout << version << std::endl;
       wsl_flag = version_lower.find("microsoft") != std::string::npos
               || version_lower.find("wsl") != std::string::npos;
