@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: |
           cd Test
-          ./build_ubuntu.sh
+          ./build_linux.sh
         continue-on-error: false # Ensure errors are not bypassed
 
   generate-loc-badge:
