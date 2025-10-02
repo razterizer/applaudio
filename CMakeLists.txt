@@ -2,6 +2,8 @@
 #  CMakeLists.txt
 #  applaudio
 #
+#  Disclaimer: AI-generated script. Not tested at all.
+#
 #  Created by Rasmus Anthin on 2025-09-15.
 #
 

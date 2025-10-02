@@ -1,5 +1,7 @@
 @PACKAGE_INIT@
 
+#  Disclaimer: AI-generated script. Not tested at all.
+
 include(CMakeFindDependencyMacro)
 
 # Handle platform-specific dependencies
