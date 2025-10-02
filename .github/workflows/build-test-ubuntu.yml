@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: |
           cd Test
-          ./build_linux.sh
+          ./setup_and_build_debian.sh
         continue-on-error: false # Ensure errors are not bypassed
 
   generate-loc-badge:
