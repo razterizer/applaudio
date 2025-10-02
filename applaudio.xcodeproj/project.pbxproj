@@ -25,6 +25,8 @@
 /* Begin PBXFileReference section */
 		0756EB1E2E8D8D1F00B0E6FE /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
 		0756EB1F2E8D8E7E00B0E6FE /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
+		0756EB222E8E53A100B0E6FE /* build-test-macos.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "build-test-macos.yml"; sourceTree = "<group>"; };
+		0756EB232E8E53A100B0E6FE /* build-test-ubuntu.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "build-test-ubuntu.yml"; sourceTree = "<group>"; };
 		07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Backend_NoAudio.h; sourceTree = "<group>"; };
 		07980B632E7D36A1007A0EB4 /* defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -68,6 +70,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0756EB242E8E53A100B0E6FE /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				0756EB222E8E53A100B0E6FE /* build-test-macos.yml */,
+				0756EB232E8E53A100B0E6FE /* build-test-ubuntu.yml */,
+			);
+			name = workflows;
+			path = .github/workflows;
+			sourceTree = "<group>";
+		};
 		0799EFCD2E7831F900BAE112 /* cmake */ = {
 			isa = PBXGroup;
 			children = (
@@ -81,10 +93,11 @@
 			children = (
 				07BDBB9F2E773FB8002ACC96 /* LICENSE */,
 				07BDBBA02E773FB8002ACC96 /* README.md */,
-				0799EFCB2E78313100BAE112 /* CMakeLists.txt */,
-				0799EFCD2E7831F900BAE112 /* cmake */,
+				0756EB242E8E53A100B0E6FE /* workflows */,
 				07BDBBA32E774016002ACC96 /* applaudio */,
 				07BDBBAD2E7743B7002ACC96 /* Test */,
+				0799EFCB2E78313100BAE112 /* CMakeLists.txt */,
+				0799EFCD2E7831F900BAE112 /* cmake */,
 				07BDBBB42E77495D002ACC96 /* Frameworks */,
 				07BDBB982E773DAF002ACC96 /* Products */,
 			);
