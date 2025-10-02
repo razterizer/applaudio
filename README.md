@@ -5,6 +5,16 @@ A simple cross-platform audio library that is not GPL-based.
 ![Static Badge](https://img.shields.io/badge/linkage-header_only-yellow)
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-20-yellow)
 
+[![build test ubuntu](https://github.com/razterizer/applaudio/actions/workflows/build-test-ubuntu.yml/badge.svg)](https://github.com/razterizer/applaudio/actions/workflows/build-and-test-ubuntu.yml)
+[![build test macos](https://github.com/razterizer/applaudio/actions/workflows/build-test-macos.yml/badge.svg)](https://github.com/razterizer/applaudio/actions/workflows/build-macos.yml)
+
+![Top Languages](https://img.shields.io/github/languages/top/razterizer/applaudio)
+![GitHub repo size](https://img.shields.io/github/repo-size/razterizer/applaudio)
+![C++ LOC](https://raw.githubusercontent.com/razterizer/applaudio/badges/loc-badge.svg)
+![Commit Activity](https://img.shields.io/github/commit-activity/t/razterizer/applaudio)
+![Last Commit](https://img.shields.io/github/last-commit/razterizer/applaudio?color=blue)
+![Contributors](https://img.shields.io/github/contributors/razterizer/applaudio?color=blue)
+
 The idea with this library is to have a library that has the following properties:
 
 * Permissive license. Unlike `OpenAL` / `OpenAL_Soft` which is GPL, this library is MIT and gives you much more freedom to use the lib where you want to use it. Just a little credit somewhere is enough.
