@@ -9,4 +9,4 @@ sudo apt install pkg-config
 
 sudo apt install libasound2-dev
 
-./build_debian.sh
+./build_linux.sh
