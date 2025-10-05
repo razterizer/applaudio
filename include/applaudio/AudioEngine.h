@@ -7,11 +7,15 @@
 
 #pragma once
 #include "defines.h"
+#include "Buffer.h"
+#include "Source.h"
+#include "Listener.h"
 #include "Backend_NoAudio.h"
 #include "Backend_MacOS_CoreAudio.h"
 #include "Backend_Linux_ALSA.h"
 #include "Backend_Windows_WASAPI.h"
 #include "System.h"
+#include "PositionalAudio.h"
 #include <memory>
 #include <iostream>
 #include <thread>
@@ -24,23 +28,6 @@
 
 namespace applaudio
 {
-
-  struct Buffer
-  {
-    std::vector<APL_SAMPLE_TYPE> data;
-    int channels = 0;
-    int sample_rate = 0;
-  };
-  
-  struct Source
-  {
-    unsigned int buffer_id = 0;
-    bool looping = false;
-    float volume = 1.0f;
-    float pitch = 1.0f;
-    bool playing = false;
-    double play_pos = 0;
-  };
   
   // //////////////
 
@@ -52,6 +39,10 @@ namespace applaudio
     int m_output_channels = 0;
     int m_output_sample_rate = 0;
     int m_bits = 32;
+    
+    std::unique_ptr<a3d::PositionalAudio> scene_3d;
+    
+    Listener listener;
     
     std::unordered_map<unsigned int, Source> m_sources;
     std::unordered_map<unsigned int, Buffer> m_buffers;
@@ -128,6 +119,140 @@ namespace applaudio
       for (size_t s = 0; s < len; ++s)
         buf_trg[s] = buf_src[s] * 32768.f;
 #endif
+    }
+    
+    inline void mix_flat(Source& src, const Buffer& buf,
+                         double& pos, double pitch_adjusted_step,
+                         std::vector<APL_SAMPLE_TYPE>& mix_buffer)
+    {
+      size_t buf_size = buf.data.size();
+      for (int f = 0; f < m_frame_count; ++f)
+      {
+        size_t idx = static_cast<size_t>(pos) * buf.channels;
+        if (idx + buf.channels > buf_size)
+        {
+          if (src.looping)
+          {
+            pos = 0.0; // wrap
+            idx = 0;
+          }
+          else
+          {
+            src.playing = false;
+            break;
+          }
+        }
+        
+        // Linear interpolation between samples
+        //   because pos is not an integer.
+        
+        size_t idx_curr = idx;
+        size_t idx_next = idx_curr + buf.channels;
+        double frac = pos - std::floor(pos);
+        
+        if (buf.channels == m_output_channels)
+        {
+          // 1→1 or 2→2 (direct copy with interpolation)
+          for (int c = 0; c < buf.channels; ++c)
+          {
+            auto s1 = buf.data[idx_curr + c];
+            auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
+            auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+            
+            mix_buffer[f * m_output_channels + c] =
+            std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+          }
+        }
+        else if (buf.channels == 1 && m_output_channels == 2)
+        {
+          // Mono → Stereo
+          auto s1 = buf.data[idx_curr];
+          auto s2 = (idx_next < buf_size) ? buf.data[idx_next] : s1;
+          auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+          
+          for (int c = 0; c < 2; ++c)
+            mix_buffer[f * 2 + c] = std::clamp(mix_buffer[f * 2 + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+        }
+        else if (buf.channels == 2 && m_output_channels == 1)
+        {
+          // Stereo → Mono (average channels, then interpolate between frames)
+          auto l1 = buf.data[idx_curr + 0];
+          auto r1 = buf.data[idx_curr + 1];
+          auto l2 = (idx_next + 0 < buf_size) ? buf.data[idx_next + 0] : l1;
+          auto r2 = (idx_next + 1 < buf_size) ? buf.data[idx_next + 1] : r1;
+          
+          auto s1 = (l1 + r1) / 2.0;
+          auto s2 = (l2 + r2) / 2.0;
+          
+          auto mono_sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+          
+          mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+        }
+        
+        pos += pitch_adjusted_step; // pitch = playback speed
+      }
+    }
+    
+    
+    inline void mix_3d(const Listener& listener, Source& src, const Buffer& buf,
+                       double& pos, double pitch_adjusted_step,
+                       std::vector<APL_SAMPLE_TYPE>& mix_buffer)
+    {
+      const int src_ch = buf.channels;
+      const int dst_ch = m_output_channels;
+      const size_t buf_size = buf.data.size();
+      
+      for (int f = 0; f < m_frame_count; ++f)
+      {
+        size_t i0 = (size_t)pos * src_ch;
+        size_t i1 = i0 + src_ch;
+        double frac = pos - floor(pos);
+        
+        // Interpolate samples per source channel
+        float src_samples[2] = { 0.f, 0.f };
+        for (int ch_s = 0; ch_s < src_ch; ++ch_s)
+        {
+          float s1 = buf.data[i0 + ch_s];
+          float s2 = (i1 + ch_s < buf_size) ? buf.data[i1 + ch_s] : s1;
+          src_samples[ch_s] = static_cast<float>((1.0 - frac) * s1 + frac * s2);
+        }
+        
+        // Now project each source channel to each listener channel
+        float doppler_shift = 1.f;
+        for (int ch_l = 0; ch_l < dst_ch; ++ch_l)
+        {
+          float sum = 0.f;
+          for (int ch_s = 0; ch_s < src_ch; ++ch_s)
+          {
+            const auto* state_s = src.object_3d.get_state(ch_s);
+            if (ch_l >= state_s->listener_ch_params.size())
+              continue;
+            const auto& p = state_s->listener_ch_params[ch_l];
+            
+            // Apply doppler shift scaling and attenuation gain
+            if (std::abs(doppler_shift - 1.f) < std::abs(p.doppler_shift - 1.f))
+              doppler_shift = p.doppler_shift;
+            float gain = p.gain;
+            sum += src_samples[ch_s] * gain;
+          }
+          
+          // Mix to output
+          size_t idx = f * dst_ch + ch_l;
+          mix_buffer[idx] = std::clamp(mix_buffer[idx] + sum * src.volume, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+        }
+                        
+        pos += pitch_adjusted_step * doppler_shift;
+        if (pos * src_ch >= buf_size)
+        {
+          if (src.looping)
+            pos = 0;
+          else
+          {
+            src.playing = false;
+            break;
+          }
+        }
+      }
     }
     
   public:
@@ -236,7 +361,7 @@ namespace applaudio
     unsigned int create_source()
     {
       unsigned int id = m_next_source_id++;
-      m_sources[id] = Source{};
+      m_sources[id] = Source {};
       return id;
     }
     
@@ -253,7 +378,7 @@ namespace applaudio
     unsigned int create_buffer()
     {
       unsigned int id = m_next_buffer_id++;
-      m_buffers[id] = Buffer{};
+      m_buffers[id] = Buffer {};
       return id;
     }
     
@@ -374,72 +499,14 @@ namespace applaudio
         double sample_rate_ratio = static_cast<double>(buf.sample_rate) / m_output_sample_rate;
         double pitch_adjusted_step = src.pitch * sample_rate_ratio;
         
-        size_t buf_size = buf.data.size();
-        for (int f = 0; f < m_frame_count; ++f)
-        {
-          size_t idx = static_cast<size_t>(pos) * buf.channels;
-          if (idx + buf.channels > buf_size)
-          {
-            if (src.looping)
-            {
-              pos = 0.0; // wrap
-              idx = 0;
-            }
-            else
-            {
-              src.playing = false;
-              break;
-            }
-          }
-          
-          // Linear interpolation between samples
-          //   because pos is not an integer.
-          
-          size_t idx_curr = idx;
-          size_t idx_next = idx_curr + buf.channels;
-          double frac = pos - std::floor(pos);
-          
-          if (buf.channels == m_output_channels)
-          {
-            // 1→1 or 2→2 (direct copy with interpolation)
-            for (int c = 0; c < buf.channels; ++c)
-            {
-              auto s1 = buf.data[idx_curr + c];
-              auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
-              auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
-              
-              mix_buffer[f * m_output_channels + c] =
-              std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
-            }
-          }
-          else if (buf.channels == 1 && m_output_channels == 2)
-          {
-            // Mono → Stereo
-            auto s1 = buf.data[idx_curr];
-            auto s2 = (idx_next < buf_size) ? buf.data[idx_next] : s1;
-            auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
-            
-            for (int c = 0; c < 2; ++c)
-              mix_buffer[f * 2 + c] = std::clamp(mix_buffer[f * 2 + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
-          }
-          else if (buf.channels == 2 && m_output_channels == 1)
-          {
-            // Stereo → Mono (average channels, then interpolate between frames)
-            auto l1 = buf.data[idx_curr + 0];
-            auto r1 = buf.data[idx_curr + 1];
-            auto l2 = (idx_next + 0 < buf_size) ? buf.data[idx_next + 0] : l1;
-            auto r2 = (idx_next + 1 < buf_size) ? buf.data[idx_next + 1] : r1;
-            
-            auto s1 = (l1 + r1) / 2.0;
-            auto s2 = (l2 + r2) / 2.0;
-            
-            auto mono_sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
-            
-            mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
-          }
-          
-          pos += pitch_adjusted_step; // pitch = playback speed
-        }
+        if (src.object_3d.using_3d_audio())
+          mix_3d(listener, src, buf,
+                 pos, pitch_adjusted_step,
+                 mix_buffer);
+        else
+          mix_flat(src, buf,
+                   pos, pitch_adjusted_step,
+                   mix_buffer);
         
         src.play_pos = pos;
       }
@@ -528,6 +595,56 @@ namespace applaudio
         std::cout << m_backend->backend_name() << std::endl;
       else
         std::cout << "Unknown backend!" << std::endl;
+    }
+    
+    void init_3d_scene(a3d::LengthUnit global_length_unit)
+    {
+      scene_3d = std::make_unique<a3d::PositionalAudio>(global_length_unit);
+      listener.object_3d.set_num_channels(m_output_channels);
+    }
+    
+    bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
+                            const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
+                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
+                            std::optional<a3d::LengthUnit> length_unit = std::nullopt)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end() && scene_3d != nullptr)
+      {
+        auto& src = it->second;
+        auto buf_it = m_buffers.find(src.buffer_id);
+        if (buf_it == m_buffers.end())
+          return false;
+        if (src.object_3d.num_channels() != buf_it->second.channels)
+          src.object_3d.set_num_channels(buf_it->second.channels);
+        scene_3d->update_obj(it->second.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_listener_pos_vel(const la::Mtx4& new_trf,
+                              const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
+                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
+                              std::optional<a3d::LengthUnit> length_unit = std::nullopt)
+    {
+
+      if (scene_3d != nullptr)
+      {
+        scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
+        return true;
+      }
+      return false;
+    }
+    
+    bool update_3d_scene()
+    {
+      if (scene_3d != nullptr)
+      {
+        scene_3d->update_scene(listener, m_sources);
+        return true;
+      }
+      return false;
     }
     
   };

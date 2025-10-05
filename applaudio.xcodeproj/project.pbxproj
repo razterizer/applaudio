@@ -27,6 +27,12 @@
 		0756EB1F2E8D8E7E00B0E6FE /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
 		0756EB222E8E53A100B0E6FE /* build-test-macos.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "build-test-macos.yml"; sourceTree = "<group>"; };
 		0756EB232E8E53A100B0E6FE /* build-test-ubuntu.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "build-test-ubuntu.yml"; sourceTree = "<group>"; };
+		0756EB272E8FB95100B0E6FE /* LinAlg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LinAlg.h; sourceTree = "<group>"; };
+		0756EB4B2E9115E200B0E6FE /* PositionalAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PositionalAudio.h; sourceTree = "<group>"; };
+		0756EB4C2E9118CF00B0E6FE /* Buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
+		0756EB4D2E9118EA00B0E6FE /* Source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Source.h; sourceTree = "<group>"; };
+		0756EB4E2E91190100B0E6FE /* Listener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Listener.h; sourceTree = "<group>"; };
+		0756EB4F2E911A0700B0E6FE /* Object3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Object3D.h; sourceTree = "<group>"; };
 		07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Backend_NoAudio.h; sourceTree = "<group>"; };
 		07980B632E7D36A1007A0EB4 /* defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		0799EFCB2E78313100BAE112 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -116,6 +122,9 @@
 			isa = PBXGroup;
 			children = (
 				07980B632E7D36A1007A0EB4 /* defines.h */,
+				0756EB4C2E9118CF00B0E6FE /* Buffer.h */,
+				0756EB4D2E9118EA00B0E6FE /* Source.h */,
+				0756EB4E2E91190100B0E6FE /* Listener.h */,
 				07BDBBB32E77444B002ACC96 /* AudioEngine.h */,
 				07BDBBA72E774105002ACC96 /* IBackend.h */,
 				07980B5C2E7BE810007A0EB4 /* Backend_NoAudio.h */,
@@ -124,6 +133,9 @@
 				07BDBBA42E77401F002ACC96 /* Backend_Windows_WASAPI.h */,
 				0756EB1F2E8D8E7E00B0E6FE /* StringUtils.h */,
 				0756EB1E2E8D8D1F00B0E6FE /* System.h */,
+				0756EB272E8FB95100B0E6FE /* LinAlg.h */,
+				0756EB4F2E911A0700B0E6FE /* Object3D.h */,
+				0756EB4B2E9115E200B0E6FE /* PositionalAudio.h */,
 			);
 			name = applaudio;
 			path = include/applaudio;
