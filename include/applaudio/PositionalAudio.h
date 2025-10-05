@@ -103,6 +103,8 @@ namespace applaudio
       void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)
       {
         const int n_ch_l = listener.object_3d.num_channels();
+        la::Vec3 forward_l = listener.object_3d.dir_forward();
+        la::Vec3 right_l   = listener.object_3d.dir_right();
       
         for (auto& [src_id, src] : source_vec)
         {
@@ -125,8 +127,8 @@ namespace applaudio
                 continue;
               
               auto dir_un = la::normalize(dir);
-              float vLs = dot(state_l->vel_world, dir_un); // Listener’s velocity along LOS.
-              float vSs = dot(state_s->vel_world, dir_un); // Source’s velocity along LOS.
+              float vLs = la::dot(state_l->vel_world, dir_un); // Listener’s velocity along LOS.
+              float vSs = la::dot(state_s->vel_world, dir_un); // Source’s velocity along LOS.
               
               const float c = m_speed_of_sound;
               
@@ -139,10 +141,32 @@ namespace applaudio
               if (dist < 1e-6f)
                 dist = 1e-6f;
               
-              // Attenuation
+              // Distance attenuation
               float min_distance = 1.0f;
               float rolloff = 1.0f;
-              float gain = min_distance / (min_distance + rolloff * (dist - min_distance));
+              float distance_gain = min_distance / (min_distance + rolloff * (dist - min_distance));
+              
+              // --- Directional Panning (listener ears) ---
+              float pan = la::dot(right_l, dir_un); // -1=left, +1=right
+              float listener_pan_weight = 1.f;
+              if (n_ch_l >= 2)
+              {
+                if (ch_l == 0)
+                  listener_pan_weight = 0.5f*(1.0f - pan); // left ear
+                else if (ch_l == 1)
+                  listener_pan_weight = 0.5f*(1.0f + pan); // right ear
+              }
+              
+              // --- Optional source directivity ---
+              la::Vec3 forward_s = src.object_3d.dir_forward();
+              float src_cos_angle = la::dot(forward_s, -dir_un);
+              float source_directivity_weight = std::pow(std::clamp(src_cos_angle, 0.f, 1.f), 2.f);
+              
+              float frontness = la::dot(forward_l, dir_un); // 1 = front, -1 = behind
+              float rear_weight = std::clamp(0.5f * (1.0f + frontness), 0.2f, 1.0f); // muffle rear slightly
+              
+              // Final gain
+              float gain = distance_gain * listener_pan_weight * source_directivity_weight * rear_weight;
               gain = std::clamp(gain, 0.f, 1.f);
               
               state_s->listener_ch_params[ch_l] = { gain, doppler_shift };
