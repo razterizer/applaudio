@@ -255,6 +255,50 @@ namespace applaudio
       }
     }
     
+    void mix()
+    {
+      std::vector<APL_SAMPLE_TYPE> mix_buffer(m_frame_count * m_output_channels, 0);
+      
+      for (auto& [id, src] : m_sources)
+      {
+        if (!src.playing)
+          continue;
+        
+        if (src.buffer_id == 0) // invalid source id
+          continue;
+        
+        // Safety check: make sure the buffer actually exists
+        auto buf_it = m_buffers.find(src.buffer_id);
+        if (buf_it == m_buffers.end())
+        {
+          // Buffer was destroyed but source still references it
+          src.buffer_id = 0; // Auto-detach invalid buffer
+          src.playing = false;
+          continue;
+        }
+        
+        const auto& buf = buf_it->second;
+        double pos = src.play_pos;
+        
+        // Calculate pitch adjustment for sample rate conversion.
+        double sample_rate_ratio = static_cast<double>(buf.sample_rate) / m_output_sample_rate;
+        double pitch_adjusted_step = src.pitch * sample_rate_ratio;
+        
+        if (src.object_3d.using_3d_audio())
+          mix_3d(listener, src, buf,
+                 pos, pitch_adjusted_step,
+                 mix_buffer);
+        else
+          mix_flat(src, buf,
+                   pos, pitch_adjusted_step,
+                   mix_buffer);
+        
+        src.play_pos = pos;
+      }
+      
+      m_backend->write_samples(mix_buffer.data(), m_frame_count);
+    }
+    
   public:
     AudioEngine(bool enable_audio = true)
     {
@@ -467,51 +511,6 @@ namespace applaudio
         return true;
       }
       return false;
-    }
-    
-    
-    void mix()
-    {
-      std::vector<APL_SAMPLE_TYPE> mix_buffer(m_frame_count * m_output_channels, 0);
-      
-      for (auto& [id, src] : m_sources)
-      {
-        if (!src.playing)
-          continue;
-        
-        if (src.buffer_id == 0) // invalid source id
-          continue;
-        
-        // Safety check: make sure the buffer actually exists
-        auto buf_it = m_buffers.find(src.buffer_id);
-        if (buf_it == m_buffers.end())
-        {
-          // Buffer was destroyed but source still references it
-          src.buffer_id = 0; // Auto-detach invalid buffer
-          src.playing = false;
-          continue;
-        }
-        
-        const auto& buf = buf_it->second;
-        double pos = src.play_pos;
-        
-        // Calculate pitch adjustment for sample rate conversion.
-        double sample_rate_ratio = static_cast<double>(buf.sample_rate) / m_output_sample_rate;
-        double pitch_adjusted_step = src.pitch * sample_rate_ratio;
-        
-        if (src.object_3d.using_3d_audio())
-          mix_3d(listener, src, buf,
-                 pos, pitch_adjusted_step,
-                 mix_buffer);
-        else
-          mix_flat(src, buf,
-                   pos, pitch_adjusted_step,
-                   mix_buffer);
-        
-        src.play_pos = pos;
-      }
-      
-      m_backend->write_samples(mix_buffer.data(), m_frame_count);
     }
     
     // Play the source
