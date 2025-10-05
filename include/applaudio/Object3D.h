@@ -83,6 +83,27 @@ namespace applaudio
       
       int num_channels() const { return static_cast<int>(channel_state.size()); }
       void set_num_channels(int num_ch) { channel_state.resize(num_ch); }
+      
+      const la::Vec3 dir_right() const
+      {
+        la::Vec3 vec_right;
+        trf.get_column_vec(la::X, vec_right);
+        return vec_right;
+      }
+      
+      const la::Vec3 dir_up() const
+      {
+        la::Vec3 vec_up;
+        trf.get_column_vec(la::Y, vec_up);
+        return vec_up;
+      }
+      
+      const la::Vec3 dir_forward() const
+      {
+        la::Vec3 vec_backward;
+        trf.get_column_vec(la::Z, vec_backward);
+        return -vec_backward;
+      }
     };
     
   }
