@@ -299,6 +299,16 @@ namespace applaudio
       m_backend->write_samples(mix_buffer.data(), m_frame_count);
     }
     
+    bool update_3d_scene()
+    {
+      if (scene_3d != nullptr)
+      {
+        scene_3d->update_scene(listener, m_sources);
+        return true;
+      }
+      return false;
+    }
+    
   public:
     AudioEngine(bool enable_audio = true)
     {
