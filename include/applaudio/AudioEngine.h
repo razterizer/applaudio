@@ -58,7 +58,8 @@ namespace applaudio
       
       while (m_running)
       {
-        mix();  // mix the next chunk
+        update_3d_scene(); // Generate meta data for 3d audio.
+        mix();  // Mix the next chunk.
         
         // advance time by the chunk duration
         next_frame_time += std::chrono::microseconds(
