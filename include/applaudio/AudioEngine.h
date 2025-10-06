@@ -49,7 +49,7 @@ namespace applaudio
     unsigned int m_next_source_id = 1;
     unsigned int m_next_buffer_id = 1;
     
-    std::atomic<bool> m_running{false};
+    std::atomic<bool> m_running { false };
     std::thread m_thread;
     
     void enter_audio_thread_loop()
