@@ -482,6 +482,7 @@ namespace applaudio
         convert_32f(buf_it->second.data, data);
         buf_it->second.channels = channels;
         buf_it->second.sample_rate = sample_rate;
+        return true;
       }
       return false;
     }
