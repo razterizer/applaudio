@@ -7,7 +7,6 @@
 
 #pragma once
 #include "Object3D.h"
-#include <atomic>
 
 namespace applaudio
 {
@@ -18,7 +17,7 @@ namespace applaudio
     bool looping = false;
     float volume = 1.0f;
     float pitch = 1.0f;
-    std::atomic<bool> playing = false;
+    bool playing = false;
     double play_pos = 0;
     
     a3d::Object3D object_3d;

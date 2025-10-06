@@ -416,7 +416,7 @@ namespace applaudio
     unsigned int create_source()
     {
       unsigned int id = m_next_source_id++;
-      m_sources.emplace(id, Source{});
+      m_sources[id] = Source {};
       return id;
     }
     
