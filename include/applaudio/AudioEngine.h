@@ -52,12 +52,15 @@ namespace applaudio
     std::atomic<bool> m_running { false };
     std::thread m_thread;
     
+    mutable std::mutex scene_mutex;
+    
     void enter_audio_thread_loop()
     {
       auto next_frame_time = std::chrono::high_resolution_clock::now();
       
       while (m_running)
       {
+        std::scoped_lock lock(scene_mutex);
         update_3d_scene(); // Generate meta data for 3d audio.
         mix();  // Mix the next chunk.
         
@@ -415,6 +418,7 @@ namespace applaudio
 
     unsigned int create_source()
     {
+      std::scoped_lock lock(scene_mutex);
       unsigned int id = m_next_source_id++;
       m_sources[id] = Source {};
       return id;
@@ -427,11 +431,13 @@ namespace applaudio
     // 5. Resources are freed.
     void destroy_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       m_sources.erase(src_id);
     }
     
     unsigned int create_buffer()
     {
+      std::scoped_lock lock(scene_mutex);
       unsigned int id = m_next_buffer_id++;
       m_buffers[id] = Buffer {};
       return id;
@@ -439,12 +445,14 @@ namespace applaudio
     
     void destroy_buffer(unsigned int buf_id)
     {
+      std::scoped_lock lock(scene_mutex);
       m_buffers.erase(buf_id);
     }
     
     bool set_buffer_data_8u(unsigned int buf_id, const std::vector<unsigned char>& data,
                             int channels, int sample_rate)
     {
+      std::scoped_lock lock(scene_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -459,6 +467,7 @@ namespace applaudio
     bool set_buffer_data_8s(unsigned int buf_id, const std::vector<char>& data,
                             int channels, int sample_rate)
     {
+      std::scoped_lock lock(scene_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -473,6 +482,7 @@ namespace applaudio
     bool set_buffer_data_16s(unsigned int buf_id, const std::vector<short>& data,
                              int channels, int sample_rate)
     {
+      std::scoped_lock lock(scene_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -487,6 +497,7 @@ namespace applaudio
     bool set_buffer_data_32f(unsigned int buf_id, const std::vector<float>& data,
                              int channels, int sample_rate)
     {
+      std::scoped_lock lock(scene_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -500,6 +511,7 @@ namespace applaudio
     
     bool attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
@@ -514,6 +526,7 @@ namespace applaudio
     // 3. Resets the buffer position.
     bool detach_buffer_from_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
@@ -528,6 +541,7 @@ namespace applaudio
     // Play the source
     void play_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -540,6 +554,7 @@ namespace applaudio
     // Check if a source is playing
     bool is_source_playing(unsigned int src_id) const
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.playing;
@@ -549,6 +564,7 @@ namespace applaudio
     // Pause the source
     void pause_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.playing = false;
@@ -557,17 +573,16 @@ namespace applaudio
     // Play the source
     void resume_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
-      {
-        Source& src = it->second;
-        src.playing = true;
-      }
+        it->second.playing = true;
     }
     
     // Stop the source
     void stop_source(unsigned int src_id)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -579,6 +594,7 @@ namespace applaudio
     // Set volume
     void set_source_volume(unsigned int src_id, float vol)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.volume = vol;
@@ -587,6 +603,7 @@ namespace applaudio
     // Set pitch (note: not yet implemented in mixer)
     void set_source_pitch(unsigned int src_id, float pitch)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.pitch = pitch;
@@ -595,6 +612,7 @@ namespace applaudio
     // Set looping
     void set_source_looping(unsigned int src_id, bool loop)
     {
+      std::scoped_lock lock(scene_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.looping = loop;
@@ -610,6 +628,7 @@ namespace applaudio
     
     void init_3d_scene(a3d::LengthUnit global_length_unit)
     {
+      std::scoped_lock lock(scene_mutex);
       scene_3d = std::make_unique<a3d::PositionalAudio>(global_length_unit);
       listener.object_3d.set_num_channels(m_output_channels);
     }
@@ -619,6 +638,9 @@ namespace applaudio
                             const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
                             std::optional<a3d::LengthUnit> length_unit = std::nullopt)
     {
+      std::scoped_lock lock(scene_mutex);
+      if (scene_3d == nullptr)
+        return false;
       auto it = m_sources.find(src_id);
       if (it != m_sources.end() && scene_3d != nullptr)
       {
@@ -639,23 +661,11 @@ namespace applaudio
                               const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
                               std::optional<a3d::LengthUnit> length_unit = std::nullopt)
     {
-
-      if (scene_3d != nullptr)
-      {
-        scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
-        return true;
-      }
-      return false;
-    }
-    
-    bool update_3d_scene()
-    {
-      if (scene_3d != nullptr)
-      {
-        scene_3d->update_scene(listener, m_sources);
-        return true;
-      }
-      return false;
+      std::scoped_lock lock(scene_mutex);
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
+      return true;
     }
     
   };
