@@ -22,6 +22,8 @@ namespace applaudio
     double play_pos = 0;
     
     a3d::Object3D object_3d;
+    
+    Source() = default;
   };
 
 }
