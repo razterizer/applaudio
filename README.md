@@ -32,21 +32,19 @@ The idea with this library is to have a library that has the following propertie
 |
 +--> AudioLibSwitcher_applaudio // (optional) different repo that implements the IAudioLibSwitcher interface.
       |
-      +--> adapter implementation details in AudioLibSwitcher_applaudio code in that repo ---
-        |
-        +--> AudioEngine  ("front end" of this lib) ============================
-                |
-                +--> IBackend
-                      |--> Backend_NoAudio
-                      |--> Backend_MacOS_CoreAudio
-                      |       |--> CoreAudio (CoreAudio, AudioToolbox and CoreFoundation frameworks)
-                      |--> Backend_Linux_ALSA
-                      |       |--> ALSA (export BUILD_PKG_CONFIG_MODULES='alsa')
-                      |--> Backend_Windows_WASAPI
-                      :       |--> WASAPI (ole32.lib)
-                      :       :
-                      :       Native level APIs. No external dependencies!
-                      Backends (IBackend adapters)
+      +--> AudioEngine  ("front end" of this lib) ============================
+              |
+              +--> IBackend
+                    |--> Backend_NoAudio
+                    |--> Backend_MacOS_CoreAudio
+                    |       |--> CoreAudio (CoreAudio, AudioToolbox and CoreFoundation frameworks)
+                    |--> Backend_Linux_ALSA
+                    |       |--> ALSA (export BUILD_PKG_CONFIG_MODULES='alsa')
+                    |--> Backend_Windows_WASAPI
+                    :       |--> WASAPI (ole32.lib)
+                    :       :
+                    :       Native level APIs. No external dependencies!
+                    Backends (IBackend adapters)
 ```
 
 ## How to build
