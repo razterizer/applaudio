@@ -7,6 +7,8 @@
 
 #pragma once
 #include <array>
+#include <math>
+
 
 namespace la
 {
