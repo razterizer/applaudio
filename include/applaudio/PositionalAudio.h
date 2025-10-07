@@ -10,6 +10,7 @@
 #include "Listener.h"
 #include <optional>
 #include <unordered_map>
+#include <algorithm>
 
 namespace applaudio
 {
