@@ -626,6 +626,8 @@ namespace applaudio
         std::cout << "Unknown backend!" << std::endl;
     }
     
+    // ----- Positional Audio Functions -----
+    
     void init_3d_scene(a3d::LengthUnit global_length_unit)
     {
       //std::scoped_lock lock(thread_mutex);
