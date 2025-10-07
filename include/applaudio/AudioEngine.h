@@ -635,6 +635,14 @@ namespace applaudio
       listener.object_3d.set_num_channels(m_output_channels);
     }
     
+    void enable_source_3d_audio(unsigned int src_id, bool enable)
+    {
+      //std::scoped_lock lock(thread_mutex);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        it->second.object_3d.enable_3d_audio(enable);
+    }
+    
     bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
                             const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
                             const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
