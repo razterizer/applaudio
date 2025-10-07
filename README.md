@@ -121,3 +121,13 @@ The important part here is c++20.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
 * `void print_backend_name() const` : Prints the name of the current backend.
+* `void init_3d_scene(a3d::LengthUnit global_length_unit)` : Initializes positional audio context/scene and allows you to set the length unit used for positions and velocities.
+* `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
+* `bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
+                            const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
+                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
+                            std::optional<a3d::LengthUnit> length_unit = std::nullopt)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for provided source ID. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment. Optional argument length_unit is using meters by default and if provided, will rescale the position and velocity arguments to the global length unit set by `init_3d_scene()`.
+* `bool set_listener_pos_vel(const la::Mtx4& new_trf,
+                              const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
+                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
+                              std::optional<a3d::LengthUnit> length_unit = std::nullopt)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment. Optional argument length_unit is using meters by default and if provided, will rescale the position and velocity arguments to the global length unit set by `init_3d_scene()`.
