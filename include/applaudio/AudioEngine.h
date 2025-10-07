@@ -678,6 +678,46 @@ namespace applaudio
       return true;
     }
     
+    bool set_attenuation_min_distance(float min_dist)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->set_attenuation_min_distance(min_dist);
+      return true;
+    }
+    
+    bool set_attenuation_max_distance(float max_dist)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->set_attenuation_max_distance(max_dist);
+      return true;
+    }
+    
+    bool set_attenuation_constant_falloff(float const_falloff)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->set_attenuation_constant_falloff(const_falloff);
+      return true;
+    }
+    
+    bool set_attenuation_linear_falloff(float lin_falloff)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->set_attenuation_linear_falloff(lin_falloff);
+      return true;
+    }
+    
+    bool set_attenuation_quadratic_falloff(float sq_falloff)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      scene_3d->set_attenuation_quadratic_falloff(sq_falloff);
+      return true;
+    }
+    
   };
   
 }

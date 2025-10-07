@@ -24,6 +24,11 @@ namespace applaudio
     {
       float m_speed_of_sound = 343.f;
       LengthUnit m_global_length_unit = LengthUnit::Meter;
+      float constant_attenuation = 1.f;
+      float linear_attenuation = 0.2f;
+      float quadratic_attenuation = 0.08f;
+      float min_attenuation_distance = 1.f;
+      float max_attenuation_distance = 500.f;
       
       static int pow10(int p)
       {
@@ -143,9 +148,9 @@ namespace applaudio
                 dist = 1e-6f;
               
               // Distance attenuation
-              float min_distance = 1.0f;
-              float rolloff = 1.0f;
-              float distance_gain = min_distance / (min_distance + rolloff * (dist - min_distance));
+              float dist_clamped = std::clamp(dist, min_attenuation_distance, max_attenuation_distance);
+              float dist_adj = dist_clamped - min_attenuation_distance;
+              float distance_gain = 1.f / (constant_attenuation + linear_attenuation * dist_adj + quadratic_attenuation * dist_adj);
               
               // --- Directional Panning (listener ears) ---
               float pan = la::dot(right_l, dir_un); // -1=left, +1=right
@@ -174,6 +179,31 @@ namespace applaudio
             }
           }
         }
+      }
+      
+      void set_attenuation_min_distance(float min_dist)
+      {
+        min_attenuation_distance = min_dist;
+      }
+      
+      void set_attenuation_max_distance(float max_dist)
+      {
+        max_attenuation_distance = max_dist;
+      }
+      
+      void set_attenuation_constant_falloff(float const_falloff)
+      {
+        constant_attenuation = const_falloff;
+      }
+      
+      void set_attenuation_linear_falloff(float lin_falloff)
+      {
+        linear_attenuation = lin_falloff;
+      }
+      
+      void set_attenuation_quadratic_falloff(float sq_falloff)
+      {
+        quadratic_attenuation = sq_falloff;
       }
 
     };
