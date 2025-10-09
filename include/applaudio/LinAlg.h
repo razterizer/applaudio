@@ -36,6 +36,24 @@ namespace la
     inline float y() const noexcept { return elem[Y]; }
     inline float z() const noexcept { return elem[Z]; }
     
+    Vec3 operator+() const
+    {
+      return *this;
+    }
+    
+    Vec3 operator+(const Vec3& other) const
+    {
+      return { this->x() + other.x(),
+               this->y() + other.y(),
+               this->z() + other.z() };
+    }
+    
+    const Vec3& operator+=(const Vec3& other)
+    {
+      *this = *this + other;
+      return *this;
+    }
+    
     Vec3 operator-() const
     {
       return { -this->x(), -this->y(), -this->z() };
@@ -46,6 +64,17 @@ namespace la
       return { this->x() - other.x(),
                this->y() - other.y(),
                this->z() - other.z() };
+    }
+    
+    const Vec3& operator-=(const Vec3& other)
+    {
+      *this = *this - other;
+      return *this;
+    }
+    
+    Vec3 operator*(float s) const
+    {
+      return { this->x() * s, this->y() * s, this->z() * s };
     }
     
     Vec3 operator/(float s) const
