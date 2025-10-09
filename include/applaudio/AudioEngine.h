@@ -72,6 +72,32 @@ namespace applaudio
       }
     }
     
+    short convert_sample_float_to_short(float sample_32f_in) const
+    {
+      return static_cast<short>(std::clamp(sample_32f_in * APL_SHORT_LIMIT_F, APL_SHORT_MIN_F, APL_SHORT_MAX_F));
+    }
+    
+    void add_sample(APL_SAMPLE_TYPE& sample_sum, float st_new_sample, const Source& src)
+    {
+      //auto sample = (1.0 - frac) * s1 + frac * s2;
+            
+      //here: mix_buffer[f * m_output_channels + c] =
+      //here: std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+
+#ifdef APL_32
+      sample_sum += st_new_sample * src.volume;
+      sample_sum = std::clamp(sample_sum, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+#else
+      auto f_new_sample = st_new_sample * 1/APL_SHORT_LIMIT_F * src.volume;
+      auto l_sample_sum = static_cast<long>(sample_sum);
+      auto l_new_sample = static_cast<long>(f_new_sample * APL_SHORT_LIMIT_F);
+      
+      l_sample_sum += l_new_sample;
+      l_sample_sum = std::clamp(l_sample_sum, APL_SHORT_MIN_L, APL_SHORT_MAX_L);
+      sample_sum = static_cast<short>(l_sample_sum);
+#endif
+    }
+    
     void convert_8u(std::vector<APL_SAMPLE_TYPE>& buf_trg, const std::vector<unsigned char>& buf_src) const
     {
       size_t len = buf_src.size();
@@ -82,7 +108,7 @@ namespace applaudio
         buf_trg[s] = (buf_src[s] - 128)*scale;
 #else
       for (size_t s = 0; s < len; ++s)
-        buf_trg[s] = static_cast<APL_SAMPLE_TYPE>((buf_src[s] - 128)*scale * 32768.f);
+        buf_trg[s] = convert_sample_float_to_short((buf_src[s] - 128)*scale);
 #endif
     }
     
@@ -96,7 +122,7 @@ namespace applaudio
         buf_trg[s] = buf_src[s]*scale;
 #else
       for (size_t s = 0; s < len; ++s)
-        buf_trg[s] = static_cast<APL_SAMPLE_TYPE>(buf_src[s]*scale * 32768.f);
+        buf_trg[s] = convert_sample_float_to_short(buf_src[s]*scale);
 #endif
     }
     
@@ -105,7 +131,7 @@ namespace applaudio
 #ifdef APL_32
       size_t len = buf_src.size();
       buf_trg.resize(len);
-      auto scale = 1/32768.f;
+      auto scale = 1/APL_SHORT_LIMIT_F;
       for (size_t s = 0; s < len; ++s)
         buf_trg[s] = buf_src[s]*scale;
 #else
@@ -121,7 +147,7 @@ namespace applaudio
       size_t len = buf_src.size();
       buf_trg.resize(len);
       for (size_t s = 0; s < len; ++s)
-        buf_trg[s] = buf_src[s] * 32768.f;
+        buf_trg[s] = convert_sample_float_to_short(buf_src[s]);
 #endif
     }
     
@@ -161,10 +187,9 @@ namespace applaudio
           {
             auto s1 = buf.data[idx_curr + c];
             auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
-            auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+            auto sample = (1.0 - frac) * s1 + frac * s2;
             
-            mix_buffer[f * m_output_channels + c] =
-            std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+            add_sample(mix_buffer[f * m_output_channels + c], sample, src);
           }
         }
         else if (buf.channels == 1 && m_output_channels == 2)
@@ -172,10 +197,10 @@ namespace applaudio
           // Mono → Stereo
           auto s1 = buf.data[idx_curr];
           auto s2 = (idx_next < buf_size) ? buf.data[idx_next] : s1;
-          auto sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+          auto sample = (1.0 - frac) * s1 + frac * s2;
           
           for (int c = 0; c < 2; ++c)
-            mix_buffer[f * 2 + c] = std::clamp(mix_buffer[f * 2 + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+            add_sample(mix_buffer[f * 2 + c], sample, src);
         }
         else if (buf.channels == 2 && m_output_channels == 1)
         {
@@ -188,9 +213,9 @@ namespace applaudio
           auto s1 = (l1 + r1) / 2.0;
           auto s2 = (l2 + r2) / 2.0;
           
-          auto mono_sample = static_cast<APL_SAMPLE_TYPE>(((1.0 - frac) * s1 + frac * s2) * src.volume);
+          auto mono_sample = (1.0 - frac) * s1 + frac * s2;
           
-          mix_buffer[f] = std::clamp(mix_buffer[f] + mono_sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+          add_sample(mix_buffer[f], mono_sample, src);
         }
         
         pos += pitch_adjusted_step; // pitch = playback speed
@@ -208,7 +233,7 @@ namespace applaudio
       
       for (int f = 0; f < m_frame_count; ++f)
       {
-        size_t i0 = (size_t)pos * src_ch;
+        size_t i0 = static_cast<size_t>(pos) * src_ch;
         size_t i1 = i0 + src_ch;
         double frac = pos - floor(pos);
         
@@ -242,7 +267,7 @@ namespace applaudio
           
           // Mix to output
           size_t idx = f * dst_ch + ch_l;
-          mix_buffer[idx] = std::clamp(mix_buffer[idx] + sum * src.volume, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
+          add_sample(mix_buffer[idx], sum, src);
         }
                         
         pos += pitch_adjusted_step * doppler_shift;
