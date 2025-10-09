@@ -420,6 +420,7 @@ namespace applaudio
       {
         std::cout << "AudioEngine initialized: "
           << "Fs_out = " << m_output_sample_rate << " Hz, "
+          << "Bit format out: " << m_bits << " bits, "
           << m_output_channels << " output channels, "
           << m_frame_count << " frames per mix\n";
       }
