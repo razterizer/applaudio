@@ -150,7 +150,7 @@ namespace applaudio
               // Distance attenuation
               float dist_clamped = std::clamp(dist, min_attenuation_distance, max_attenuation_distance);
               float dist_adj = dist_clamped - min_attenuation_distance;
-              float distance_gain = 1.f / (constant_attenuation + linear_attenuation * dist_adj + quadratic_attenuation * dist_adj);
+              float distance_gain = 1.f / (constant_attenuation + linear_attenuation * dist_adj + quadratic_attenuation * dist_adj * dist_adj);
               
               // --- Directional Panning (listener ears) ---
               float pan = la::dot(right_l, dir_un); // -1=left, +1=right
