@@ -123,6 +123,11 @@ namespace la
     return u.x() * v.x() + u.y() * v.y() + u.z() * v.z();
   }
   
+  Vec3 cross(const Vec3& u, const Vec3& v)
+  {
+    return { u.y()*v.z() - u.z()*v.y(), u.z()*v.x() - u.x()*v.z(), u.x()*v.y() - u.y()*v.x() };
+  }
+  
   // /////////////////////////////////
   
   class Mtx4
