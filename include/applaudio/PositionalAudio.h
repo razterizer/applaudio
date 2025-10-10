@@ -75,6 +75,21 @@ namespace applaudio
         return 1.f / (constant_attenuation + linear_attenuation * d + quadratic_attenuation * d * d);
       }
       
+      bool reset_attenuation_at_min_dist()
+      {
+        attenuation_at_min_dist = attenuate(min_attenuation_distance);
+        
+        const float c_min_attenuation = 1e-6f;
+        const float c_max_attenuation = 1e6f;
+        assert(std::isfinite(attenuation_at_min_dist) && "ERROR: Attenuation gain at min distance limit is not finite.");
+        if (!std::isfinite(attenuation_at_min_dist))
+          return false;
+        assert(attenuation_at_min_dist > c_min_attenuation && "ERROR: Attenuation gain at min distance limit is too small and will lead to precision issues. Consider decreasing the min distance or fall-off params.");
+        assert(attenuation_at_min_dist < c_max_attenuation && "ERROR: Attenuation gain at min distance limit is too large and will lead to precision issues. Consider increasing the min distance or fall-off params.");
+        attenuation_at_min_dist = std::clamp(attenuation_at_min_dist, c_min_attenuation, c_max_attenuation);
+        return true;
+      }
+      
     public:
       PositionalAudio(LengthUnit global_length_unit)
         : m_global_length_unit(global_length_unit) // Don't want to have to rescale variables later.
@@ -205,37 +220,35 @@ namespace applaudio
         min_dist = std::max(min_dist, 1e-9f);
         min_attenuation_distance = min_dist;
         
-        attenuation_at_min_dist = attenuate(min_attenuation_distance);
-        
-        const float c_min_attenuation = 1e-6f;
-        const float c_max_attenuation = 1e6f;
-        assert(std::isfinite(attenuation_at_min_dist) && "ERROR: Attenuation gain at min distance limit is not finite.");
-        if (!std::isfinite(attenuation_at_min_dist))
-          return false;
-        assert(attenuation_at_min_dist > c_min_attenuation && "ERROR: Attenuation gain at min distance limit is too small and will lead to precision issues. Consider decreasing the min distance or fall-off params.");
-        assert(attenuation_at_min_dist < c_max_attenuation && "ERROR: Attenuation gain at min distance limit is too large and will lead to precision issues. Consider increasing the min distance or fall-off params.");
-        attenuation_at_min_dist = std::clamp(attenuation_at_min_dist, c_min_attenuation, c_max_attenuation);
-        return true;
+        return reset_attenuation_at_min_dist();
       }
       
-      void set_attenuation_max_distance(float max_dist)
+      bool set_attenuation_max_distance(float max_dist)
       {
         max_attenuation_distance = std::max(max_dist, min_attenuation_distance);
+        
+        return reset_attenuation_at_min_dist();
       }
       
-      void set_attenuation_constant_falloff(float const_falloff)
+      bool set_attenuation_constant_falloff(float const_falloff)
       {
         constant_attenuation = const_falloff;
+        
+        return reset_attenuation_at_min_dist();
       }
       
-      void set_attenuation_linear_falloff(float lin_falloff)
+      bool set_attenuation_linear_falloff(float lin_falloff)
       {
         linear_attenuation = lin_falloff;
+        
+        return reset_attenuation_at_min_dist();
       }
       
-      void set_attenuation_quadratic_falloff(float sq_falloff)
+      bool set_attenuation_quadratic_falloff(float sq_falloff)
       {
         quadratic_attenuation = sq_falloff;
+        
+        return reset_attenuation_at_min_dist();
       }
 
     };
