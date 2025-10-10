@@ -88,6 +88,12 @@ namespace la
       return { this->x() / s, this->y() / s, this->z() / s };
     }
     
+    const Vec3& operator/=(const float s)
+    {
+      *this = *this / s;
+      return *this;
+    }
+    
     float length_squared() const
     {
       auto px = x();
