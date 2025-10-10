@@ -31,7 +31,7 @@ namespace applaudio
       float max_attenuation_distance = 500.f;
       float attenuation_at_min_dist = 1.f; // Replaced in set_attenuation_min_distance().
       
-      static int pow10(int p)
+      static constexpr int pow10(int p)
       {
         int r = 1;
         while (p-- > 0)
