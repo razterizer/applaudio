@@ -77,6 +77,12 @@ namespace la
       return { this->x() * s, this->y() * s, this->z() * s };
     }
     
+    const Vec3& operator*=(const float s)
+    {
+      *this = *this * s;
+      return *this;
+    }
+    
     Vec3 operator/(float s) const
     {
       return { this->x() / s, this->y() / s, this->z() / s };
