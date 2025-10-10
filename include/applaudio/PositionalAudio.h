@@ -133,8 +133,11 @@ namespace applaudio
                 continue;
               
               auto dir_un = la::normalize(dir);
-              float vLs = la::dot(state_l->vel_world, dir_un); // Listener’s velocity along LOS.
-              float vSs = la::dot(state_s->vel_world, dir_un); // Source’s velocity along LOS.
+              // dir_un points FROM listener TO source.
+              // But for Doppler, we want the direction FROM source TO listener.
+              la::Vec3 dir_source_to_listener = -dir_un;
+              float vLs = la::dot(state_l->vel_world, dir_source_to_listener); // Listener’s velocity along LOS.
+              float vSs = la::dot(state_s->vel_world, dir_source_to_listener); // Source’s velocity along LOS.
               
               const float c = m_speed_of_sound;
               
