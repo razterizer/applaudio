@@ -683,8 +683,7 @@ namespace applaudio
     {
       if (scene_3d == nullptr)
         return false;
-      scene_3d->set_attenuation_min_distance(min_dist);
-      return true;
+      return scene_3d->set_attenuation_min_distance(min_dist);
     }
     
     bool set_attenuation_max_distance(float max_dist)
