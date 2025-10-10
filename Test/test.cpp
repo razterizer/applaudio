@@ -149,8 +149,7 @@ int test_2()
   
   // --- 4b. Set source 3D properties ---
   engine.enable_source_3d_audio(src_id, true);
-  la::Mtx4 trf_s = la::look_at({ 7.f, 5.5f, -3.2f }, { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f });
-  //trf_s.set_column_vec(la::W, { 3.f, 5.5f, -3.2f }); // Source world position encoded here.
+  la::Mtx4 trf_s = la::look_at({ 7.f, 5.5f, -3.2f }, { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }); // Source world position encoded here.
   la::Vec3 pos_s = la::Vec3_Zero; // Channel emitter local positions encoded here.
   la::Vec3 vel_s { -1.2f, -0.3f, 0.f }; // Channel emitter world velicities encoded here.
   vel_s *= 5.f;
