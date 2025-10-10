@@ -233,5 +233,20 @@ namespace la
                        0.f, 1.f, 0.f, 0.f,
                        0.f, 0.f, 1.f, 0.f,
                        0.f, 0.f, 0.f, 1.f };
+                       
+  Mtx4 look_at(const Vec3& location_pos, const Vec3& look_at_pos, const Vec3& up_dir)
+  {
+    auto F = look_at_pos - location_pos;
+    auto f = normalize(F);
+    auto up = normalize(up_dir);
+    auto s = cross(f, up);
+    auto u = cross(normalize(s), f);
+    Mtx4 trf_lookat;
+    trf_lookat.set_column_vec(X, s);
+    trf_lookat.set_column_vec(Y, u);
+    trf_lookat.set_column_vec(Z, -f);
+    trf_lookat.set_column_vec(W, location_pos);
+    return trf_lookat;
+  }
 
 }
