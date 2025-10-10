@@ -163,6 +163,11 @@ int test_2()
   la::Vec3 vel_l_L = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
   la::Vec3 vel_l_R = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
   engine.set_listener_pos_vel(trf_l, pos_l_L, vel_l_L, pos_l_R, vel_l_R);
+  
+  // --- 4d. Set falloff properties ---
+  engine.set_attenuation_constant_falloff(1.f);
+  engine.set_attenuation_linear_falloff(0.2f);
+  engine.set_attenuation_quadratic_falloff(0.08f);
 
   // --- 5. Play the source ---
   engine.play_source(src_id);
