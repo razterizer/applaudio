@@ -29,6 +29,7 @@ namespace applaudio
       float quadratic_attenuation = 0.08f;
       float min_attenuation_distance = 1.f;
       float max_attenuation_distance = 500.f;
+      float attenuation_at_min_dist = 1.f; // Replaced in set_attenuation_min_distance().
       
       static int pow10(int p)
       {
@@ -67,6 +68,11 @@ namespace applaudio
         return { convert_length(vec.x(), lu_from, lu_to),
                  convert_length(vec.y(), lu_from, lu_to),
                  convert_length(vec.z(), lu_from, lu_to) };
+      }
+      
+      inline constexpr float attenuate(float d)
+      {
+        return 1.f / (constant_attenuation + linear_attenuation * d + quadratic_attenuation * d * d);
       }
       
     public:
@@ -151,13 +157,13 @@ namespace applaudio
                 dist = 1e-6f;
               
               // Distance attenuation
-              float dist_clamped = std::clamp(dist, min_attenuation_distance, max_attenuation_distance);
-              float dist_adj = dist_clamped - min_attenuation_distance;
               float distance_gain = 1.f;
-              if (dist > min_attenuation_distance)
-                distance_gain = 1.f / (constant_attenuation + linear_attenuation * dist_adj + quadratic_attenuation * dist_adj * dist_adj);
+              if (dist < min_attenuation_distance)
+                distance_gain = 1.f;
+              else if (min_attenuation_distance <= dist && dist < max_attenuation_distance)
+                distance_gain = attenuate(dist) / attenuation_at_min_dist;
               else
-                distance_gain = 1.f / constant_attenuation;
+                distance_gain = attenuate(max_attenuation_distance) / attenuation_at_min_dist;
               
               // --- Directional Panning (listener ears) ---
               float pan = la::dot(right_l, dir_un); // -1=left, +1=right
@@ -188,14 +194,33 @@ namespace applaudio
         }
       }
       
-      void set_attenuation_min_distance(float min_dist)
+      bool set_attenuation_min_distance(float min_dist)
       {
+        assert(std::isfinite(min_dist) && "ERROR: min_dist is not finite.");
+        if (!std::isfinite(min_dist))
+          return false;
+        assert(min_dist > 0.f && "ERROR: min_dist is negative. min_dist must be positive.");
+        if (min_dist <= 0.f)
+          return false;
+        min_dist = std::max(min_dist, 1e-9f);
         min_attenuation_distance = min_dist;
+        
+        attenuation_at_min_dist = attenuate(min_attenuation_distance);
+        
+        const float c_min_attenuation = 1e-6f;
+        const float c_max_attenuation = 1e6f;
+        assert(std::isfinite(attenuation_at_min_dist) && "ERROR: Attenuation gain at min distance limit is not finite.");
+        if (!std::isfinite(attenuation_at_min_dist))
+          return false;
+        assert(attenuation_at_min_dist > c_min_attenuation && "ERROR: Attenuation gain at min distance limit is too small and will lead to precision issues. Consider decreasing the min distance or fall-off params.");
+        assert(attenuation_at_min_dist < c_max_attenuation && "ERROR: Attenuation gain at min distance limit is too large and will lead to precision issues. Consider increasing the min distance or fall-off params.");
+        attenuation_at_min_dist = std::clamp(attenuation_at_min_dist, c_min_attenuation, c_max_attenuation);
+        return true;
       }
       
       void set_attenuation_max_distance(float max_dist)
       {
-        max_attenuation_distance = max_dist;
+        max_attenuation_distance = std::max(max_dist, min_attenuation_distance);
       }
       
       void set_attenuation_constant_falloff(float const_falloff)
