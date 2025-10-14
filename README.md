@@ -112,7 +112,7 @@ The important part here is c++20.
 * `bool attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)` : Attaches a sound buffer to a sound source. Returns false on failure.
 * `bool detach_buffer_from_source(unsigned int src_id)` : Detaches a sound buffer from a sound source. Returns false on failure.
 * `void mix()` : Mixes the sound buffers from each respective sound source (depending on the state of the sources that hold each buffer). The mixer is supposed to be called via a thread that is started by the `startup()` function, but mentioning it here for reference. The mixer is capable of handling buffers of different sampling rates (via linear interpolation) and different amounts of channels. This is the heart of the audio engine.
-* `void play_source(unsigned int src_id)` : Starts playing a sound source. If playing for the first time or if it was stopped, it plays from the beginning, and if it was paused, then it will resume playback from where it was paused.
+* `void play_source(unsigned int src_id)` : Starts playing a sound source. If not paused then it plays from the beginning, but if it was paused, then it will resume playback from where it was paused.
 * `bool is_source_playing(unsigned int src_id) const` : Checks if a given sound source is already playing and returns true if it plays, false otherwise.
 * `void pause_source(unsigned int src_id)` : Pauses the supplied sound source. If it is already paused, then nothing happens.
 * `void stop_source(unsigned int src_id)` : Stops the supplied sound source.
