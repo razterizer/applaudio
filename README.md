@@ -28,7 +28,7 @@ The idea with this library is to have a library that has the following propertie
 ## Structure
 
 ```
-8Beat // (optinoal) different repo / library for sound effects and generation of waveforms, chiptune player etc.
+8Beat // (optional) different repo / library for sound effects and generation of waveforms, chiptune player etc.
 |
 +--> AudioLibSwitcher_applaudio // (optional) different repo that implements the IAudioLibSwitcher interface.
       |
