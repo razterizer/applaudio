@@ -166,6 +166,7 @@ namespace applaudio
           else
           {
             src.playing = false;
+            src.finished_playing = true;
             break;
           }
         }
@@ -275,6 +276,7 @@ namespace applaudio
           else
           {
             src.playing = false;
+            src.finished_playing = true;
             break;
           }
         }
@@ -559,6 +561,11 @@ namespace applaudio
       {
         Source& src = it->second;
         src.playing = true;
+        if (src.finished_playing)
+        {
+          src.play_pos = 0.0;
+          src.finished_playing = false;
+        }
       }
     }
     
