@@ -567,6 +567,7 @@ namespace applaudio
         src.playing = true;
         if (!src.paused)
           src.play_pos = 0.0;
+        src.paused = false;
       }
     }
     
