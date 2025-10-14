@@ -166,7 +166,6 @@ namespace applaudio
           else
           {
             src.playing = false;
-            src.finished_playing = true;
             break;
           }
         }
@@ -276,7 +275,6 @@ namespace applaudio
           else
           {
             src.playing = false;
-            src.finished_playing = true;
             break;
           }
         }
@@ -531,7 +529,11 @@ namespace applaudio
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
-        src_it->second.buffer_id = buf_id;
+        Source& src = src_it->second;
+        src.buffer_id = buf_id;
+        src.playing = false; // Stop playback
+        src.play_pos = 0.0; // Reset position
+        src.paused = false;
         return true;
       }
       return false;
@@ -545,9 +547,11 @@ namespace applaudio
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
-        src_it->second.buffer_id = 0; // Detach by setting buffer_id to 0
-        src_it->second.playing = false; // Stop playback
-        src_it->second.play_pos = 0.0; // Reset position
+        Source& src = src_it->second;
+        src.buffer_id = 0; // Detach by setting buffer_id to 0
+        src.playing = false; // Stop playback
+        src.play_pos = 0.0; // Reset position
+        src.paused = false;
         return true;
       }
       return false;
@@ -561,11 +565,8 @@ namespace applaudio
       {
         Source& src = it->second;
         src.playing = true;
-        if (src.finished_playing)
-        {
+        if (!src.paused)
           src.play_pos = 0.0;
-          src.finished_playing = false;
-        }
       }
     }
     
@@ -583,7 +584,11 @@ namespace applaudio
     {
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
-        it->second.playing = false;
+      {
+        Source& src = it->second;
+        src.playing = false;
+        src.paused = true;
+      }
     }
     
     // Stop the source
@@ -592,8 +597,10 @@ namespace applaudio
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
-        it->second.playing = false;
-        it->second.play_pos = 0.0;
+        Source& src = it->second;
+        src.playing = false;
+        src.paused = false;
+        src.play_pos = 0.0;
       }
     }
     
