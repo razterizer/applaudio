@@ -122,12 +122,10 @@ The important part here is c++20.
 * `void print_backend_name() const` : Prints the name of the current backend.
 * `void init_3d_scene(float speed_of_sound)` : Initializes positional audio context/scene and forces you to set the speed of sound in whatever speed unit you are using in your application code.
 * `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
-* `bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& trf_local_to_world,
-                            const la::Vec3& pos_local_left, const la::Vec3& vel_world_left,
-                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for provided source ID. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment.
-* `bool set_listener_pos_vel(const la::Mtx4& trf_local_to_world,
-                              const la::Vec3& pos_local_left, const la::Vec3& vel_world_left,
-                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment.
+* `bool set_source_channel_3d_state(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
+                                     const la::Vec3& pos_world, const la::Vec3& vel_world)` : Sets the orientation, world space position and world space velocity of specified channel "emitter" for provided source ID. Only mono and stereo channels are supported at the moment.
+* `bool set_listener_channel_3d_state(int channel, const la::Mtx3& rot_mtx,
+                                       const la::Vec3& pos_world, const la::Vec3& vel_world)` : Sets the orientation, world space position and world space velocity of specified channel "ear" for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. Only mono and stereo channels are supported at the moment.
 * `bool set_attenuation_min_distance(float min_dist)` : Sets the minimum distance limit between listener and source where any attenuation is possible. Any distance smaller than this distance will be clamped to this minimum distance.
 * `bool set_attenuation_max_distance(float max_dist)` : Sets the maximum distance limit between listener and source so that no further attenuation will happen beyond this limit.
 * `bool set_attenuation_constant_falloff(float const_falloff)` : Sets the constant falloff factor for the attenuation model.
