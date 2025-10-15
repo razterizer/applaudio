@@ -23,15 +23,14 @@ namespace applaudio
     
     struct State3D
     {
-      la::Vec3 pos_local;
-      la::Vec3 pos_world; // Cached.
+      la::Vec3 pos_world;
       la::Vec3 vel_world;
       std::vector<Param3D> listener_ch_params;
     };
     
     class Object3D
     {
-      la::Mtx4 trf;
+      la::Mtx3 m_rot_mtx;
       
       std::vector<State3D> channel_state;
       bool audio_3d_enabled = false;
@@ -53,17 +52,16 @@ namespace applaudio
       
     public:
       
-      void update(const la::Mtx4& trf_local_to_world,
-                  const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                  const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+      void update(const la::Mtx3& rot_mtx,
+                  const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
+                  const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
       {
-        trf = trf_local_to_world;
+        m_rot_mtx = rot_mtx;
         const int n_ch = num_channels();
         for (int ch = 0; ch < n_ch; ++ch)
         {
           auto* state = get_state(ch);
-          state->pos_local = ch == 0 ? pos_local_left : pos_local_right;
-          state->pos_world = trf.transform_pos(state->pos_local);
+          state->pos_world = ch == 0 ? pos_world_left : pos_world_right;
           state->vel_world = ch == 0 ? vel_world_left : vel_world_right;
         }
       }
@@ -87,21 +85,21 @@ namespace applaudio
       const la::Vec3 dir_right() const
       {
         la::Vec3 vec_right;
-        trf.get_column_vec(la::X, vec_right);
+        m_rot_mtx.get_column_vec(la::X, vec_right);
         return vec_right;
       }
       
       const la::Vec3 dir_up() const
       {
         la::Vec3 vec_up;
-        trf.get_column_vec(la::Y, vec_up);
+        m_rot_mtx.get_column_vec(la::Y, vec_up);
         return vec_up;
       }
       
       const la::Vec3 dir_forward() const
       {
         la::Vec3 vec_backward;
-        trf.get_column_vec(la::Z, vec_backward);
+        m_rot_mtx.get_column_vec(la::Z, vec_backward);
         return -vec_backward;
       }
     };

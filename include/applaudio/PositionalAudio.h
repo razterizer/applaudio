@@ -63,12 +63,12 @@ namespace applaudio
         return m_speed_of_sound;
       }
       
-      void update_obj(Object3D& obj, const la::Mtx4& trf_local_to_world, const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                      const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+      void update_obj(Object3D& obj, const la::Mtx3& rot_mtx, const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
+                      const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
       {
-        obj.update(trf_local_to_world,
-                   pos_local_left, vel_world_left,
-                   pos_local_right, vel_world_right);
+        obj.update(rot_mtx,
+                   pos_world_left, vel_world_left,
+                   pos_world_right, vel_world_right);
       }
       
       void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)

@@ -14,10 +14,13 @@
 namespace la
 {
   enum Coord { X, Y, Z, W };
-  enum M4Coord { XX, XY, XZ, XW,
-                 YX, YY, YZ, YW,
-                 ZX, ZY, ZZ, ZW,
-                 WX, WY, WZ, WW };
+  enum M3Coord { m3XX, m3XY, m3XZ,
+                 m3YX, m3YY, m3YZ,
+                 m3ZX, m3ZY, m3ZZ };
+  enum M4Coord { m4XX, m4XY, m4XZ, m4XW,
+                 m4YX, m4YY, m4YZ, m4YW,
+                 m4ZX, m4ZY, m4ZZ, m4ZW,
+                 m4WX, m4WY, m4WZ, m4WW };
 
   class Vec3
   {
@@ -133,6 +136,80 @@ namespace la
   
   // /////////////////////////////////
   
+  class Mtx3
+  {
+    std::array<float, 9> elem { 1.f, 0.f, 0.f,
+                                0.f, 1.f, 0.f,
+                                0.f, 0.f, 1.f };
+    
+  public:
+    Mtx3() = default;
+    Mtx3(float xx, float xy, float xz,
+         float yx, float yy, float yz,
+         float zx, float zy, float zz)
+      : elem({ xx, xy, xz,
+               yx, yy, yz,
+               zx, zy, zz })
+    {}
+    Mtx3(const std::array<float, 9>& row_major_mat)
+      : elem(row_major_mat)
+    {}
+    
+    float& operator[](int idx) { return elem[idx]; }
+    const float& operator[](int idx) const { return elem[idx]; }
+    
+    float& operator()(int r, int c) { return elem[r*3 + c]; }
+    const float& operator()(int r, int c) const { return elem[r*3 + c]; }
+    
+    inline float xx() const noexcept { return elem[m3XX]; }
+    inline float xy() const noexcept { return elem[m3XY]; }
+    inline float xz() const noexcept { return elem[m3XZ]; }
+    inline float yx() const noexcept { return elem[m3YX]; }
+    inline float yy() const noexcept { return elem[m3YY]; }
+    inline float yz() const noexcept { return elem[m3YZ]; }
+    inline float zx() const noexcept { return elem[m3ZX]; }
+    inline float zy() const noexcept { return elem[m3ZY]; }
+    inline float zz() const noexcept { return elem[m3ZZ]; }
+    
+    Vec3 transform_vec(const Vec3& local_vec) const
+    {
+      auto lv_x = local_vec.x();
+      auto lv_y = local_vec.y();
+      auto lv_z = local_vec.z();
+      return { xx() * lv_x + xy() * lv_y + xz() * lv_z,
+               yx() * lv_x + yy() * lv_y + yz() * lv_z,
+               zx() * lv_x + zy() * lv_y + zz() * lv_z };
+    }
+    
+    bool get_column_vec(int col, Vec3& col_vec) const
+    {
+      if (0 <= col && col < 4)
+      {
+        col_vec = { (*this)(X, col), (*this)(Y, col), (*this)(Z, col) };
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_column_vec(int col, const Vec3& col_vec)
+    {
+      if (0 <= col && col < 4)
+      {
+        (*this)(X, col) = col_vec[X];
+        (*this)(Y, col) = col_vec[Y];
+        (*this)(Z, col) = col_vec[Z];
+        return true;
+      }
+      return false;
+    }
+  };
+  
+  Mtx3 Mtx3_Identity { 1.f, 0.f, 0.f,
+                       0.f, 1.f, 0.f,
+                       0.f, 0.f, 1.f };
+  
+  // /////////////////////////////////
+  
   class Mtx4
   {
     std::array<float, 16> elem { 1.f, 0.f, 0.f, 0.f,
@@ -161,22 +238,22 @@ namespace la
     float& operator()(int r, int c) { return elem[r*4 + c]; }
     const float& operator()(int r, int c) const { return elem[r*4 + c]; }
     
-    inline float xx() const noexcept { return elem[XX]; }
-    inline float xy() const noexcept { return elem[XY]; }
-    inline float xz() const noexcept { return elem[XZ]; }
-    inline float xw() const noexcept { return elem[XW]; }
-    inline float yx() const noexcept { return elem[YX]; }
-    inline float yy() const noexcept { return elem[YY]; }
-    inline float yz() const noexcept { return elem[YZ]; }
-    inline float yw() const noexcept { return elem[YW]; }
-    inline float zx() const noexcept { return elem[ZX]; }
-    inline float zy() const noexcept { return elem[ZY]; }
-    inline float zz() const noexcept { return elem[ZZ]; }
-    inline float zw() const noexcept { return elem[ZW]; }
-    inline float wx() const noexcept { return elem[WX]; }
-    inline float wy() const noexcept { return elem[WY]; }
-    inline float wz() const noexcept { return elem[WZ]; }
-    inline float ww() const noexcept { return elem[WW]; }
+    inline float xx() const noexcept { return elem[m4XX]; }
+    inline float xy() const noexcept { return elem[m4XY]; }
+    inline float xz() const noexcept { return elem[m4XZ]; }
+    inline float xw() const noexcept { return elem[m4XW]; }
+    inline float yx() const noexcept { return elem[m4YX]; }
+    inline float yy() const noexcept { return elem[m4YY]; }
+    inline float yz() const noexcept { return elem[m4YZ]; }
+    inline float yw() const noexcept { return elem[m4YW]; }
+    inline float zx() const noexcept { return elem[m4ZX]; }
+    inline float zy() const noexcept { return elem[m4ZY]; }
+    inline float zz() const noexcept { return elem[m4ZZ]; }
+    inline float zw() const noexcept { return elem[m4ZW]; }
+    inline float wx() const noexcept { return elem[m4WX]; }
+    inline float wy() const noexcept { return elem[m4WY]; }
+    inline float wz() const noexcept { return elem[m4WZ]; }
+    inline float ww() const noexcept { return elem[m4WW]; }
     
     Vec3 transform_pos(const Vec3& local_pos) const
     {
@@ -217,6 +294,39 @@ namespace la
         return true;
       }
       return false;
+    }
+    
+    Mtx3 get_rot_matrix() const
+    {
+      Mtx3 rot_mtx;
+      rot_mtx(X, X) = (*this)(X, X);
+      rot_mtx(X, Y) = (*this)(X, Y);
+      rot_mtx(X, Z) = (*this)(X, Z);
+      
+      rot_mtx(Y, X) = (*this)(Y, X);
+      rot_mtx(Y, Y) = (*this)(Y, Y);
+      rot_mtx(Y, Z) = (*this)(Y, Z);
+      
+      rot_mtx(Z, X) = (*this)(Z, X);
+      rot_mtx(Z, Y) = (*this)(Z, Y);
+      rot_mtx(Z, Z) = (*this)(Z, Z);
+      
+      return rot_mtx;
+    }
+    
+    void set_rot_matrix(const Mtx3& rot_mtx)
+    {
+      (*this)(X, X) = rot_mtx(X, X);
+      (*this)(X, Y) = rot_mtx(X, Y);
+      (*this)(X, Z) = rot_mtx(X, Z);
+      
+      (*this)(Y, X) = rot_mtx(Y, X);
+      (*this)(Y, Y) = rot_mtx(Y, Y);
+      (*this)(Y, Z) = rot_mtx(Y, Z);
+      
+      (*this)(Z, X) = rot_mtx(Z, X);
+      (*this)(Z, Y) = rot_mtx(Z, Y);
+      (*this)(Z, Z) = rot_mtx(Z, Z);
     }
     
     bool set_column_vec(int col, const Vec3& col_vec, std::optional<float> w = std::nullopt)

@@ -150,19 +150,19 @@ int test_2()
   // --- 4b. Set source 3D properties ---
   engine.enable_source_3d_audio(src_id, true);
   la::Mtx4 trf_s = la::look_at({ 7.f, 5.5f, -3.2f }, { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }); // Source world position encoded here.
-  la::Vec3 pos_s = la::Vec3_Zero; // Channel emitter local positions encoded here.
-  la::Vec3 vel_s { -1.2f, -0.3f, 0.f }; // Channel emitter world velicities encoded here.
-  vel_s *= 5.f;
-  engine.set_source_pos_vel(src_id, trf_s, pos_s, vel_s);
+  la::Vec3 pos_l_s = la::Vec3_Zero; // Channel emitter local positions encoded here.
+  la::Vec3 vel_w_s { -1.2f, -0.3f, 0.f }; // Channel emitter world velicities encoded here.
+  vel_w_s *= 5.f;
+  engine.set_source_pos_vel(src_id, trf_s.get_rot_matrix(), trf_s.transform_pos(pos_l_s), vel_w_s);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
   trf_l.set_column_vec(la::W, la::Vec3_Zero); // Source world position encoded here.
   la::Vec3 pos_l_L { -0.12f, 0.05f, -0.05f }; // Channel Left emitter local position encoded here.
   la::Vec3 pos_l_R { +0.12f, 0.05f, -0.05f }; // Channel Left emitter local position encoded here.
-  la::Vec3 vel_l_L = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
-  la::Vec3 vel_l_R = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
-  engine.set_listener_pos_vel(trf_l, pos_l_L, vel_l_L, pos_l_R, vel_l_R);
+  la::Vec3 vel_w_L = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
+  la::Vec3 vel_w_R = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
+  engine.set_listener_pos_vel(trf_l.get_rot_matrix(), trf_l.transform_pos(pos_l_L), vel_w_L, trf_l.transform_pos(pos_l_R), vel_w_R);
   
   // --- 4d. Set falloff properties ---
   engine.set_attenuation_constant_falloff(1.f);
@@ -183,9 +183,9 @@ int test_2()
   {
     la::Vec3 trf_pos;
     trf_s.get_column_vec(la::W, trf_pos);
-    trf_pos += vel_s * dt;
+    trf_pos += vel_w_s * dt;
     trf_s.set_column_vec(la::W, trf_pos);
-    engine.set_source_pos_vel(src_id, trf_s, pos_s, vel_s);
+    engine.set_source_pos_vel(src_id, trf_s.get_rot_matrix(), trf_s.transform_pos(pos_l_s), vel_w_s);
     next_update += std::chrono::milliseconds(static_cast<int>(dt * 1000));
     std::this_thread::sleep_until(next_update);
   }
