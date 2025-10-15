@@ -17,58 +17,16 @@ namespace applaudio
   
   namespace a3d
   {
-    
-    enum class LengthUnit { MilliMeter = 0, CentiMeter = 1, DeciMeter = 2, Meter = 3, KiloMeter = 6 };
-    
+        
     class PositionalAudio
     {
-      float m_speed_of_sound = 343.f;
-      LengthUnit m_global_length_unit = LengthUnit::Meter;
+      float m_speed_of_sound = 343.f; // m/s. Better to force the user to specify speed in application units via the constructor.
       float constant_attenuation = 1.f;
       float linear_attenuation = 0.2f;
       float quadratic_attenuation = 0.08f;
       float min_attenuation_distance = 1.f;
       float max_attenuation_distance = 500.f;
       float attenuation_at_min_dist = 1.f; // Replaced in set_attenuation_min_distance().
-      
-      static constexpr int pow10(int p)
-      {
-        int r = 1;
-        while (p-- > 0)
-          r *= 10;
-        return r;
-      }
-      
-      float convert_length(float value, std::optional<LengthUnit> lu_from, std::optional<LengthUnit> lu_to)
-      {
-        if (!lu_from.has_value() || !lu_to.has_value())
-          return value; // Nothing to convert from or to.
-      
-        // e.g. m -> mm : value * 1000
-        auto idx_from = static_cast<int>(lu_from.value());
-        auto idx_to = static_cast<int>(lu_to.value());
-        if (idx_from > idx_to)
-        {
-          int pot = idx_from - idx_to; // m(3) - mm(0) = 3
-          int ratio = pow10(pot);
-          return value * static_cast<float>(ratio);
-        }
-        else if (idx_to > idx_from)
-        {
-          int pot = idx_to - idx_from; // m(3) - mm(0) = 3
-          int ratio = pow10(pot);
-          return value / static_cast<float>(ratio);
-        }
-        //else if (idx_to == idx_from)
-        return value;
-      }
-      
-      la::Vec3 convert_length(const la::Vec3& vec, std::optional<LengthUnit> lu_from, std::optional<LengthUnit> lu_to)
-      {
-        return { convert_length(vec.x(), lu_from, lu_to),
-                 convert_length(vec.y(), lu_from, lu_to),
-                 convert_length(vec.z(), lu_from, lu_to) };
-      }
       
       inline constexpr float attenuate(float d)
       {
@@ -91,40 +49,26 @@ namespace applaudio
       }
       
     public:
-      PositionalAudio(LengthUnit global_length_unit)
-        : m_global_length_unit(global_length_unit) // Don't want to have to rescale variables later.
+      PositionalAudio(float speed_of_sound)
+        : m_speed_of_sound(speed_of_sound)
       {}
-    
-      LengthUnit get_global_length_unit() const { return m_global_length_unit; }
-    
-      void set_speed_of_sound(float speed_of_sound, std::optional<LengthUnit> length_unit = std::nullopt)
+        
+      void set_speed_of_sound(float speed_of_sound)
       {
-        m_speed_of_sound = convert_length(speed_of_sound, length_unit, m_global_length_unit);
+        m_speed_of_sound = speed_of_sound;
       }
       
-      float get_speed_of_sound(std::optional<LengthUnit> length_unit = std::nullopt)
+      float get_speed_of_sound()
       {
-        return convert_length(m_speed_of_sound, m_global_length_unit, length_unit);
+        return m_speed_of_sound;
       }
       
       void update_obj(Object3D& obj, const la::Mtx4& new_trf, const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                      const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
-                      std::optional<LengthUnit> length_unit = std::nullopt)
+                      const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
       {
-        auto pos_left_llu = convert_length(pos_local_left, length_unit, m_global_length_unit);
-        auto pos_right_llu = convert_length(pos_local_right, length_unit, m_global_length_unit);
-        auto vel_left_wlu = convert_length(vel_world_left, length_unit, m_global_length_unit);
-        auto vel_right_wlu = convert_length(vel_world_right, length_unit, m_global_length_unit);
-        auto trf_lu = new_trf;
-        la::Vec3 pos;
-        if (trf_lu.get_column_vec(la::W, pos))
-        {
-          auto pos_lu = convert_length(pos, length_unit, m_global_length_unit);
-          if (trf_lu.set_column_vec(la::W, pos_lu))
-            obj.update(trf_lu,
-                       pos_left_llu, vel_left_wlu,
-                       pos_right_llu, vel_right_wlu);
-        }
+        obj.update(new_trf,
+                   pos_local_left, vel_world_left,
+                   pos_local_right, vel_world_right);
       }
       
       void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)

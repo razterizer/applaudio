@@ -639,9 +639,9 @@ namespace applaudio
     
     // ----- Positional Audio Functions -----
     
-    void init_3d_scene(a3d::LengthUnit global_length_unit)
+    void init_3d_scene(float speed_of_sound)
     {
-      scene_3d = std::make_unique<a3d::PositionalAudio>(global_length_unit);
+      scene_3d = std::make_unique<a3d::PositionalAudio>(speed_of_sound);
       listener.object_3d.set_num_channels(m_output_channels);
     }
     
@@ -654,8 +654,7 @@ namespace applaudio
     
     bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
                             const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
-                            std::optional<a3d::LengthUnit> length_unit = std::nullopt)
+                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
     {
       if (scene_3d == nullptr)
         return false;
@@ -668,7 +667,7 @@ namespace applaudio
           return false;
         if (src.object_3d.num_channels() != buf_it->second.channels)
           src.object_3d.set_num_channels(buf_it->second.channels);
-        scene_3d->update_obj(it->second.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
+        scene_3d->update_obj(it->second.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
         return true;
       }
       return false;
@@ -676,12 +675,11 @@ namespace applaudio
     
     bool set_listener_pos_vel(const la::Mtx4& new_trf,
                               const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
-                              std::optional<a3d::LengthUnit> length_unit = std::nullopt)
+                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
     {
       if (scene_3d == nullptr)
         return false;
-      scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right, length_unit);
+      scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
       return true;
     }
     

@@ -138,7 +138,7 @@ int test_2()
 #endif
 
   // --- 3. Setup 3D environment ---
-  engine.init_3d_scene(applaudio::a3d::LengthUnit::Meter);
+  engine.init_3d_scene(343.f); // speed_of_sound ~= 343 m/s.
 
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
