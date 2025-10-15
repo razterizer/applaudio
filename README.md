@@ -120,7 +120,7 @@ The important part here is c++20.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
 * `void print_backend_name() const` : Prints the name of the current backend.
-* `void init_3d_scene(float speed_of_sound)` : Initializes positional audio context/scene and forces you to set the speed of sound in whatever speed unit you are using in your application code.
+* `void init_3d_scene()` : Initializes positional audio context/scene.
 * `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
 * `bool set_source_3d_state_channel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
                                      const la::Vec3& pos_world, const la::Vec3& vel_world)` : Sets the orientation, world space position and world space linear velocity of specified channel "emitter" for provided source ID. Only mono and stereo channels are supported at the moment.
@@ -132,11 +132,13 @@ The important part here is c++20.
 * `bool set_listener_3d_state(const la::Mtx4& trf,
                                const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
                                const std::vector<la::Vec3>& channel_pos_offsets_local)` : Sets the transform, world space linear velocity and world space angular velocity of the listener object (only one supported at the moment). In this case, we can see the listener basically as a rigid object. Important to note that the transform `trf` must be positioned at the center of mass if you conceptually have this in your application sound listener model. `channel_pos_offsets_local` are per channel (ear) positional offsets in local space which are then rotated to world space by the transform `trf`. This function uses the more low level function `set_listener_3d_state_channel()` internally.
-* `bool set_attenuation_min_distance(float min_dist)` : Sets the minimum distance limit between listener and source where any attenuation is possible. Any distance smaller than this distance will be clamped to this minimum distance.
-* `bool set_attenuation_max_distance(float max_dist)` : Sets the maximum distance limit between listener and source so that no further attenuation will happen beyond this limit.
-* `bool set_attenuation_constant_falloff(float const_falloff)` : Sets the constant falloff factor for the attenuation model.
-* `bool set_attenuation_linear_falloff(float lin_falloff)` : Sets the linear falloff factor for the attenuation model.
-* `bool set_attenuation_quadratic_falloff(float sq_falloff)` : Sets the quadratic falloff factor for the attenuation model.
+* `bool set_speed_of_sound(unsigned int src_id, float speed_of_sound)` : Sets the speed of sound for specified source. This allows you to have per source doppler shifts which allows you to simulate different doppler shifts in different physical materials/mediums.
+* `std::optional<float> get_speed_of_sound(unsigned int src_id) const` : Gets the speed of sound for a specified source.
+* `bool set_attenuation_min_distance(unsigned int src_id, float min_dist)` : Sets the minimum distance limit between listener and source where any attenuation is possible. Any distance smaller than this distance will be clamped to this minimum distance. This property is set per source which allows you to simulate different physical materials/mediums.
+* `bool set_attenuation_max_distance(unsigned int src_id, float max_dist)` : Sets the maximum distance limit between listener and source so that no further attenuation will happen beyond this limit. This property is set per source which allows you to simulate different physical materials/mediums.
+* `bool set_attenuation_constant_falloff(unsigned int src_id, float const_falloff)` : Sets the constant falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `bool set_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)` : Sets the linear falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `bool set_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)` : Sets the quadratic falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
 
 ## Length Units, Speed Units and Stability
 
