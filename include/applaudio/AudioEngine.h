@@ -639,9 +639,9 @@ namespace applaudio
     
     // ----- Positional Audio Functions -----
     
-    void init_3d_scene(float speed_of_sound)
+    void init_3d_scene()
     {
-      scene_3d = std::make_unique<a3d::PositionalAudio>(speed_of_sound);
+      scene_3d = std::make_unique<a3d::PositionalAudio>();
       listener.object_3d.set_num_channels(m_output_channels);
     }
     
@@ -742,39 +742,96 @@ namespace applaudio
       return true;
     }
     
-    bool set_attenuation_min_distance(float min_dist)
+    bool set_speed_of_sound(unsigned int src_id, float speed_of_sound)
     {
       if (scene_3d == nullptr)
         return false;
-      return scene_3d->set_attenuation_min_distance(min_dist);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.speed_of_sound = speed_of_sound;
+        return true;
+      }
+      return false;
     }
     
-    bool set_attenuation_max_distance(float max_dist)
+    std::optional<float> get_speed_of_sound(unsigned int src_id) const
     {
       if (scene_3d == nullptr)
-        return false;
-      return scene_3d->set_attenuation_max_distance(max_dist);
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        const auto& src = it->second;
+        return src.speed_of_sound;
+      }
+      return std::nullopt;
     }
     
-    bool set_attenuation_constant_falloff(float const_falloff)
+    bool set_attenuation_min_distance(unsigned int src_id, float min_dist)
     {
       if (scene_3d == nullptr)
         return false;
-      return scene_3d->set_attenuation_constant_falloff(const_falloff);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->set_attenuation_min_distance(src, min_dist);
+      }
+      return false;
     }
     
-    bool set_attenuation_linear_falloff(float lin_falloff)
+    bool set_attenuation_max_distance(unsigned int src_id, float max_dist)
     {
       if (scene_3d == nullptr)
         return false;
-      return scene_3d->set_attenuation_linear_falloff(lin_falloff);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->set_attenuation_max_distance(src, max_dist);
+      }
+      return false;
     }
     
-    bool set_attenuation_quadratic_falloff(float sq_falloff)
+    bool set_attenuation_constant_falloff(unsigned int src_id, float const_falloff)
     {
       if (scene_3d == nullptr)
         return false;
-      return scene_3d->set_attenuation_quadratic_falloff(sq_falloff);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->set_attenuation_constant_falloff(src, const_falloff);
+      }
+      return false;
+    }
+    
+    bool set_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->set_attenuation_linear_falloff(src, lin_falloff);
+      }
+      return false;
+    }
+    
+    bool set_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->set_attenuation_quadratic_falloff(src, sq_falloff);
+      }
+      return false;
     }
     
   };

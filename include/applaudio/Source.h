@@ -22,6 +22,15 @@ namespace applaudio
     double play_pos = 0;
     
     a3d::Object3D object_3d;
+    
+    float speed_of_sound = 0.f;
+    
+    float constant_attenuation = 1.f;
+    float linear_attenuation = 0.2f;
+    float quadratic_attenuation = 0.08f;
+    float min_attenuation_distance = 1.f;
+    float max_attenuation_distance = 500.f;
+    float attenuation_at_min_dist = 1.f; // Replaced in set_attenuation_min_distance().
   };
 
 }

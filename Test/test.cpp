@@ -138,7 +138,7 @@ int test_2()
 #endif
 
   // --- 3. Setup 3D environment ---
-  engine.init_3d_scene(343.f); // speed_of_sound ~= 343 m/s.
+  engine.init_3d_scene(); // speed_of_sound ~= 343 m/s.
 
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
@@ -165,10 +165,11 @@ int test_2()
   la::Vec3 ang_vel_w_l = la::Vec3_Zero;
   engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L, pos_l_R });
   
-  // --- 4d. Set falloff properties ---
-  engine.set_attenuation_constant_falloff(1.f);
-  engine.set_attenuation_linear_falloff(0.2f);
-  engine.set_attenuation_quadratic_falloff(0.08f);
+  // --- 4d. Set doppler and falloff properties ---
+  engine.set_speed_of_sound(src_id, 343.f);
+  engine.set_attenuation_constant_falloff(src_id, 1.f);
+  engine.set_attenuation_linear_falloff(src_id, 0.2f);
+  engine.set_attenuation_quadratic_falloff(src_id, 0.08f);
 
   // --- 5. Play the source ---
   engine.play_source(src_id);
