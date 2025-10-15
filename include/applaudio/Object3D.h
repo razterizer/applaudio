@@ -53,11 +53,11 @@ namespace applaudio
       
     public:
       
-      void update(const la::Mtx4& new_trf,
+      void update(const la::Mtx4& trf_local_to_world,
                   const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
                   const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
       {
-        trf = new_trf;
+        trf = trf_local_to_world;
         const int n_ch = num_channels();
         for (int ch = 0; ch < n_ch; ++ch)
         {

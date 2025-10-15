@@ -63,10 +63,10 @@ namespace applaudio
         return m_speed_of_sound;
       }
       
-      void update_obj(Object3D& obj, const la::Mtx4& new_trf, const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
+      void update_obj(Object3D& obj, const la::Mtx4& trf_local_to_world, const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
                       const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
       {
-        obj.update(new_trf,
+        obj.update(trf_local_to_world,
                    pos_local_left, vel_world_left,
                    pos_local_right, vel_world_right);
       }

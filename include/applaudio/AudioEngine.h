@@ -652,7 +652,7 @@ namespace applaudio
         it->second.object_3d.enable_3d_audio(enable);
     }
     
-    bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
+    bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& trf_local_to_world,
                             const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
                             const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
     {
@@ -667,19 +667,19 @@ namespace applaudio
           return false;
         if (src.object_3d.num_channels() != buf_it->second.channels)
           src.object_3d.set_num_channels(buf_it->second.channels);
-        scene_3d->update_obj(it->second.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
+        scene_3d->update_obj(it->second.object_3d, trf_local_to_world, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
         return true;
       }
       return false;
     }
     
-    bool set_listener_pos_vel(const la::Mtx4& new_trf,
+    bool set_listener_pos_vel(const la::Mtx4& trf_local_to_world,
                               const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
                               const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
     {
       if (scene_3d == nullptr)
         return false;
-      scene_3d->update_obj(listener.object_3d, new_trf, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
+      scene_3d->update_obj(listener.object_3d, trf_local_to_world, pos_local_left, vel_world_left, pos_local_right, vel_world_right);
       return true;
     }
     
