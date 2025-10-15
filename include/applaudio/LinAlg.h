@@ -28,6 +28,9 @@ namespace la
     Vec3(float x, float y, float z)
       : elem({ x, y, z })
     {}
+    Vec3(const std::array<float, 3>& xyz)
+      : elem(xyz)
+    {}
     
     float& operator[](int coord) { return elem[coord]; }
     const float& operator[](int coord) const { return elem[coord]; }
@@ -147,8 +150,10 @@ namespace la
                yx, yy, yz, yw,
                zx, zy, zz, zw,
                wx, wy, wz, ww })
-    {
-    }
+    {}
+    Mtx4(const std::array<float, 16>& row_major_mat)
+      : elem(row_major_mat)
+    {}
     
     float& operator[](int idx) { return elem[idx]; }
     const float& operator[](int idx) const { return elem[idx]; }
