@@ -23,6 +23,7 @@ namespace applaudio
     
     struct State3D
     {
+      la::Mtx3 rot_mtx;
       la::Vec3 pos_world;
       la::Vec3 vel_world;
       std::vector<Param3D> listener_ch_params;
@@ -30,8 +31,6 @@ namespace applaudio
     
     class Object3D
     {
-      la::Mtx3 m_rot_mtx;
-      
       std::vector<State3D> channel_state;
       bool audio_3d_enabled = false;
       
@@ -52,26 +51,26 @@ namespace applaudio
       
     public:
       
-      void update(const la::Mtx3& rot_mtx,
-                  const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
-                  const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+      bool set_channel_state(int ch, const la::Mtx3& rot_mtx, const la::Vec3& pos_world, const la::Vec3& vel_world)
       {
-        m_rot_mtx = rot_mtx;
         const int n_ch = num_channels();
-        for (int ch = 0; ch < n_ch; ++ch)
+        if (0 <= ch && ch < n_ch)
         {
-          auto* state = get_state(ch);
-          state->pos_world = ch == 0 ? pos_world_left : pos_world_right;
-          state->vel_world = ch == 0 ? vel_world_left : vel_world_right;
+          auto* state = get_channel_state(ch);
+          state->rot_mtx = rot_mtx;
+          state->pos_world = pos_world;
+          state->vel_world = vel_world;
+          return true;
         }
+        return false;
       }
       
-      State3D* get_state(int ch)
+      State3D* get_channel_state(int ch)
       {
         return get_state_impl(channel_state, ch);
       }
       
-      const State3D* get_state(int ch) const
+      const State3D* get_channel_state(int ch) const
       {
         return get_state_impl(channel_state, ch);
       }
@@ -82,25 +81,43 @@ namespace applaudio
       int num_channels() const { return static_cast<int>(channel_state.size()); }
       void set_num_channels(int num_ch) { channel_state.resize(num_ch); }
       
-      const la::Vec3 dir_right() const
+      const la::Vec3 dir_right(int ch) const
       {
-        la::Vec3 vec_right;
-        m_rot_mtx.get_column_vec(la::X, vec_right);
-        return vec_right;
+        const int n_ch = num_channels();
+        if (0 <= ch && ch < n_ch)
+        {
+          la::Vec3 vec_right;
+          auto* state = get_channel_state(ch);
+          state->rot_mtx.get_column_vec(la::X, vec_right);
+          return vec_right;
+        }
+        return la::Vec3_Zero;
       }
       
-      const la::Vec3 dir_up() const
+      const la::Vec3 dir_up(int ch) const
       {
-        la::Vec3 vec_up;
-        m_rot_mtx.get_column_vec(la::Y, vec_up);
-        return vec_up;
+        const int n_ch = num_channels();
+        if (0 <= ch && ch < n_ch)
+        {
+          la::Vec3 vec_up;
+          auto* state = get_channel_state(ch);
+          state->rot_mtx.get_column_vec(la::Y, vec_up);
+          return vec_up;
+        }
+        return la::Vec3_Zero;
       }
       
-      const la::Vec3 dir_forward() const
+      const la::Vec3 dir_forward(int ch) const
       {
-        la::Vec3 vec_backward;
-        m_rot_mtx.get_column_vec(la::Z, vec_backward);
-        return -vec_backward;
+        const int n_ch = num_channels();
+        if (0 <= ch && ch < n_ch)
+        {
+          la::Vec3 vec_backward;
+          auto* state = get_channel_state(ch);
+          state->rot_mtx.get_column_vec(la::Z, vec_backward);
+          return -vec_backward;
+        }
+        return la::Vec3_Zero;
       }
     };
     

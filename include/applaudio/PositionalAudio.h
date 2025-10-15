@@ -63,35 +63,32 @@ namespace applaudio
         return m_speed_of_sound;
       }
       
-      void update_obj(Object3D& obj, const la::Mtx3& rot_mtx, const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
-                      const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+      bool update_obj_channel_state(Object3D& obj, int ch, const la::Mtx3& rot_mtx, const la::Vec3& pos_world, const la::Vec3& vel_world)
       {
-        obj.update(rot_mtx,
-                   pos_world_left, vel_world_left,
-                   pos_world_right, vel_world_right);
+        return obj.set_channel_state(ch, rot_mtx, pos_world, vel_world);
       }
       
       void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)
       {
         const int n_ch_l = listener.object_3d.num_channels();
-        la::Vec3 forward_l = listener.object_3d.dir_forward();
-        la::Vec3 right_l   = listener.object_3d.dir_right();
       
         for (auto& [src_id, src] : source_vec)
         {
           const int n_ch_s = src.object_3d.num_channels();
           for (int ch_s = 0; ch_s < n_ch_s; ++ch_s)
           {
-            auto* state_s = src.object_3d.get_state(ch_s);
+            auto* state_s = src.object_3d.get_channel_state(ch_s);
             state_s->listener_ch_params.resize(n_ch_l);
           }
         
           for (int ch_l = 0; ch_l < n_ch_l; ++ch_l)
           {
-            const auto* state_l = listener.object_3d.get_state(ch_l);
+            const auto* state_l = listener.object_3d.get_channel_state(ch_l);
+            la::Vec3 forward_l = listener.object_3d.dir_forward(ch_l);
+            la::Vec3 right_l   = listener.object_3d.dir_right(ch_l);
             for (int ch_s = 0; ch_s < n_ch_s; ++ch_s)
             {
-              auto* state_s = src.object_3d.get_state(ch_s);
+              auto* state_s = src.object_3d.get_channel_state(ch_s);
               
               auto dir = state_s->pos_world - state_l->pos_world;
               if (dir.length_squared() < 1e-9f)
@@ -136,7 +133,7 @@ namespace applaudio
               }
               
               // --- Optional source directivity ---
-              la::Vec3 forward_s = src.object_3d.dir_forward();
+              la::Vec3 forward_s = src.object_3d.dir_forward(ch_s);
               float src_cos_angle = la::dot(forward_s, -dir_un);
               float source_directivity_weight = std::pow(std::clamp(src_cos_angle, 0.f, 1.f), 2.f);
               

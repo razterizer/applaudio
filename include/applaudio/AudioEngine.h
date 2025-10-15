@@ -250,7 +250,7 @@ namespace applaudio
           float sum = 0.f;
           for (int ch_s = 0; ch_s < src_ch; ++ch_s)
           {
-            const auto* state_s = src.object_3d.get_state(ch_s);
+            const auto* state_s = src.object_3d.get_channel_state(ch_s);
             if (ch_l >= state_s->listener_ch_params.size())
               continue;
             const auto& p = state_s->listener_ch_params[ch_l];
@@ -652,9 +652,8 @@ namespace applaudio
         it->second.object_3d.enable_3d_audio(enable);
     }
     
-    bool set_source_pos_vel(unsigned int src_id, const la::Mtx3& rot_mtx,
-                            const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
-                            const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+    bool set_source_pos_vel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
+                            const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
@@ -667,19 +666,18 @@ namespace applaudio
           return false;
         if (src.object_3d.num_channels() != buf_it->second.channels)
           src.object_3d.set_num_channels(buf_it->second.channels);
-        scene_3d->update_obj(it->second.object_3d, rot_mtx, pos_world_left, vel_world_left, pos_world_right, vel_world_right);
+        scene_3d->update_obj_channel_state(it->second.object_3d, channel, rot_mtx, pos_world, vel_world);
         return true;
       }
       return false;
     }
     
-    bool set_listener_pos_vel(const la::Mtx3& rot_mtx,
-                              const la::Vec3& pos_world_left, const la::Vec3& vel_world_left, // mono | stereo left
-                              const la::Vec3& pos_world_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero) // stereo right
+    bool set_listener_pos_vel(int channel, const la::Mtx3& rot_mtx,
+                              const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
-      scene_3d->update_obj(listener.object_3d, rot_mtx, pos_world_left, vel_world_left, pos_world_right, vel_world_right);
+      scene_3d->update_obj_channel_state(listener.object_3d, channel, rot_mtx, pos_world, vel_world);
       return true;
     }
     
