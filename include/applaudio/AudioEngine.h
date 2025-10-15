@@ -652,8 +652,8 @@ namespace applaudio
         it->second.object_3d.enable_3d_audio(enable);
     }
     
-    bool set_source_pos_vel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
-                            const la::Vec3& pos_world, const la::Vec3& vel_world)
+    bool set_source_channel_3d_state(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
+                                     const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
@@ -672,8 +672,8 @@ namespace applaudio
       return false;
     }
     
-    bool set_listener_pos_vel(int channel, const la::Mtx3& rot_mtx,
-                              const la::Vec3& pos_world, const la::Vec3& vel_world)
+    bool set_listener_channel_3d_state(int channel, const la::Mtx3& rot_mtx,
+                                       const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
