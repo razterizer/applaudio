@@ -652,13 +652,13 @@ namespace applaudio
         it->second.object_3d.enable_3d_audio(enable);
     }
     
-    bool set_source_channel_3d_state(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
+    bool set_source_3d_state_channel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
                                      const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
-      if (it != m_sources.end() && scene_3d != nullptr)
+      if (it != m_sources.end())
       {
         auto& src = it->second;
         auto buf_it = m_buffers.find(src.buffer_id);
@@ -672,12 +672,73 @@ namespace applaudio
       return false;
     }
     
-    bool set_listener_channel_3d_state(int channel, const la::Mtx3& rot_mtx,
+    // W column of trf should be center of mass of listener.
+    bool set_source_3d_state(unsigned int src_id, const la::Mtx4& trf,
+                             const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
+                             const std::vector<la::Vec3>& channel_pos_offsets_local)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        auto buf_it = m_buffers.find(src.buffer_id);
+        if (buf_it == m_buffers.end())
+          return false;
+        if (src.object_3d.num_channels() != buf_it->second.channels)
+          src.object_3d.set_num_channels(buf_it->second.channels);
+        if (channel_pos_offsets_local.size() != src.object_3d.num_channels())
+        {
+          std::cerr << "ERROR in set_source_3d_state() : number of channel_pos_offsets_local positions do not match the number of channels registered in the source." << std::endl;
+          return false;
+        }
+        for (int ch = 0; ch < src.object_3d.num_channels(); ++ch)
+        {
+          const auto& local_pos_ch = channel_pos_offsets_local[ch];
+          auto world_pos_ch = trf.transform_pos(local_pos_ch);
+          auto world_ang_vel = trf.transform_vec(ang_vel_local);
+          la::Vec3 world_pos_cm;
+          trf.get_column_vec(la::W, world_pos_cm);
+          auto world_vel_ch = vel_world + la::cross(world_ang_vel, world_pos_ch - world_pos_cm);
+          scene_3d->update_obj_channel_state(it->second.object_3d, ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
+        }
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_listener_3d_state_channel(int channel, const la::Mtx3& rot_mtx,
                                        const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
       if (scene_3d == nullptr)
         return false;
       scene_3d->update_obj_channel_state(listener.object_3d, channel, rot_mtx, pos_world, vel_world);
+      return true;
+    }
+    
+    // W column of trf should be center of mass of listener.
+    bool set_listener_3d_state(const la::Mtx4& trf,
+                               const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
+                               const std::vector<la::Vec3>& channel_pos_offsets_local)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      if (channel_pos_offsets_local.size() != listener.object_3d.num_channels())
+      {
+        std::cerr << "ERROR in set_listener_3d_state() : number of channel_pos_offsets_local positions do not match the number of channels registered in the listener." << std::endl;
+        return false;
+      }
+      for (int ch = 0; ch < listener.object_3d.num_channels(); ++ch)
+      {
+        const auto& local_pos_ch = channel_pos_offsets_local[ch];
+        auto world_pos_ch = trf.transform_pos(local_pos_ch);
+        auto world_ang_vel = trf.transform_vec(ang_vel_local);
+        la::Vec3 world_pos_cm;
+        trf.get_column_vec(la::W, world_pos_cm);
+        auto world_vel_ch = vel_world + la::cross(world_ang_vel, world_pos_ch - world_pos_cm);
+        scene_3d->update_obj_channel_state(listener.object_3d, ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
+      }
       return true;
     }
     

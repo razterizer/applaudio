@@ -152,18 +152,18 @@ int test_2()
   la::Mtx4 trf_s = la::look_at({ 7.f, 5.5f, -3.2f }, { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }); // Source world position encoded here.
   la::Vec3 pos_l_s = la::Vec3_Zero; // Channel emitter local positions encoded here.
   la::Vec3 vel_w_s { -1.2f, -0.3f, 0.f }; // Channel emitter world velicities encoded here.
+  la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
-  engine.set_source_channel_3d_state(src_id, 0, trf_s.get_rot_matrix(), trf_s.transform_pos(pos_l_s), vel_w_s);
+  engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_s });
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
   trf_l.set_column_vec(la::W, la::Vec3_Zero); // Source world position encoded here.
   la::Vec3 pos_l_L { -0.12f, 0.05f, -0.05f }; // Channel Left emitter local position encoded here.
   la::Vec3 pos_l_R { +0.12f, 0.05f, -0.05f }; // Channel Left emitter local position encoded here.
-  la::Vec3 vel_w_L = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
-  la::Vec3 vel_w_R = la::Vec3_Zero; // Channel Right emitter world velocity encoded here.
-  engine.set_listener_channel_3d_state(0, trf_l.get_rot_matrix(), trf_l.transform_pos(pos_l_L), vel_w_L);
-  engine.set_listener_channel_3d_state(1, trf_l.get_rot_matrix(), trf_l.transform_pos(pos_l_R), vel_w_R);
+  la::Vec3 vel_w_l = la::Vec3_Zero; // Lisitener world velocity encoded here.
+  la::Vec3 ang_vel_w_l = la::Vec3_Zero;
+  engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L, pos_l_R });
   
   // --- 4d. Set falloff properties ---
   engine.set_attenuation_constant_falloff(1.f);
@@ -175,7 +175,7 @@ int test_2()
 
   // --- 6. Let the engine run for a few seconds. Move source ---
   std::cout << "Playing 3D sine wave..." << std::endl;
-  double animation_duration = 10.0;
+  double animation_duration = 3.0;
   int num_iters = 500;
   double dt = animation_duration / num_iters;
   auto start_time = std::chrono::steady_clock::now();
@@ -186,7 +186,7 @@ int test_2()
     trf_s.get_column_vec(la::W, trf_pos);
     trf_pos += vel_w_s * dt;
     trf_s.set_column_vec(la::W, trf_pos);
-    engine.set_source_channel_3d_state(src_id, 0, trf_s.get_rot_matrix(), trf_s.transform_pos(pos_l_s), vel_w_s);
+    engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_s });
     next_update += std::chrono::milliseconds(static_cast<int>(dt * 1000));
     std::this_thread::sleep_until(next_update);
   }
