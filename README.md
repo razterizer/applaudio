@@ -120,18 +120,25 @@ The important part here is c++20.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
 * `void print_backend_name() const` : Prints the name of the current backend.
-* `void init_3d_scene(a3d::LengthUnit global_length_unit)` : Initializes positional audio context/scene and allows you to set the length unit used for positions and velocities.
+* `void init_3d_scene(float speed_of_sound)` : Initializes positional audio context/scene and forces you to set the speed of sound in whatever speed unit you are using in your application code.
 * `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
 * `bool set_source_pos_vel(unsigned int src_id, const la::Mtx4& new_trf,
-                            const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
-                            std::optional<a3d::LengthUnit> length_unit = std::nullopt)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for provided source ID. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment. Optional argument length_unit is using meters by default and if provided, will rescale the position and velocity arguments to the global length unit set by `init_3d_scene()`.
+                            const la::Vec3& pos_local_left, const la::Vec3& vel_world_left,
+                            const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for provided source ID. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment.
 * `bool set_listener_pos_vel(const la::Mtx4& new_trf,
-                              const la::Vec3& pos_local_left, const la::Vec3& vel_world_left, // mono | stereo left
-                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero, // stereo right
-                              std::optional<a3d::LengthUnit> length_unit = std::nullopt)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment. Optional argument length_unit is using meters by default and if provided, will rescale the position and velocity arguments to the global length unit set by `init_3d_scene()`.
+                              const la::Vec3& pos_local_left, const la::Vec3& vel_world_left,
+                              const la::Vec3& pos_local_right = la::Vec3_Zero, const la::Vec3& vel_world_right = la::Vec3_Zero)` : Sets the orientation, positions of channel emitters in local space and velocities of channel emitters in world space for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. The function ignores the second position and velocity arguments if the buffer attached to the source has mono sound. Only mono and stereo channels are supported at the moment.
 * `bool set_attenuation_min_distance(float min_dist)` : Sets the minimum distance limit between listener and source where any attenuation is possible. Any distance smaller than this distance will be clamped to this minimum distance.
 * `bool set_attenuation_max_distance(float max_dist)` : Sets the maximum distance limit between listener and source so that no further attenuation will happen beyond this limit.
 * `bool set_attenuation_constant_falloff(float const_falloff)` : Sets the constant falloff factor for the attenuation model.
 * `bool set_attenuation_linear_falloff(float lin_falloff)` : Sets the linear falloff factor for the attenuation model.
 * `bool set_attenuation_quadratic_falloff(float sq_falloff)` : Sets the quadratic falloff factor for the attenuation model.
+
+## Length Units, Speed Units and Stability
+
+This API is not using a fixed length unit or speed unit but instead relies on the user to specify quantities in whatever units he/she sees fit.
+
+Positions (especially the W component in source/listener transforms), velocities, and attenuation min/max distances must be expressed in a consistent unit system (e.g., meters & m/s, or kilometers & km/h). 
+
+For best numerical accuracy, keep positions and distances roughly within `[0.1, 10'000]` units, and ensure the magnitudes of velocities relative to the speed of sound stay in a similar range. 
+Extreme values may cause precision issues in Doppler or attenuation calculations.
