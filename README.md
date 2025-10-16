@@ -184,3 +184,5 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 | miniaudio |	🟢🟢🟢🟢 | 🟡🟡 | 🟢🟢🟢	 | 🔴	| 🟢🟢🟢🟢🟢 |	🟢🟢🟢🟢🟢	| 🟢 Yes |
 | SoLoud | 🟢🟢🟢🟢 | 🟢🟢🟢🟢 |	🟢🟢🟢 | 🔴 | 🟢🟢🟢🟢 |	 🟢🟢🟢🟢	| 🟢 Yes |
 | Summary | applaudio = Most modular and DSP-extensible? |	FMOD = richest effects | OpenAL = fixed 3D | FMOD only with real HRTF |	miniaudio = fastest |	applaudio/miniaudio = easiest |	applaudio/miniaudio/SoLoud = header-only |
+
+*DISCLAIMER!* The charts have been partially generated with GPT-5 and may therefore not be entirely truthful.
