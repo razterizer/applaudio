@@ -641,11 +641,10 @@ namespace applaudio
     
     void init_3d_scene()
     {
-      if (scene_3d == nullptr)
-      {
-        scene_3d = std::make_unique<a3d::PositionalAudio>();
-        listener.object_3d.set_num_channels(m_output_channels);
-      }
+      if (scene_3d != nullptr)
+        return;
+      scene_3d = std::make_unique<a3d::PositionalAudio>();
+      listener.object_3d.set_num_channels(m_output_channels);
     }
     
     void enable_source_3d_audio(unsigned int src_id, bool enable)
