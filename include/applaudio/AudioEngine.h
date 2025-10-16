@@ -742,7 +742,7 @@ namespace applaudio
       return true;
     }
     
-    bool set_speed_of_sound(unsigned int src_id, float speed_of_sound)
+    bool set_source_speed_of_sound(unsigned int src_id, float speed_of_sound)
     {
       if (scene_3d == nullptr)
         return false;
@@ -756,7 +756,7 @@ namespace applaudio
       return false;
     }
     
-    std::optional<float> get_speed_of_sound(unsigned int src_id) const
+    std::optional<float> get_source_speed_of_sound(unsigned int src_id) const
     {
       if (scene_3d == nullptr)
         return std::nullopt;
@@ -769,7 +769,7 @@ namespace applaudio
       return std::nullopt;
     }
     
-    bool set_attenuation_min_distance(unsigned int src_id, float min_dist)
+    bool set_source_attenuation_min_distance(unsigned int src_id, float min_dist)
     {
       if (scene_3d == nullptr)
         return false;
@@ -782,7 +782,7 @@ namespace applaudio
       return false;
     }
     
-    bool set_attenuation_max_distance(unsigned int src_id, float max_dist)
+    bool set_source_attenuation_max_distance(unsigned int src_id, float max_dist)
     {
       if (scene_3d == nullptr)
         return false;
@@ -795,7 +795,7 @@ namespace applaudio
       return false;
     }
     
-    bool set_attenuation_constant_falloff(unsigned int src_id, float const_falloff)
+    bool set_source_attenuation_constant_falloff(unsigned int src_id, float const_falloff)
     {
       if (scene_3d == nullptr)
         return false;
@@ -808,7 +808,7 @@ namespace applaudio
       return false;
     }
     
-    bool set_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)
+    bool set_source_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)
     {
       if (scene_3d == nullptr)
         return false;
@@ -821,7 +821,7 @@ namespace applaudio
       return false;
     }
     
-    bool set_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)
+    bool set_source_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)
     {
       if (scene_3d == nullptr)
         return false;

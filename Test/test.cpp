@@ -166,10 +166,10 @@ int test_2()
   engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L, pos_l_R });
   
   // --- 4d. Set doppler and falloff properties ---
-  engine.set_speed_of_sound(src_id, 343.f);
-  engine.set_attenuation_constant_falloff(src_id, 1.f);
-  engine.set_attenuation_linear_falloff(src_id, 0.2f);
-  engine.set_attenuation_quadratic_falloff(src_id, 0.08f);
+  engine.set_source_speed_of_sound(src_id, 343.f);
+  engine.set_source_attenuation_constant_falloff(src_id, 1.f);
+  engine.set_source_attenuation_linear_falloff(src_id, 0.2f);
+  engine.set_source_attenuation_quadratic_falloff(src_id, 0.08f);
 
   // --- 5. Play the source ---
   engine.play_source(src_id);
