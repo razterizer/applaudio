@@ -119,6 +119,7 @@ The important part here is c++20.
 * `void set_source_volume(unsigned int src_id, float vol)` : Sets the volume for the supplied sound source.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
+* `void set_source_panning(unsigned int src_id, std::optional<float> pan)` : Allows you to set panning of a stereo buffer source. If buffer is a mono buffer then nothing will happen. If `std::nullopt` is passed then nothing will happen either. A non-nullopt value will be clamped to the range `[0, 1]`.
 * `void print_backend_name() const` : Prints the name of the current backend.
 * `void init_3d_scene()` : Initializes positional audio context/scene.
 * `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
