@@ -169,3 +169,16 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 | Dependencies | ✅ Minimal; just STL/OS API | ⚙️ Platform backend libs | ✅ Minimal | ✅ Minimal | ⚠️ Large, runtime required | ✅ None, single file | ✅ Minimal; just STL/OS API |
 | Performance | ✅ High, lightweight | ✅ High | ⚙️ Moderate | ✅ High | ✅ High, optimized for games | ✅ High, very lightweight | ✅ High; designed for games/embedded |
 | Use-case fit | Custom engines, games, music/SFX, DSP-heavy applications | Games needing 3D audio for mono sources | Simple games, emulators | Audio recording/playback apps | Commercial-grade game audio with effects | Lightweight engines, games, embedded apps, low-dependency projects | Indie games, lightweight engines, simple 3D audio, SFX generation |
+
+### Flexibility vs. Features Comparison Chart
+
+| Library	| 🔧 Customizability | 🎛️ Built-In DSP & Effects |	🎧 3D/Spatialization | 🧠 HRTF / Psychoacoustics |	⚡ Performance / Footprint |	🧩 Ease of Integration |	🗃️ Header-only |
+| ------- | ------------------ | -------------------------- | --------------------- | ------------------------- | --------------------------- | ----------------------- | --------------- |
+| applaudio (+8Beat) | 🟢🟢🟢🟢🟢 | 🟢🟢🟢 (8Beat DSP) | 🟢🟢🟢🟢 |	🟡 (can emulate via 8Beat) |	🟢🟢🟢🟢	| 🟢🟢🟢🟢	| 🟢 Yes |
+| OpenAL | 🟡🟡🟡 |	🟡 | 🟢🟢🟢 | 🔴	| 🟢🟢🟢	| 🟡🟡	| 🔴 No |
+| SDL2 Audio | 🟢🟢🟢🟢	| 🔴 | 🔴	| 🔴 | 🟢🟢🟢 | 🟢🟢🟢	| 🔴 No |
+| PortAudio	| 🟢🟢🟢🟢 | 🔴 |	🔴 | 🔴	| 🟢🟢🟢🟢	| 🟡🟡 | 🔴 No |
+| FMOD (Lite) |	🟡🟡 | 🟢🟢🟢🟢🟢 | 🟢🟢🟢🟢🟢 | 🟢🟢🟢🟢 | 🟢🟢🟢🟢 | 🟢🟢🟢🟢🟢 | 🔴 No |
+| miniaudio |	🟢🟢🟢🟢 | 🟡🟡 | 🟢🟢🟢	 | 🔴	| 🟢🟢🟢🟢🟢 |	🟢🟢🟢🟢🟢	| 🟢 Yes |
+| SoLoud | 🟢🟢🟢🟢 | 🟢🟢🟢🟢 |	🟢🟢🟢 | 🔴 | 🟢🟢🟢🟢 |	 🟢🟢🟢🟢	| 🟢 Yes |
+| Summary | Most modular and DSP-extensible |	FMOD = richest effects | OpenAL = fixed 3D | FMOD only with real HRTF |	miniaudio = fastest |	applaudio/miniaudio = easiest |	applaudio/miniaudio/SoLoud = header-only |
