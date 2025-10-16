@@ -174,7 +174,7 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 
 | Library	| 🔧 Customizability | 🎛️ Built-In DSP & Effects     |	🎧 3D/Spatialization | 🧠 HRTF / Psychoacoustics |	⚡ Performance / Footprint |	🧩 Ease of Integration |	🗃️ Header-only |
 | ------- | ------------------ | ----------------------------- | --------------------- | ------------------------- | --------------------------- | ----------------------- | --------------- |
-| applaudio (+8Beat) | 🟢🟢🟢🟢🟢 | 🟢🟢🟢 (8Beat DSP) | 🟢🟢🟢🟢 |	🟡 (can emulate via 8Beat) |	🟢🟢🟢🟢	| 🟢🟢🟢🟢	| 🟢 Yes |
+| applaudio (+8Beat) | 🟢🟢🟢🟢🟢 | 🟢🟢🟢 (8Beat DSP) | 🟢🟢🟢🟢 |	🔴 (not yet, since all DSP is now in 8Beat, requires some refactoring to fix) |	🟢🟢🟢🟢	| 🟢🟢🟢🟢	| 🟢 Yes |
 | OpenAL | 🟡🟡🟡 |	🟡 | 🟢🟢🟢 | 🔴	| 🟢🟢🟢	| 🟡🟡	| 🔴 No |
 | SDL2 Audio | 🟢🟢🟢🟢	| 🔴 | 🔴	| 🔴 | 🟢🟢🟢 | 🟢🟢🟢	| 🔴 No |
 | PortAudio	| 🟢🟢🟢🟢 | 🔴 |	🔴 | 🔴	| 🟢🟢🟢🟢	| 🟡🟡 | 🔴 No |
