@@ -149,3 +149,11 @@ Positions (especially the W component in source/listener transforms), velocities
 
 For best numerical accuracy, keep positions and distances roughly within `[0.1, 10'000]` units, and ensure the magnitudes of velocities relative to the speed of sound stay in a similar range. 
 Extreme values may cause precision issues in Doppler or attenuation calculations.
+
+## Feature Comparison Chart
+
+| Feature / Library    | applaudio (+8Beat)                  | OpenAL / OpenAL_Soft                | SDL2 Audio            | PortAudio                           | FMOD (Lite)                           | miniaudio                                       | SoLoud                                          |
+| -------------------- | ----------------------------------- | ----------------------------------- | --------------------- | ----------------------------------- | ------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | 
+| License              | MIT                                 | LGPL / GPL (soft)                   | zlib                  | MIT / custom                        | Proprietary (free for non-commercial) | MIT                                             | ZLib/LibPNG                                     |
+| Platform support     | Windows, macOS, Linux               | Windows, macOS, Linux, Android, iOS | Windows, macOS, Linux | Windows, macOS, Linux, iOS, Android | Windows, macOS, Linux, iOS, Android   | Windows, macOS, Linux, iOS, Android, Emscripten | Windows, macOS, Linux, iOS, Android, Emscripten |
+| Flat stereo panning  | Yes, direct pan control per channel | No (mono sources only via 3D trick) | Manual                | Manual                              | Yes                                   | Yes, per-channel pan                            | Yes, per-channel pan                            |
