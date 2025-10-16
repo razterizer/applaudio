@@ -183,4 +183,4 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 | FMOD (Lite) |	🟡🟡 | 🟢🟢🟢🟢🟢 | 🟢🟢🟢🟢🟢 | 🟢🟢🟢🟢 | 🟢🟢🟢🟢 | 🟢🟢🟢🟢🟢 | 🔴 No |
 | miniaudio |	🟢🟢🟢🟢 | 🟡🟡 | 🟢🟢🟢	 | 🔴	| 🟢🟢🟢🟢🟢 |	🟢🟢🟢🟢🟢	| 🟢 Yes |
 | SoLoud | 🟢🟢🟢🟢 | 🟢🟢🟢🟢 |	🟢🟢🟢 | 🔴 | 🟢🟢🟢🟢 |	 🟢🟢🟢🟢	| 🟢 Yes |
-| Summary | Most modular and DSP-extensible |	FMOD = richest effects | OpenAL = fixed 3D | FMOD only with real HRTF |	miniaudio = fastest |	applaudio/miniaudio = easiest |	applaudio/miniaudio/SoLoud = header-only |
+| Summary | applaudio = Most modular and DSP-extensible? |	FMOD = richest effects | OpenAL = fixed 3D | FMOD only with real HRTF |	miniaudio = fastest |	applaudio/miniaudio = easiest |	applaudio/miniaudio/SoLoud = header-only |
