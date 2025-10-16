@@ -172,8 +172,8 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 
 ### Flexibility vs. Features Comparison Chart
 
-| Library	| 🔧 Customizability | 🎛️ Built-In DSP & Effects |	🎧 3D/Spatialization | 🧠 HRTF / Psychoacoustics |	⚡ Performance / Footprint |	🧩 Ease of Integration |	🗃️ Header-only |
-| ------- | ------------------ | -------------------------- | --------------------- | ------------------------- | --------------------------- | ----------------------- | --------------- |
+| Library	| 🔧 Customizability | 🎛️ Built-In DSP & Effects     |	🎧 3D/Spatialization | 🧠 HRTF / Psychoacoustics |	⚡ Performance / Footprint |	🧩 Ease of Integration |	🗃️ Header-only |
+| ------- | ------------------ | ----------------------------- | --------------------- | ------------------------- | --------------------------- | ----------------------- | --------------- |
 | applaudio (+8Beat) | 🟢🟢🟢🟢🟢 | 🟢🟢🟢 (8Beat DSP) | 🟢🟢🟢🟢 |	🟡 (can emulate via 8Beat) |	🟢🟢🟢🟢	| 🟢🟢🟢🟢	| 🟢 Yes |
 | OpenAL | 🟡🟡🟡 |	🟡 | 🟢🟢🟢 | 🔴	| 🟢🟢🟢	| 🟡🟡	| 🔴 No |
 | SDL2 Audio | 🟢🟢🟢🟢	| 🔴 | 🔴	| 🔴 | 🟢🟢🟢 | 🟢🟢🟢	| 🔴 No |
