@@ -166,7 +166,7 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 | Ease of integration | ✅ Modern C++ API, very flexible, header-only | ⚙️ Moderate, C API | ✅ Easy, C API | ⚙️ Moderate, C API, Verbose | ✅ Easy, but large library | ✅ Extremely easy; single-file C API | ✅ Easy; lightweight C++ API, header-only option |
 | Header-only | ✅ Yes | 🚫 No | 🚫 No | 🚫 No | 🚫 No | ✅ Yes (single .h) | ✅ Yes |
 | Language | C++20 | C | C | C | C/C++ | C | C++ |
-| Lines of code | ~2'000 | ~90'000 – 120'000 | ~10'000 – 15'000 | ~25'000 – 35'000 | Unknown (closed source) | ~18'000 | ~25'000 |
+| Lines of code | ![C++ LOC](https://raw.githubusercontent.com/razterizer/applaudio/badges/loc-badge.svg) | ~90'000 – 120'000 | ~10'000 – 15'000 | ~25'000 – 35'000 | Unknown (closed source) | ~18'000 | ~25'000 |
 | Community / support | 🚫 None yet, early project | ✅ Large | ✅ Large | ⚙️ Medium | ✅ Large, commercial | ✅ Growing, moderate | ⚙️ Moderate; active in indie/game dev |
 | Dependencies | ✅ Minimal; just STL/OS API | ⚙️ Platform backend libs | ✅ Minimal | ✅ Minimal | ⚠️ Large, runtime required | ✅ None, single file | ✅ Minimal; just STL/OS API |
 | Performance | ✅ High, lightweight | ✅ High | ⚙️ Moderate | ✅ High | ✅ High, optimized for games | ✅ High, very lightweight | ✅ High; designed for games/embedded |
