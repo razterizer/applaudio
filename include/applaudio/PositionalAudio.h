@@ -1,0 +1,184 @@
+//
+//  PositionalAudio.h
+//  applaudio
+//
+//  Created by Rasmus Anthin on 2025-10-04.
+//
+
+#pragma once
+#include "Source.h"
+#include "Listener.h"
+#include <optional>
+#include <unordered_map>
+#include <algorithm>
+
+namespace applaudio
+{
+  
+  namespace a3d
+  {
+        
+    class PositionalAudio
+    {
+    
+      inline constexpr float attenuate(const Source& src, float d)
+      {
+        return 1.f / (src.constant_attenuation + src.linear_attenuation * d + src.quadratic_attenuation * d * d);
+      }
+      
+      bool reset_attenuation_at_min_dist(Source& src)
+      {
+        src.attenuation_at_min_dist = attenuate(src, src.min_attenuation_distance);
+        
+        const float c_min_attenuation = 1e-6f;
+        const float c_max_attenuation = 1e6f;
+        assert(std::isfinite(src.attenuation_at_min_dist) && "ERROR: Attenuation gain at min distance limit is not finite.");
+        if (!std::isfinite(src.attenuation_at_min_dist))
+          return false;
+        assert(src.attenuation_at_min_dist > c_min_attenuation && "ERROR: Attenuation gain at min distance limit is too small and will lead to precision issues. Consider decreasing the min distance or fall-off params.");
+        assert(src.attenuation_at_min_dist < c_max_attenuation && "ERROR: Attenuation gain at min distance limit is too large and will lead to precision issues. Consider increasing the min distance or fall-off params.");
+        src.attenuation_at_min_dist = std::clamp(src.attenuation_at_min_dist, c_min_attenuation, c_max_attenuation);
+        return true;
+      }
+      
+    public:
+      PositionalAudio() = default;
+      
+      bool update_obj_channel_state(Object3D& obj, int ch, const la::Mtx3& rot_mtx, const la::Vec3& pos_world, const la::Vec3& vel_world)
+      {
+        return obj.set_channel_state(ch, rot_mtx, pos_world, vel_world);
+      }
+      
+      void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)
+      {
+        const int n_ch_l = listener.object_3d.num_channels();
+      
+        for (auto& [src_id, src] : source_vec)
+        {
+          const int n_ch_s = src.object_3d.num_channels();
+          for (int ch_s = 0; ch_s < n_ch_s; ++ch_s)
+          {
+            auto* state_s = src.object_3d.get_channel_state(ch_s);
+            state_s->listener_ch_params.resize(n_ch_l);
+          }
+        
+          for (int ch_l = 0; ch_l < n_ch_l; ++ch_l)
+          {
+            const auto* state_l = listener.object_3d.get_channel_state(ch_l);
+            la::Vec3 forward_l = listener.object_3d.dir_forward(ch_l);
+            la::Vec3 right_l   = listener.object_3d.dir_right(ch_l);
+            for (int ch_s = 0; ch_s < n_ch_s; ++ch_s)
+            {
+              auto* state_s = src.object_3d.get_channel_state(ch_s);
+              
+              auto dir = state_s->pos_world - state_l->pos_world;
+              if (dir.length_squared() < 1e-9f)
+                continue;
+              
+              auto dir_un = la::normalize(dir);
+              // dir_un points FROM listener TO source.
+              // But for Doppler, we want the direction FROM source TO listener.
+              la::Vec3 dir_source_to_listener = -dir_un;
+              float vLs = la::dot(state_l->vel_world, dir_source_to_listener); // Listener’s velocity along LOS.
+              float vSs = la::dot(state_s->vel_world, dir_source_to_listener); // Source’s velocity along LOS.
+              
+              const float c = src.speed_of_sound;
+              
+              // Doppler
+              float doppler_shift = 1.f;
+              if (c > 0.f)
+              {
+                doppler_shift = (c + vLs) / (c - vSs);
+                doppler_shift = std::clamp(doppler_shift, 0.25f, 4.f);
+              }
+              
+              // Vector from listener to source
+              float dist = dir.length();
+              if (dist < 1e-6f)
+                dist = 1e-6f;
+              
+              // Distance attenuation
+              float distance_gain = 1.f;
+              if (dist < src.min_attenuation_distance)
+                distance_gain = 1.f;
+              else if (src.min_attenuation_distance <= dist && dist < src.max_attenuation_distance)
+                distance_gain = attenuate(src, dist) / src.attenuation_at_min_dist;
+              else
+                distance_gain = attenuate(src, src.max_attenuation_distance) / src.attenuation_at_min_dist;
+              
+              // --- Directional Panning (listener ears) ---
+              float pan = la::dot(right_l, dir_un); // -1=left, +1=right
+              float listener_pan_weight = 1.f;
+              if (n_ch_l >= 2)
+              {
+                if (ch_l == 0)
+                  listener_pan_weight = 0.5f*(1.0f - pan); // left ear
+                else if (ch_l == 1)
+                  listener_pan_weight = 0.5f*(1.0f + pan); // right ear
+              }
+              
+              // --- Optional source directivity ---
+              la::Vec3 forward_s = src.object_3d.dir_forward(ch_s);
+              float src_cos_angle = la::dot(forward_s, -dir_un);
+              float source_directivity_weight = std::pow(std::clamp(src_cos_angle, 0.f, 1.f), 2.f);
+              
+              float frontness = la::dot(forward_l, dir_un); // 1 = front, -1 = behind
+              float rear_weight = std::clamp(0.5f * (1.0f + frontness), 0.2f, 1.0f); // muffle rear slightly
+              
+              // Final gain
+              float gain = distance_gain * listener_pan_weight * source_directivity_weight * rear_weight;
+              gain = std::clamp(gain, 0.f, 1.f);
+              
+              state_s->listener_ch_params[ch_l] = { gain, doppler_shift };
+            }
+          }
+        }
+      }
+      
+      bool set_attenuation_min_distance(Source& src, float min_dist)
+      {
+        assert(std::isfinite(min_dist) && "ERROR: min_dist is not finite.");
+        if (!std::isfinite(min_dist))
+          return false;
+        assert(min_dist > 0.f && "ERROR: min_dist is negative. min_dist must be positive.");
+        if (min_dist <= 0.f)
+          return false;
+        min_dist = std::max(min_dist, 1e-9f);
+        src.min_attenuation_distance = min_dist;
+        
+        return reset_attenuation_at_min_dist(src);
+      }
+      
+      bool set_attenuation_max_distance(Source& src, float max_dist)
+      {
+        src.max_attenuation_distance = std::max(max_dist, src.min_attenuation_distance);
+        
+        return reset_attenuation_at_min_dist(src);
+      }
+      
+      bool set_attenuation_constant_falloff(Source& src, float const_falloff)
+      {
+        src.constant_attenuation = const_falloff;
+        
+        return reset_attenuation_at_min_dist(src);
+      }
+      
+      bool set_attenuation_linear_falloff(Source& src, float lin_falloff)
+      {
+        src.linear_attenuation = lin_falloff;
+        
+        return reset_attenuation_at_min_dist(src);
+      }
+      
+      bool set_attenuation_quadratic_falloff(Source& src, float sq_falloff)
+      {
+        src.quadratic_attenuation = sq_falloff;
+        
+        return reset_attenuation_at_min_dist(src);
+      }
+
+    };
+    
+  }
+
+}
