@@ -152,6 +152,14 @@ namespace applaudio
                          double& pos, double pitch_adjusted_step,
                          std::vector<APL_SAMPLE_TYPE>& mix_buffer)
     {
+      float pan_left = 1.f;
+      float pan_right = 1.f;
+      if (src.pan.has_value())
+      {
+        pan_right = src.pan.value();
+        pan_left = 1.f - pan_right;
+      }
+    
       size_t buf_size = buf.data.size();
       for (int f = 0; f < m_frame_count; ++f)
       {
@@ -180,11 +188,16 @@ namespace applaudio
         if (buf.channels == m_output_channels)
         {
           // 1→1 or 2→2 (direct copy with interpolation)
+          bool do_pan = buf.channels == 2 && src.pan.has_value();
           for (int c = 0; c < buf.channels; ++c)
           {
             auto s1 = buf.data[idx_curr + c];
             auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
             auto sample = (1.0 - frac) * s1 + frac * s2;
+            if (do_pan && c == 0)
+              sample *= pan_left;
+            if (do_pan && c == 1)
+              sample *= pan_right;
             
             add_sample(mix_buffer[f * m_output_channels + c], sample, src);
           }
@@ -210,6 +223,12 @@ namespace applaudio
           auto s1 = (l1 + r1) / 2.0;
           auto s2 = (l2 + r2) / 2.0;
           
+          if (buf.channels == 2 && src.pan.has_value())
+          {
+            s1 *= pan_left;
+            s2 *= pan_right;
+          }
+          
           auto mono_sample = (1.0 - frac) * s1 + frac * s2;
           
           add_sample(mix_buffer[f], mono_sample, src);
@@ -227,6 +246,15 @@ namespace applaudio
       const int src_ch = buf.channels;
       const int dst_ch = m_output_channels;
       const size_t buf_size = buf.data.size();
+      bool do_pan = buf.channels == 2 && src.pan.has_value();
+      
+      float pan_left = 1.f;
+      float pan_right = 1.f;
+      if (src.pan.has_value())
+      {
+        pan_right = src.pan.value();
+        pan_left = 1.f - pan_right;
+      }
       
       for (int f = 0; f < m_frame_count; ++f)
       {
@@ -240,7 +268,12 @@ namespace applaudio
         {
           float s1 = buf.data[i0 + ch_s];
           float s2 = (i1 + ch_s < buf_size) ? buf.data[i1 + ch_s] : s1;
-          src_samples[ch_s] = static_cast<float>((1.0 - frac) * s1 + frac * s2);
+          auto& src_sample = src_samples[ch_s];
+          src_sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
+          if (do_pan && ch_s == 0)
+            src_sample *= pan_left;
+          if (do_pan && ch_s == 1)
+            src_sample *= pan_right;
         }
         
         // Now project each source channel to each listener channel
@@ -627,6 +660,18 @@ namespace applaudio
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.looping = loop;
+    }
+    
+    void set_source_panning(unsigned int src_id, std::optional<float> pan = std::nullopt)
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.pan = std::nullopt; // Could be tad faster than an else below.
+        if (pan.has_value())
+          src.pan = std::clamp(pan.value(), 0.f, 1.f);
+      }
     }
     
     void print_backend_name() const

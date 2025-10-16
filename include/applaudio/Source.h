@@ -20,6 +20,7 @@ namespace applaudio
     bool playing = false;
     bool paused = false;
     double play_pos = 0;
+    std::optional<float> pan = std::nullopt;
     
     a3d::Object3D object_3d;
     
