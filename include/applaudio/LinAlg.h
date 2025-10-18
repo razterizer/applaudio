@@ -42,7 +42,7 @@ namespace la
     inline float y() const noexcept { return elem[Y]; }
     inline float z() const noexcept { return elem[Z]; }
     
-    const std::array<float, 3>& get_arr() const { return elem; }
+    const std::array<float, 3>& to_arr() const { return elem; }
     
     Vec3 operator+() const
     {
@@ -173,7 +173,7 @@ namespace la
     inline float zy() const noexcept { return elem[m3ZY]; }
     inline float zz() const noexcept { return elem[m3ZZ]; }
     
-    const std::array<float, 9>& get_arr() const { return elem; }
+    const std::array<float, 9>& to_arr() const { return elem; }
     
     Vec3 transform_vec(const Vec3& local_vec) const
     {
@@ -259,7 +259,7 @@ namespace la
     inline float wz() const noexcept { return elem[m4WZ]; }
     inline float ww() const noexcept { return elem[m4WW]; }
     
-    const std::array<float, 16>& get_arr() const { return elem; }
+    const std::array<float, 16>& to_arr() const { return elem; }
     
     Vec3 transform_pos(const Vec3& local_pos) const
     {
