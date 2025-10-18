@@ -11,6 +11,8 @@
 namespace applaudio
 {
 
+  enum class DirectivityType { Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole };
+
   struct Source
   {
     unsigned int buffer_id = 0;
@@ -32,6 +34,11 @@ namespace applaudio
     float min_attenuation_distance = 1.f;
     float max_attenuation_distance = 500.f;
     float attenuation_at_min_dist = 1.f; // Replaced in set_attenuation_min_distance().
+    
+    float directivity_alpha = 0.f; // [0, 1].
+    float directivity_sharpness = 1.f; // [1, 8].
+    DirectivityType directivity_type = DirectivityType::Cardioid;
+    float rear_attenuation = 1.f; // [0, 1].
   };
 
 }

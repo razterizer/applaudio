@@ -14,6 +14,8 @@ namespace applaudio
   struct Listener
   {
     a3d::Object3D object_3d;
+    
+    float rear_attenuation = 0.8f; // [0, 1].
   };
   
 }

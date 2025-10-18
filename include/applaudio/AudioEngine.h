@@ -881,6 +881,70 @@ namespace applaudio
       return false;
     }
     
+    bool set_source_directivity_alpha(unsigned int src_id, float directivity_alpha)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.directivity_alpha = std::clamp(directivity_alpha, 0.f, 1.f);
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.directivity_sharpness = std::clamp(directivity_sharpness, 1.f, 8.f);
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.directivity_type = directivity_type;
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_source_rear_attenuation(unsigned int src_id, float rear_attenuation)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.rear_attenuation = std::clamp(rear_attenuation, 0.f, 1.f);
+        return true;
+      }
+      return false;
+    }
+    
+    bool set_listener_rear_attenuation(float rear_attenuation)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      listener.rear_attenuation = std::clamp(rear_attenuation, 0.f, 1.f);
+      return true;
+    }
+    
   };
   
 }

@@ -120,14 +120,38 @@ namespace applaudio
               // --- Optional source directivity ---
               la::Vec3 forward_s = src.object_3d.dir_forward(ch_s);
               float src_cos_angle = la::dot(forward_s, -dir_un);
-              float source_directivity_weight = std::pow(std::clamp(src_cos_angle, 0.f, 1.f), 2.f);
+              float pattern = 1.f; // Function of cos angle.
+              switch (src.directivity_type)
+              {
+                case DirectivityType::Cardioid:
+                  // Classic front-lobe cardioid: D(θ) = 0.5 * (1 + cosθ).
+                  pattern = 0.5f * (1.0f + src_cos_angle); // ranges [0.5, 1.0].
+                  break;
+                case DirectivityType::SuperCardioid:
+                  // Tighter front lobe, slight rear lobe: D(θ) = 0.25 + 0.75 * cosθ.
+                  pattern = 0.25f + 0.75f * src_cos_angle;
+                  break;
+                case DirectivityType::HalfRectifiedDipole:
+                  pattern = std::max(src_cos_angle, 0.f);
+                  break;
+                case DirectivityType::Dipole:
+                  pattern = std::abs(src_cos_angle);
+                  break;
+              }
+              float source_directivity_weight = std::lerp(1.f, pattern, src.directivity_alpha); // a, b, t.
+              source_directivity_weight = std::pow(std::clamp(source_directivity_weight, 0.f, 1.f),
+                                                   src.directivity_sharpness);
               
-              float frontness = la::dot(forward_l, dir_un); // 1 = front, -1 = behind
-              float rear_weight = std::clamp(0.5f * (1.0f + frontness), 0.2f, 1.0f); // muffle rear slightly
+              // --- Listener front/rear muffling ---
+              float src_rear = src.rear_attenuation;     // 0..1
+              float lst_rear = listener.rear_attenuation; // 0..1
+              float frontness = la::dot(forward_l, dir_un); // 1 = front, -1 = behind.
+              float t_rear = std::clamp(0.5f * (1.0f + frontness), 0.f, 1.f);
+              float rear_weight = std::lerp(src_rear * lst_rear, 1.f, std::pow(t_rear, 0.7f)); // a, b, t.
               
-              // Final gain
+              // --- Final gain ---
               float gain = distance_gain * listener_pan_weight * source_directivity_weight * rear_weight;
-              gain = std::clamp(gain, 0.f, 1.f);
+              gain = std::clamp(gain, 0.f, 1.f); // Perhaps better to compress/normalize at mix-level later instead of clamping here.
               
               state_s->listener_ch_params[ch_l] = { gain, doppler_shift };
             }
