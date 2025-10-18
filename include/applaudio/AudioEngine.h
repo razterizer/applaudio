@@ -881,6 +881,9 @@ namespace applaudio
       return false;
     }
     
+    // directivity_alpha = 0 : Omni.
+    // directivity_alpha = 1 : Fully Directional.
+    // [0, 1].
     bool set_source_directivity_alpha(unsigned int src_id, float directivity_alpha)
     {
       if (scene_3d == nullptr)
@@ -895,6 +898,7 @@ namespace applaudio
       return false;
     }
     
+    // [1, 8]. 8 = sharpest.
     bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)
     {
       if (scene_3d == nullptr)
@@ -909,6 +913,7 @@ namespace applaudio
       return false;
     }
     
+    // Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole.
     bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)
     {
       if (scene_3d == nullptr)
@@ -923,6 +928,7 @@ namespace applaudio
       return false;
     }
     
+    // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     bool set_source_rear_attenuation(unsigned int src_id, float rear_attenuation)
     {
       if (scene_3d == nullptr)
@@ -937,6 +943,7 @@ namespace applaudio
       return false;
     }
     
+    // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     bool set_listener_rear_attenuation(float rear_attenuation)
     {
       if (scene_3d == nullptr)
