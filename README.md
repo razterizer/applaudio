@@ -140,6 +140,12 @@ The important part here is c++20.
 * `bool set_attenuation_constant_falloff(unsigned int src_id, float const_falloff)` : Sets the constant falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
 * `bool set_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)` : Sets the linear falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
 * `bool set_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)` : Sets the quadratic falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `bool set_source_directivity_alpha(unsigned int src_id, float directivity_alpha)` : For a given source, this sets the directivity alpha value for its per channel emitters. Valid values are in the range of `[0, 1]`. Any value outside this range will be clamped. `directivity_alpha = 0` : Omni, `directivity_alpha = 1` : Fully Directional.
+* `bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)` : For a given source, this controls the sharpness of the lobe/lobes of each per channel emitter.
+* `bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)` : For a given source, this sets the directivity type for each of its per channel emitters. This controls the lobe shape of each emitter lobe. Valid types are `Cardioid`, `SuperCardioid`, `HalfRectifiedDipole`, `Dipole`.
+* `bool set_source_rear_attenuation(unsigned int src_id, float rear_attenuation)` : For a given source, this sets the rear attenuation for each of its per channel emitters. valid values are in the range of `[0, 1]`, but any value outside the range will be clamped to that range. 0 = Silence, 1 = No Attenuation. Each per source rear attenuation will be multiplied with the listener rear attenuation which becomes the final rear attenuation.
+* `bool set_listener_rear_attenuation(float rear_attenuation)` : For the single listener, this sets the rear attenuation for each of its per channel ears. valid values are in the range of `[0, 1]`, but any value outside the range will be clamped to that range. 0 = Silence, 1 = No Attenuation. Each per source rear attenuation will be multiplied with the listener rear attenuation which becomes the final rear attenuation.
+    
 
 ## Length Units, Speed Units and Stability
 
