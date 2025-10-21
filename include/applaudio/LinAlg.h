@@ -9,6 +9,7 @@
 #include <array>
 #include <cmath>
 #include <optional>
+#include <algorithm>
 
 
 namespace la
