@@ -284,7 +284,7 @@ namespace applaudio
           for (int ch_s = 0; ch_s < src_ch; ++ch_s)
           {
             const auto* state_s = src.object_3d.get_channel_state(ch_s);
-            if (ch_l >= state_s->listener_ch_params.size())
+            if (ch_l >= static_cast<int>(state_s->listener_ch_params.size()))
               continue;
             const auto& p = state_s->listener_ch_params[ch_l];
             
@@ -735,7 +735,7 @@ namespace applaudio
           return false;
         if (src.object_3d.num_channels() != buf_it->second.channels)
           src.object_3d.set_num_channels(buf_it->second.channels);
-        if (channel_pos_offsets_local.size() != src.object_3d.num_channels())
+        if (static_cast<int>(channel_pos_offsets_local.size()) != src.object_3d.num_channels())
         {
           std::cerr << "ERROR in set_source_3d_state() : number of channel_pos_offsets_local positions do not match the number of channels registered in the source." << std::endl;
           return false;
@@ -771,7 +771,7 @@ namespace applaudio
     {
       if (scene_3d == nullptr)
         return false;
-      if (channel_pos_offsets_local.size() != listener.object_3d.num_channels())
+      if (static_cast<int>(channel_pos_offsets_local.size()) != listener.object_3d.num_channels())
       {
         std::cerr << "ERROR in set_listener_3d_state() : number of channel_pos_offsets_local positions do not match the number of channels registered in the listener." << std::endl;
         return false;
