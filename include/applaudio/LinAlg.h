@@ -369,5 +369,266 @@ namespace la
     trf_lookat.set_column_vec(W, location_pos);
     return trf_lookat;
   }
+  
+  // /////////////////////////////////
+  
+  class Quat
+  {
+    std::array<float, 4> elem { 0.f, 0.f, 0.f, 1.f };
+  
+  public:
+    Quat() = default;
+    Quat(float x, float y, float z, float w)
+      : elem({ x, y, z, w })
+    {}
+    Quat(const std::array<float, 4>& quat)
+      : elem(quat)
+    {}
+    
+    float& operator[](int coord) { return elem[coord]; }
+    const float& operator[](int coord) const { return elem[coord]; }
+    
+    inline float x() const noexcept { return elem[X]; }
+    inline float y() const noexcept { return elem[Y]; }
+    inline float z() const noexcept { return elem[Z]; }
+    inline float w() const noexcept { return elem[W]; }
+    
+    const std::array<float, 4>& to_arr() const { return elem; }
+    
+    void from_axis_angle(const Vec3& axis, float angle_rad)
+    {
+      auto axis_n = la::normalize(axis);
+      auto half_ang = 0.5f * angle_rad;
+      auto s = std::sin(half_ang);
+      elem[X] = axis_n.x() * s;
+      elem[Y] = axis_n.y() * s;
+      elem[Z] = axis_n.z() * s;
+      elem[W] = std::cos(half_ang);
+      *this = this->normalize();
+    }
+    
+    void from_angle_axis(const Vec3& angle_axis)
+    {
+      auto angle_rad = angle_axis.length();
+      auto axis = la::normalize(angle_axis);
+      from_axis_angle(axis, angle_rad);
+    }
+    
+    void to_axis_angle(Vec3& axis, float& angle_rad) const
+    {
+      // Clamp w to [-1, 1] to avoid numerical issues.
+      auto w_clamped = std::clamp(w(), -1.0f, 1.0f);
+      
+      angle_rad = 2.0f * std::acos(w_clamped);
+      auto s = std::sqrt(1.0f - w_clamped * w_clamped); // sin(theta/2).
+      
+      if (s < 1e-6f)
+      {
+        // If s is too small, direction of axis is undefined.
+        // Return a default axis (e.g. X-axis).
+        axis = Vec3(1.0f, 0.0f, 0.0f);
+      }
+      else
+      {
+        axis[X] = x() / s;
+        axis[Y] = y() / s;
+        axis[Z] = z() / s;
+      }
+    }
+    
+    void to_angle_axis(Vec3& angle_axis) const
+    {
+      Vec3 axis;
+      float angle_rad;
+      to_axis_angle(axis, angle_rad);
+      angle_axis = axis * angle_rad;
+    }
+    
+    Quat operator+() const
+    {
+      return *this;
+    }
+    
+    Quat operator+(const Quat& other) const
+    {
+      return { this->x() + other.x(),
+               this->y() + other.y(),
+               this->z() + other.z(),
+               this->w() + other.w() };
+    }
+    
+    const Quat& operator+=(const Quat& other)
+    {
+      *this = *this + other;
+      return *this;
+    }
+    
+    Quat operator-() const
+    {
+      return { -this->x(), -this->y(), -this->z(), -this->w() };
+    }
+    
+    Quat operator-(const Quat& other) const
+    {
+      return { this->x() - other.x(),
+               this->y() - other.y(),
+               this->z() - other.z(),
+               this->w() - other.w() };
+    }
+    
+    const Quat& operator-=(const Quat& other)
+    {
+      *this = *this - other;
+      return *this;
+    }
+    
+    Quat operator*(float s) const
+    {
+      return { this->x() * s, this->y() * s, this->z() * s, this->w() * s };
+    }
+    
+    const Quat& operator*=(const float s)
+    {
+      *this = *this * s;
+      return *this;
+    }
+    
+    Quat operator*(const Quat& b) const
+    {
+      const Quat& a = *this;
+      Quat r;
+      
+      r[X] = a[W] * b[X] + a[X] * b[W] + a[Y] * b[Z] - a[Z] * b[Y];
+      r[Y] = a[W] * b[Y] - a[X] * b[Z] + a[Y] * b[W] + a[Z] * b[X];
+      r[Z] = a[W] * b[Z] + a[X] * b[Y] - a[Y] * b[X] + a[Z] * b[W];
+      r[W] = a[W] * b[W] - a[X] * b[X] - a[Y] * b[Y] - a[Z] * b[Z];
+      
+      return r;
+    }
+    
+    Quat operator/(float s) const
+    {
+      return { this->x() / s, this->y() / s, this->z() / s, this->w() / s };
+    }
+    
+    const Quat& operator/=(const float s)
+    {
+      *this = *this / s;
+      return *this;
+    }
+    
+    inline float length_squared() const noexcept
+    {
+      auto px = x();
+      auto py = y();
+      auto pz = z();
+      auto pw = w();
+      return px*px + py*py + pz*pz + pw*pw;
+    }
+    
+    inline float length() const noexcept
+    {
+      return std::sqrt(length_squared());
+    }
+    
+    Quat normalize() const
+    {
+      auto l = this->length();
+      if (std::abs(l) < 1e-6f)
+        return { 0.f, 0.f, 0.f, 1.f };
+      return (*this) / l;
+    }
+        
+    Mtx3 to_rot_matrix() const
+    {
+      auto xx      = x() * x();
+      auto xy      = x() * y();
+      auto xz      = x() * z();
+      auto xw      = x() * w();
+      auto yy      = y() * y();
+      auto yz      = y() * z();
+      auto yw      = y() * w();
+      auto zz      = z() * z();
+      auto zw      = z() * w();
+      Mtx3 mat;
+      mat[0] = 1.f - 2.f * ( yy + zz ); // xx
+      mat[1] =       2.f * ( xy - zw ); // xy
+      mat[2] =       2.f * ( xz + yw ); // xz
+      mat[3] =       2.f * ( xy + zw ); // yx
+      mat[4] = 1.f - 2.f * ( xx + zz ); // yy
+      mat[5] =       2.f * ( yz - xw ); // yz
+      mat[6] =       2.f * ( xz - yw ); // zx
+      mat[7] =       2.f * ( yz + xw ); // zy
+      mat[8] = 1.f - 2.f * ( xx + yy ); // zz
+      return mat;
+    }
+    
+    void from_rot_matrix(const Mtx3& mat)
+    {
+      auto trace = mat.xx() + mat.yy() + mat.zz();
+      auto ptrace = 1 + trace; // "pseudo trace" = 4*(intermediate scalar)^2
+      if (ptrace > 0.f)
+      {
+        auto s = 0.5f / std::sqrt(ptrace); // intermediate scalar.
+        elem[X] = (mat.zy() - mat.yz()) * s; // zy - yz
+        elem[Y] = (mat.xz() - mat.zx()) * s; // xz - zx
+        elem[Z] = (mat.yx() - mat.xy()) * s; // yx - xy
+        elem[W] = 0.25f / s;
+      }
+      else
+      {
+        // Identify which diagonal element has the largest value
+        if (mat.xx() > mat.yy() && mat.xx() > mat.zz())
+        {
+          // Column 0 dominant
+          float s = 2.0f * std::sqrt(1.0f + mat.xx() - mat.yy() - mat.zz());
+          elem[X] = 0.25f * s;
+          elem[Y] = (mat.xy() + mat.yx()) / s;
+          elem[Z] = (mat.xz() + mat.zx()) / s;
+          elem[W] = (mat.zy() - mat.yz()) / s;
+        }
+        else if (mat.yy() > mat.zz())
+        {
+          // Column 1 dominant
+          float s = 2.0f * std::sqrt(1.0f + mat.yy() - mat.xx() - mat.zz());
+          elem[X] = (mat.xy() + mat.yx()) / s;
+          elem[Y] = 0.25f * s;
+          elem[Z] = (mat.yz() + mat.zy()) / s;
+          elem[W] = (mat.xz() - mat.zx()) / s;
+        }
+        else
+        {
+          // Column 2 dominant
+          float s = 2.0f * std::sqrt(1.0f + mat.zz() - mat.xx() - mat.yy());
+          elem[X] = (mat.xz() + mat.zx()) / s;
+          elem[Y] = (mat.yz() + mat.zy()) / s;
+          elem[Z] = 0.25f * s;
+          elem[W] = (mat.yx() - mat.xy()) / s;
+        }
+      }
+      *this = normalize();
+    }
+  };
+  
+  Quat Quat_Unit { 0.f, 0.f, 0.f, 1.f };
+  
+  Quat normalize(const Quat& q)
+  {
+    return q.normalize();
+  }
+  
+  Quat quat_from_axis_angle(const Vec3& axis, float angle_rad)
+  {
+    Quat q;
+    q.from_axis_angle(axis, angle_rad);
+    return q;
+  }
+  
+  Quat quat_from_angle_axis(const Vec3& angle_axis)
+  {
+    Quat q;
+    q.from_angle_axis(angle_axis);
+    return q;
+  }
 
 }
