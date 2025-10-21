@@ -193,7 +193,7 @@ namespace applaudio
           {
             auto s1 = buf.data[idx_curr + c];
             auto s2 = (idx_next + c < buf_size) ? buf.data[idx_next + c] : s1;
-            auto sample = (1.0 - frac) * s1 + frac * s2;
+            auto sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
             if (do_pan && c == 0)
               sample *= pan_left;
             if (do_pan && c == 1)
@@ -207,7 +207,7 @@ namespace applaudio
           // Mono → Stereo
           auto s1 = buf.data[idx_curr];
           auto s2 = (idx_next < buf_size) ? buf.data[idx_next] : s1;
-          auto sample = (1.0 - frac) * s1 + frac * s2;
+          auto sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
           
           for (int c = 0; c < 2; ++c)
             add_sample(mix_buffer[f * 2 + c], sample, src);
@@ -229,7 +229,7 @@ namespace applaudio
             s2 *= pan_right;
           }
           
-          auto mono_sample = (1.0 - frac) * s1 + frac * s2;
+          auto mono_sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
           
           add_sample(mix_buffer[f], mono_sample, src);
         }
