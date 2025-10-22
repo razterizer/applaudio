@@ -952,6 +952,48 @@ namespace applaudio
       return true;
     }
     
+    bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        src.object_3d.set_coordsys_convention(cs_conv);
+        return true;
+      }
+      return false;
+    }
+    
+    a3d::CoordSysConvention get_source_coordsys_convention(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return a3d::CoordSysConvention::XLeft_YUp_ZFront;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return src.object_3d.get_coordsys_convention();
+      }
+      return a3d::CoordSysConvention::XLeft_YUp_ZFront;
+    }
+    
+    bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)
+    {
+      if (scene_3d == nullptr)
+        return false;
+      listener.object_3d.set_coordsys_convention(cs_conv);
+      return true;
+    }
+    
+    a3d::CoordSysConvention get_listener_coordsys_convention() const
+    {
+      if (scene_3d == nullptr)
+        return a3d::CoordSysConvention::XLeft_YUp_ZFront;
+      return listener.object_3d.get_coordsys_convention();
+    }
+    
   };
   
 }
