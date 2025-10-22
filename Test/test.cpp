@@ -155,6 +155,7 @@ int test_2()
   la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
   engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_s });
+  engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
@@ -164,6 +165,7 @@ int test_2()
   la::Vec3 vel_w_l = la::Vec3_Zero; // Lisitener world velocity encoded here.
   la::Vec3 ang_vel_w_l = la::Vec3_Zero;
   engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L_l, pos_l_R_l });
+  engine.set_listener_coordsys_convention(applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4d. Set doppler and falloff properties ---
   engine.set_source_speed_of_sound(src_id, 343.f);
@@ -267,6 +269,7 @@ int test_3()
   la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
   engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_L_s, pos_l_R_s });
+  engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
@@ -276,6 +279,7 @@ int test_3()
   la::Vec3 vel_w_l = la::Vec3_Zero; // Lisitener world velocity encoded here.
   la::Vec3 ang_vel_w_l = la::Vec3_Zero;
   engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L_l, pos_l_R_l });
+  engine.set_listener_coordsys_convention(applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4d. Set doppler and falloff properties ---
   engine.set_source_speed_of_sound(src_id, 343.f);
@@ -379,6 +383,7 @@ int test_4()
   la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
   engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_s });
+  engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
@@ -388,6 +393,7 @@ int test_4()
   la::Vec3 vel_w_l = la::Vec3_Zero; // Lisitener world velocity encoded here.
   la::Vec3 ang_vel_w_l = { 0.f, 0.f, 2.f };
   engine.set_listener_3d_state(trf_l, vel_w_l, ang_vel_w_l, { pos_l_L_l, pos_l_R_l });
+  engine.set_listener_coordsys_convention(applaudio::a3d::CoordSysConvention::XRight_YUp_ZBack);
   
   // --- 4d. Set doppler and falloff properties ---
   engine.set_source_speed_of_sound(src_id, 343.f);
