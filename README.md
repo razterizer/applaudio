@@ -160,6 +160,20 @@ Positions (especially the W component in source/listener transforms), velocities
 For best numerical accuracy, keep positions and distances roughly within `[0.1, 10'000]` units, and ensure the magnitudes of velocities relative to the speed of sound stay in a similar range. 
 Extreme values may cause precision issues in Doppler or attenuation calculations.
 
+## Coordinate System Conventions
+
+Applaudio supports four different coordinate system conventions:
+```cpp
+enum class CoordSysConvention
+{
+  XRight_YUp_ZBack,
+  XLeft_YUp_ZFront,
+  XRight_YDown_ZFront,
+  XLeft_YDown_ZBack,
+};
+```
+These can be set individually for each source and for the listener. Default convention is `CoorSysConvetion::XLeft_YUp_ZFront`, meaning that sound propagates mainly from the +Z direction (and -Z direction if using `DirectivityType::Dipole`).
+
 ## Feature Comparison Chart
 
 | Feature / Library    | applaudio (+8Beat)                  | OpenAL / OpenAL_Soft                | SDL2 Audio            | PortAudio                           | FMOD (Lite)                           | miniaudio                                       | SoLoud                                          |
