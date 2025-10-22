@@ -162,6 +162,8 @@ Extreme values may cause precision issues in Doppler or attenuation calculations
 
 ## Coordinate System Conventions
 
+In applaudio, the forward-direction of a coordinate system (typically along the +Z or -Z axis) controls the direction of the emitter or ear lobes (think antenna lobes) and the right-direction (typically along the +X or -X axis) controls the panning direction of a source in the 3D scene.
+
 Applaudio supports four different coordinate system conventions:
 ```cpp
 enum class CoordSysConvention
