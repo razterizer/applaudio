@@ -32,17 +32,18 @@ namespace applaudio
     // #NOTE: We're not changing handedness here.
     enum class CoordSysConvention
     {
-      XRight_YUp_ZBack,
-      XLeft_YUp_ZFront,
-      XRight_YDown_ZFront,
-      XLeft_YDown_ZBack,
+      RH_XRight_YUp_ZBackward,
+      RH_XLeft_YUp_ZForward,
+      RH_XRight_YDown_ZForward,
+      RH_XLeft_YDown_ZBackward,
+      LH_XRight_YUp_ZForward,
     };
     
     class Object3D
     {
       std::vector<State3D> channel_state;
       bool audio_3d_enabled = false;
-      CoordSysConvention cs_convention = CoordSysConvention::XLeft_YUp_ZFront; // +Z is forward by default.
+      CoordSysConvention cs_convention = CoordSysConvention::RH_XLeft_YUp_ZForward; // +Z is forward by default.
       
       template <typename VecT>
       static auto get_state_impl(VecT& channel_state, int ch) -> decltype(&channel_state[0])
@@ -125,10 +126,11 @@ namespace applaudio
           state->rot_mtx.get_column_vec(la::X, x_axis);
           switch (cs_convention)
           {
-            case CoordSysConvention::XRight_YUp_ZBack: return +x_axis;
-            case CoordSysConvention::XLeft_YUp_ZFront: return -x_axis;
-            case CoordSysConvention::XRight_YDown_ZFront: return +x_axis;
-            case CoordSysConvention::XLeft_YDown_ZBack: return -x_axis;
+            case CoordSysConvention::RH_XRight_YUp_ZBackward: return +x_axis;
+            case CoordSysConvention::RH_XLeft_YUp_ZForward: return -x_axis;
+            case CoordSysConvention::RH_XRight_YDown_ZForward: return +x_axis;
+            case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -x_axis;
+            case CoordSysConvention::LH_XRight_YUp_ZForward: return +x_axis;
           }
         }
         return la::Vec3_Zero;
@@ -144,10 +146,11 @@ namespace applaudio
           state->rot_mtx.get_column_vec(la::Y, y_axis);
           switch (cs_convention)
           {
-            case CoordSysConvention::XRight_YUp_ZBack: return +y_axis;
-            case CoordSysConvention::XLeft_YUp_ZFront: return +y_axis;
-            case CoordSysConvention::XRight_YDown_ZFront: return -y_axis;
-            case CoordSysConvention::XLeft_YDown_ZBack: return -y_axis;
+            case CoordSysConvention::RH_XRight_YUp_ZBackward: return +y_axis;
+            case CoordSysConvention::RH_XLeft_YUp_ZForward: return +y_axis;
+            case CoordSysConvention::RH_XRight_YDown_ZForward: return -y_axis;
+            case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -y_axis;
+            case CoordSysConvention::LH_XRight_YUp_ZForward: return +y_axis;
           }
         }
         return la::Vec3_Zero;
@@ -163,10 +166,11 @@ namespace applaudio
           state->rot_mtx.get_column_vec(la::Z, z_axis);
           switch (cs_convention)
           {
-            case CoordSysConvention::XRight_YUp_ZBack: return -z_axis;
-            case CoordSysConvention::XLeft_YUp_ZFront: return +z_axis;
-            case CoordSysConvention::XRight_YDown_ZFront: return +z_axis;
-            case CoordSysConvention::XLeft_YDown_ZBack: return -z_axis;
+            case CoordSysConvention::RH_XRight_YUp_ZBackward: return -z_axis;
+            case CoordSysConvention::RH_XLeft_YUp_ZForward: return +z_axis;
+            case CoordSysConvention::RH_XRight_YDown_ZForward: return +z_axis;
+            case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -z_axis;
+            case CoordSysConvention::LH_XRight_YUp_ZForward: return +z_axis;
           }
         }
         return la::Vec3_Zero;
