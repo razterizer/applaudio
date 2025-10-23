@@ -22,7 +22,7 @@ The idea with this library is to have a library that has the following propertie
 * Header-only. Thus you don't have to link it into your program except for the native libs that the OS requires. Also, you don't need to compile any static or dynamic lib files.
 * A light-weight library that doesn't contribute much to your executable file size. Also less code to read.
 * Modern C++ (C++20) that make the code easier to read and understand.
-* Cross-platform, so that you can run it on as many farily famous platforms as possibles. Temple OS will probably never be supported, but I intend to make a backend for BSD distros / OSS in the future. Perhaps I'll even add mobile OS backends in the future too.
+* Cross-platform, so that you can run it on as many farily famous platforms as possible. Temple OS will probably never be supported, but I intend to make a backend for BSD distros / OSS in the future. Perhaps I'll even add mobile OS backends in the future too.
 * Standalone audio lib. No other dependencies except for system headers.
 
 ## Structure
