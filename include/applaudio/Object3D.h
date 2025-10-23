@@ -75,6 +75,20 @@ namespace applaudio
         return false;
       }
       
+      bool get_channel_state(int ch, la::Mtx3& rot_mtx, la::Vec3& pos_world, la::Vec3& vel_world) const
+      {
+        const int n_ch = num_channels();
+        if (0 <= ch && ch < n_ch)
+        {
+          auto* state = get_channel_state(ch);
+          rot_mtx = state->rot_mtx;
+          pos_world = state->pos_world;
+          vel_world = state->vel_world;
+          return true;
+        }
+        return false;
+      }
+      
       void set_coordsys_convention(CoordSysConvention cs_conv)
       {
         cs_convention = cs_conv;
