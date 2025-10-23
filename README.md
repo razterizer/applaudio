@@ -113,20 +113,29 @@ The important part here is c++20.
 * `bool detach_buffer_from_source(unsigned int src_id)` : Detaches a sound buffer from a sound source. Returns false on failure.
 * `void mix()` : Mixes the sound buffers from each respective sound source (depending on the state of the sources that hold each buffer). The mixer is supposed to be called via a thread that is started by the `startup()` function, but mentioning it here for reference. The mixer is capable of handling buffers of different sampling rates (via linear interpolation) and different amounts of channels. This is the heart of the audio engine.
 * `void play_source(unsigned int src_id)` : Starts playing a sound source. If not paused then it plays from the beginning, but if it was paused, then it will resume playback from where it was paused.
-* `bool is_source_playing(unsigned int src_id) const` : Checks if a given sound source is already playing and returns true if it plays, false otherwise.
+* `std::optional<bool> is_source_playing(unsigned int src_id) const` : Checks if a given sound source is already playing and returns true if it plays, false otherwise.
 * `void pause_source(unsigned int src_id)` : Pauses the supplied sound source. If it is already paused, then nothing happens.
+* `std::optional<bool> is_source_paused(unsigned int src_id) const` : Queries if given source is paused.
 * `void stop_source(unsigned int src_id)` : Stops the supplied sound source.
 * `void set_source_volume(unsigned int src_id, float vol)` : Sets the volume for the supplied sound source.
+* `std::optional<float> get_source_volume(unsigned int src_id) const` : Queries source volume.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
+* `std::optional<float> get_source_pitch(unsigned int src_id) const` : Queries source pitch.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
+* `std::optional<bool> get_source_looping(unsigned int src_id) const` : Queries whether the source is looping or not.
 * `void set_source_panning(unsigned int src_id, std::optional<float> pan)` : Allows you to set panning of a stereo buffer source. If buffer is a mono buffer then nothing will happen. If `std::nullopt` is passed then nothing will happen either. A non-nullopt value will be clamped to the range `[0, 1]`.
+* `std::optional<float> get_source_panning(unsigned int src_id) const` : Queries source panning.
 * `void print_backend_name() const` : Prints the name of the current backend.
 * `void init_3d_scene()` : Initializes positional audio context/scene.
 * `void enable_source_3d_audio(unsigned int src_id, bool enable)` : Toggles between positional/spatial and flat/ambient sound for provided source ID.
 * `bool set_source_3d_state_channel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
                                      const la::Vec3& pos_world, const la::Vec3& vel_world)` : Sets the orientation, world space position and world space linear velocity of specified channel "emitter" for provided source ID. Only mono and stereo channels are supported at the moment.
+* `bool get_source_3d_state_channel(unsigned int src_id, int channel, la::Mtx3& rot_mtx,
+                                     la::Vec3& pos_world, la::Vec3& vel_world) const` : Gets the 3d spatial state of a source for a specified channel.
 * `bool set_listener_3d_state_channel(int channel, const la::Mtx3& rot_mtx,
                                        const la::Vec3& pos_world, const la::Vec3& vel_world)` : Sets the orientation, world space position and world space linear velocity of specified channel "ear" for the listener in the 3D scene. The API supports only one listener at the moment. As with sources, a listener can be mono or stereo but the channels used are tied to the output channels of the current backend used. Only mono and stereo channels are supported at the moment.
+* `bool get_listener_3d_state_channel(int channel, la::Mtx3& rot_mtx,
+                                       la::Vec3& pos_world, la::Vec3& vel_world) const` : Gets the 3d spatial state of the listener for a given channel.
 * `bool set_source_3d_state(unsigned int src_id, const la::Mtx4& trf,
                              const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
                              const std::vector<la::Vec3>& channel_pos_offsets_local)` : Sets the transform, world space linear velocity and world space angular velocity of a source object. In this case, we can see the source basically as a rigid object. Important to note that the transform `trf` must be positioned at the center of mass if you conceptually have this in your application sound source model. `channel_pos_offsets_local` are per channel (emitter) positional offsets in local space which are then rotated to world space by the transform `trf`. This function uses the more low level function `set_source_3d_state_channel()` internally.
@@ -136,15 +145,25 @@ The important part here is c++20.
 * `bool set_speed_of_sound(unsigned int src_id, float speed_of_sound)` : Sets the speed of sound for specified source. This allows you to have per source doppler shifts which allows you to simulate different doppler shifts in different physical materials/mediums.
 * `std::optional<float> get_speed_of_sound(unsigned int src_id) const` : Gets the speed of sound for a specified source.
 * `bool set_attenuation_min_distance(unsigned int src_id, float min_dist)` : Sets the minimum distance limit between listener and source where any attenuation is possible. Any distance smaller than this distance will be clamped to this minimum distance. This property is set per source which allows you to simulate different physical materials/mediums.
+* `std::optional<float> get_source_attenuation_min_distance(unsigned int src_id) const` : Gets the minimum distance limit between listener and this source.
 * `bool set_attenuation_max_distance(unsigned int src_id, float max_dist)` : Sets the maximum distance limit between listener and source so that no further attenuation will happen beyond this limit. This property is set per source which allows you to simulate different physical materials/mediums.
+* `std::optional<float> get_source_attenuation_max_distance(unsigned int src_id) const` : Gets the maximum distance limit between listener and this source.
 * `bool set_attenuation_constant_falloff(unsigned int src_id, float const_falloff)` : Sets the constant falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `std::optional<float> get_source_attenuation_constant_falloff(unsigned int src_id) const` : Gets the constant falloff factor for this source.
 * `bool set_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)` : Sets the linear falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `std::optional<float> get_source_attenuation_linear_falloff(unsigned int src_id) const` : Gets the linear falloff factor for this source.
 * `bool set_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)` : Sets the quadratic falloff factor for the attenuation model. This property is set per source which allows you to simulate different physical materials/mediums.
+* `std::optional<float> get_source_attenuation_quadratic_falloff(unsigned int src_id) const` : Gets the quadratic falloff factor for this source.
 * `bool set_source_directivity_alpha(unsigned int src_id, float directivity_alpha)` : For a given source, this sets the directivity alpha value for its per channel emitters. Valid values are in the range of `[0, 1]`. Any value outside this range will be clamped. `directivity_alpha = 0` : Omni, `directivity_alpha = 1` : Fully Directional.
+* `std::optional<float> get_source_directivity_alpha(unsigned int src_id) const` : Gets the directivity alpha value for this source.
 * `bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)` : For a given source, this controls the sharpness of the lobe/lobes of each per channel emitter.
+* `std::optional<float> get_source_directivity_sharpness(unsigned int src_id) const` : Gets the directivity sharpness for this source.
 * `bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)` : For a given source, this sets the directivity type for each of its per channel emitters. This controls the lobe shape of each emitter lobe. Valid types are `Cardioid`, `SuperCardioid`, `HalfRectifiedDipole`, `Dipole`.
+* `std::optional<DirectivityType> get_source_directivity_type(unsigned int src_id) const` : Gets the directivity type for this source.
 * `bool set_source_rear_attenuation(unsigned int src_id, float rear_attenuation)` : For a given source, this sets the rear attenuation for each of its per channel emitters. valid values are in the range of `[0, 1]`, but any value outside the range will be clamped to that range. 0 = Silence, 1 = No Attenuation. Each per source rear attenuation will be multiplied with the listener rear attenuation which becomes the final rear attenuation.
+* `std::optional<float> get_source_rear_attenuation(unsigned int src_id) const` : Gets the rear attenuation for this source.
 * `bool set_listener_rear_attenuation(float rear_attenuation)` : For the single listener, this sets the rear attenuation for each of its per channel ears. valid values are in the range of `[0, 1]`, but any value outside the range will be clamped to that range. 0 = Silence, 1 = No Attenuation. Each per source rear attenuation will be multiplied with the listener rear attenuation which becomes the final rear attenuation.
+* `std::optional<float> get_listener_rear_attenuation() const` : Gets the rear attenuation for the listener.
 * `bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for a source. Valid values are `CoordSysConvention::XRight_YUp_ZBack`, `CoordSysConvention::XLeft_YUp_ZFront`, `CoordSysConvention::XRight_YDown_ZFront` and `CoordSysConvention::XLeft_YDown_ZBack`. Default setting is `CoorSysConvetion::XLeft_YUp_ZFront`.
 * `a3d::CoordSysConvention get_source_coordsys_convention(unsigned int src_id) const` : Gets the coordinate system convention for a source.
 * `bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for the listener. Valid values are `CoordSysConvention::XRight_YUp_ZBack`, `CoordSysConvention::XLeft_YUp_ZFront`, `CoordSysConvention::XRight_YDown_ZFront` and `CoordSysConvention::XLeft_YDown_ZBack`. Default setting is `CoorSysConvetion::XLeft_YUp_ZFront`.
