@@ -44,11 +44,6 @@ namespace applaudio
     public:
       PositionalAudio() = default;
       
-      bool update_obj_channel_state(Object3D& obj, int ch, const la::Mtx3& rot_mtx, const la::Vec3& pos_world, const la::Vec3& vel_world)
-      {
-        return obj.set_channel_state(ch, rot_mtx, pos_world, vel_world);
-      }
-      
       void update_scene(Listener& listener, std::unordered_map<unsigned int, Source>& source_vec)
       {
         const int n_ch_l = listener.object_3d.num_channels();
@@ -173,11 +168,21 @@ namespace applaudio
         return reset_attenuation_at_min_dist(src);
       }
       
+      float get_attenuation_min_distance(const Source& src) const
+      {
+        return src.min_attenuation_distance;
+      }
+      
       bool set_attenuation_max_distance(Source& src, float max_dist)
       {
         src.max_attenuation_distance = std::max(max_dist, src.min_attenuation_distance);
         
         return reset_attenuation_at_min_dist(src);
+      }
+      
+      float get_attenuation_max_distance(const Source& src) const
+      {
+        return src.max_attenuation_distance;
       }
       
       bool set_attenuation_constant_falloff(Source& src, float const_falloff)
@@ -187,6 +192,11 @@ namespace applaudio
         return reset_attenuation_at_min_dist(src);
       }
       
+      float get_attenuation_constant_falloff(const Source& src) const
+      {
+        return src.constant_attenuation;
+      }
+      
       bool set_attenuation_linear_falloff(Source& src, float lin_falloff)
       {
         src.linear_attenuation = lin_falloff;
@@ -194,11 +204,21 @@ namespace applaudio
         return reset_attenuation_at_min_dist(src);
       }
       
+      float get_attenuation_linear_falloff(const Source& src) const
+      {
+        return src.linear_attenuation;
+      }
+      
       bool set_attenuation_quadratic_falloff(Source& src, float sq_falloff)
       {
         src.quadratic_attenuation = sq_falloff;
         
         return reset_attenuation_at_min_dist(src);
+      }
+      
+      float get_attenuation_quadratic_falloff(const Source& src) const
+      {
+        return src.quadratic_attenuation;
       }
 
     };

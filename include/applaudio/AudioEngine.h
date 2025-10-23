@@ -605,12 +605,12 @@ namespace applaudio
     }
     
     // Check if a source is playing
-    bool is_source_playing(unsigned int src_id) const
+    std::optional<bool> is_source_playing(unsigned int src_id) const
     {
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.playing;
-      return false;
+      return std::nullopt;
     }
     
     // Pause the source
@@ -623,6 +623,14 @@ namespace applaudio
         src.playing = false;
         src.paused = true;
       }
+    }
+    
+    std::optional<bool> is_source_paused(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.paused;
+      return std::nullopt;
     }
     
     // Stop the source
@@ -646,12 +654,28 @@ namespace applaudio
         it->second.volume = vol;
     }
     
-    // Set pitch (note: not yet implemented in mixer)
+    std::optional<float> get_source_volume(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.volume;
+      return std::nullopt;
+    }
+    
+    // Set pitch
     void set_source_pitch(unsigned int src_id, float pitch)
     {
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.pitch = pitch;
+    }
+    
+    std::optional<float> get_source_pitch(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.pitch;
+      return std::nullopt;
     }
     
     // Set looping
@@ -660,6 +684,14 @@ namespace applaudio
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.looping = loop;
+    }
+    
+    std::optional<bool> get_source_looping(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.looping;
+      return std::nullopt;
     }
     
     void set_source_panning(unsigned int src_id, std::optional<float> pan = std::nullopt)
@@ -672,6 +704,14 @@ namespace applaudio
         if (pan.has_value())
           src.pan = std::clamp(pan.value(), 0.f, 1.f);
       }
+    }
+    
+    std::optional<float> get_source_panning(unsigned int src_id) const
+    {
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+        return it->second.pan;
+      return std::nullopt;
     }
     
     void print_backend_name() const
@@ -713,7 +753,29 @@ namespace applaudio
           return false;
         if (src.object_3d.num_channels() != buf_it->second.channels)
           src.object_3d.set_num_channels(buf_it->second.channels);
-        scene_3d->update_obj_channel_state(it->second.object_3d, channel, rot_mtx, pos_world, vel_world);
+        if (channel < 0 || channel >= src.object_3d.num_channels())
+          return false;
+        src.object_3d.set_channel_state(channel, rot_mtx, pos_world, vel_world);
+        return true;
+      }
+      return false;
+    }
+    
+    bool get_source_3d_state_channel(unsigned int src_id, int channel, la::Mtx3& rot_mtx,
+                                     la::Vec3& pos_world, la::Vec3& vel_world) const
+    {
+      if (scene_3d == nullptr)
+        return false;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        auto buf_it = m_buffers.find(src.buffer_id);
+        if (buf_it == m_buffers.end())
+          return false;
+        if (channel < 0 || channel >= src.object_3d.num_channels())
+          return false;
+        src.object_3d.get_channel_state(channel, rot_mtx, pos_world, vel_world);
         return true;
       }
       return false;
@@ -748,7 +810,7 @@ namespace applaudio
           la::Vec3 world_pos_cm;
           trf.get_column_vec(la::W, world_pos_cm);
           auto world_vel_ch = vel_world + la::cross(world_ang_vel, world_pos_ch - world_pos_cm);
-          scene_3d->update_obj_channel_state(it->second.object_3d, ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
+          src.object_3d.set_channel_state(ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
         }
         return true;
       }
@@ -760,7 +822,20 @@ namespace applaudio
     {
       if (scene_3d == nullptr)
         return false;
-      scene_3d->update_obj_channel_state(listener.object_3d, channel, rot_mtx, pos_world, vel_world);
+      if (channel < 0 || channel >= listener.object_3d.num_channels())
+        return false;
+      listener.object_3d.set_channel_state(channel, rot_mtx, pos_world, vel_world);
+      return true;
+    }
+    
+    bool get_listener_3d_state_channel(int channel, la::Mtx3& rot_mtx,
+                                       la::Vec3& pos_world, la::Vec3& vel_world) const
+    {
+      if (scene_3d == nullptr)
+        return false;
+      if (channel < 0 || channel >= listener.object_3d.num_channels())
+        return false;
+      listener.object_3d.get_channel_state(channel, rot_mtx, pos_world, vel_world);
       return true;
     }
     
@@ -784,7 +859,7 @@ namespace applaudio
         la::Vec3 world_pos_cm;
         trf.get_column_vec(la::W, world_pos_cm);
         auto world_vel_ch = vel_world + la::cross(world_ang_vel, world_pos_ch - world_pos_cm);
-        scene_3d->update_obj_channel_state(listener.object_3d, ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
+        listener.object_3d.set_channel_state(ch, trf.get_rot_matrix(), world_pos_ch, world_vel_ch);
       }
       return true;
     }
@@ -829,6 +904,19 @@ namespace applaudio
       return false;
     }
     
+    std::optional<float> get_source_attenuation_min_distance(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->get_attenuation_min_distance(src);
+      }
+      return std::nullopt;
+    }
+    
     bool set_source_attenuation_max_distance(unsigned int src_id, float max_dist)
     {
       if (scene_3d == nullptr)
@@ -840,6 +928,19 @@ namespace applaudio
         return scene_3d->set_attenuation_max_distance(src, max_dist);
       }
       return false;
+    }
+    
+    std::optional<float> get_source_attenuation_max_distance(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->get_attenuation_max_distance(src);
+      }
+      return std::nullopt;
     }
     
     bool set_source_attenuation_constant_falloff(unsigned int src_id, float const_falloff)
@@ -855,6 +956,19 @@ namespace applaudio
       return false;
     }
     
+    std::optional<float> get_source_attenuation_constant_falloff(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->get_attenuation_constant_falloff(src);
+      }
+      return std::nullopt;
+    }
+    
     bool set_source_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)
     {
       if (scene_3d == nullptr)
@@ -868,6 +982,19 @@ namespace applaudio
       return false;
     }
     
+    std::optional<float> get_source_attenuation_linear_falloff(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->get_attenuation_linear_falloff(src);
+      }
+      return std::nullopt;
+    }
+    
     bool set_source_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)
     {
       if (scene_3d == nullptr)
@@ -879,6 +1006,19 @@ namespace applaudio
         return scene_3d->set_attenuation_quadratic_falloff(src, sq_falloff);
       }
       return false;
+    }
+    
+    std::optional<float> get_source_attenuation_quadratic_falloff(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return scene_3d->get_attenuation_quadratic_falloff(src);
+      }
+      return std::nullopt;
     }
     
     // directivity_alpha = 0 : Omni.
@@ -898,6 +1038,22 @@ namespace applaudio
       return false;
     }
     
+    // directivity_alpha = 0 : Omni.
+    // directivity_alpha = 1 : Fully Directional.
+    // [0, 1].
+    std::optional<float> get_source_directivity_alpha(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return src.directivity_alpha;
+      }
+      return std::nullopt;
+    }
+    
     // [1, 8]. 8 = sharpest.
     bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)
     {
@@ -913,6 +1069,20 @@ namespace applaudio
       return false;
     }
     
+    // [1, 8]. 8 = sharpest.
+    std::optional<float> get_source_directivity_sharpness(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return src.directivity_sharpness;
+      }
+      return std::nullopt;
+    }
+    
     // Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole.
     bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)
     {
@@ -926,6 +1096,20 @@ namespace applaudio
         return true;
       }
       return false;
+    }
+    
+    // Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole.
+    std::optional<DirectivityType> get_source_directivity_type(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return src.directivity_type;
+      }
+      return std::nullopt;
     }
     
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
@@ -944,12 +1128,34 @@ namespace applaudio
     }
     
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
+    std::optional<float> get_source_rear_attenuation(unsigned int src_id) const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        auto& src = it->second;
+        return src.rear_attenuation;
+      }
+      return std::nullopt;
+    }
+    
+    // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     bool set_listener_rear_attenuation(float rear_attenuation)
     {
       if (scene_3d == nullptr)
         return false;
       listener.rear_attenuation = std::clamp(rear_attenuation, 0.f, 1.f);
       return true;
+    }
+    
+    // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
+    std::optional<float> get_listener_rear_attenuation() const
+    {
+      if (scene_3d == nullptr)
+        return std::nullopt;
+      return listener.rear_attenuation;
     }
     
     bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)
