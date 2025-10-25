@@ -36,7 +36,6 @@ namespace applaudio
       RH_XLeft_YUp_ZForward,
       RH_XRight_YDown_ZForward,
       RH_XLeft_YDown_ZBackward,
-      LH_XRight_YUp_ZForward,
     };
     
     class Object3D
@@ -130,7 +129,6 @@ namespace applaudio
             case CoordSysConvention::RH_XLeft_YUp_ZForward: return -x_axis;
             case CoordSysConvention::RH_XRight_YDown_ZForward: return +x_axis;
             case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -x_axis;
-            case CoordSysConvention::LH_XRight_YUp_ZForward: return +x_axis;
           }
         }
         return la::Vec3_Zero;
@@ -150,7 +148,6 @@ namespace applaudio
             case CoordSysConvention::RH_XLeft_YUp_ZForward: return +y_axis;
             case CoordSysConvention::RH_XRight_YDown_ZForward: return -y_axis;
             case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -y_axis;
-            case CoordSysConvention::LH_XRight_YUp_ZForward: return +y_axis;
           }
         }
         return la::Vec3_Zero;
@@ -170,7 +167,6 @@ namespace applaudio
             case CoordSysConvention::RH_XLeft_YUp_ZForward: return +z_axis;
             case CoordSysConvention::RH_XRight_YDown_ZForward: return +z_axis;
             case CoordSysConvention::RH_XLeft_YDown_ZBackward: return -z_axis;
-            case CoordSysConvention::LH_XRight_YUp_ZForward: return +z_axis;
           }
         }
         return la::Vec3_Zero;
