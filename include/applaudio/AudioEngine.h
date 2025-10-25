@@ -1172,7 +1172,7 @@ namespace applaudio
       return false;
     }
     
-    a3d::CoordSysConvention get_source_coordsys_convention(unsigned int src_id) const
+    std::optional<a3d::CoordSysConvention> get_source_coordsys_convention(unsigned int src_id) const
     {
       if (scene_3d == nullptr)
         return a3d::CoordSysConvention::RH_XLeft_YUp_ZForward;
@@ -1182,7 +1182,7 @@ namespace applaudio
         auto& src = it->second;
         return src.object_3d.get_coordsys_convention();
       }
-      return a3d::CoordSysConvention::RH_XLeft_YUp_ZForward;
+      return std::nullopt;
     }
     
     bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)
@@ -1193,10 +1193,10 @@ namespace applaudio
       return true;
     }
     
-    a3d::CoordSysConvention get_listener_coordsys_convention() const
+    std::optional<a3d::CoordSysConvention> get_listener_coordsys_convention() const
     {
       if (scene_3d == nullptr)
-        return a3d::CoordSysConvention::RH_XLeft_YUp_ZForward;
+        return std::nullopt;
       return listener.object_3d.get_coordsys_convention();
     }
     
