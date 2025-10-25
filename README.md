@@ -164,9 +164,9 @@ The important part here is c++20.
 * `std::optional<float> get_source_rear_attenuation(unsigned int src_id) const` : Gets the rear attenuation for this source.
 * `bool set_listener_rear_attenuation(float rear_attenuation)` : For the single listener, this sets the rear attenuation for each of its per channel ears. valid values are in the range of `[0, 1]`, but any value outside the range will be clamped to that range. 0 = Silence, 1 = No Attenuation. Each per source rear attenuation will be multiplied with the listener rear attenuation which becomes the final rear attenuation.
 * `std::optional<float> get_listener_rear_attenuation() const` : Gets the rear attenuation for the listener.
-* `bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for a source. Valid values are `CoordSysConvention::RH_XRight_YUp_ZBackward`, `CoordSysConvention::RH_XLeft_YUp_ZForward`, `CoordSysConvention::RH_XRight_YDown_ZForward`, `CoordSysConvention::RH_XLeft_YDown_ZBackward` and `CoordSysConvention::LH_XRight_YUp_ZForward`. Default setting is `CoorSysConvetion::RH_XLeft_YUp_ZForward`.
+* `bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for a source. Valid values are `CoordSysConvention::RH_XRight_YUp_ZBackward`, `CoordSysConvention::RH_XLeft_YUp_ZForward`, `CoordSysConvention::RH_XRight_YDown_ZForward` and `CoordSysConvention::RH_XLeft_YDown_ZBackward`. Default setting is `CoorSysConvetion::RH_XLeft_YUp_ZForward`.
 * `a3d::CoordSysConvention get_source_coordsys_convention(unsigned int src_id) const` : Gets the coordinate system convention for a source.
-* `bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for the listener. Valid values are `CoordSysConvention::RH_XRight_YUp_ZBackward`, `CoordSysConvention::RH_XLeft_YUp_ZForward`, `CoordSysConvention::RH_XRight_YDown_ZForward`, `CoordSysConvention::RH_XLeft_YDown_ZBackward` and `CoordSysConvention::LH_XRight_YUp_ZForward`. Default setting is `CoorSysConvetion::RH_XLeft_YUp_ZForward`.
+* `bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)` : Sets the coordinate system convention for the listener. Valid values are `CoordSysConvention::RH_XRight_YUp_ZBackward`, `CoordSysConvention::RH_XLeft_YUp_ZForward`, `CoordSysConvention::RH_XRight_YDown_ZForward`, `CoordSysConvention::RH_XLeft_YDown_ZBackward`. Default setting is `CoorSysConvetion::RH_XLeft_YUp_ZForward`.
 * `a3d::CoordSysConvention get_listener_coordsys_convention() const` : Gets the coordinate system convention for the listener.
     
 
@@ -191,7 +191,6 @@ enum class CoordSysConvention
   RH_XLeft_YUp_ZForward,
   RH_XRight_YDown_ZForward,
   RH_XLeft_YDown_ZBackward,
-  LH_XRight_YUp_ZForward,
 };
 ```
 These can be set individually for each source and for the listener. Default convention is `CoorSysConvetion::RH_XLeft_YUp_ZForward`, meaning that sound propagates mainly from the +Z direction (and -Z direction if using `DirectivityType::Dipole`).
