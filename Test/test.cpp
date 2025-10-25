@@ -277,7 +277,7 @@ int test_3()
   la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
   engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_L_s, pos_l_R_s });
-  engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::LH_XRight_YUp_ZForward);
+  //engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::LH_XRight_YUp_ZForward);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
@@ -391,7 +391,7 @@ int test_4()
   la::Vec3 ang_vel_w_s = la::Vec3_Zero;
   vel_w_s *= 5.f;
   engine.set_source_3d_state(src_id, trf_s, vel_w_s, ang_vel_w_s, { pos_l_s });
-  engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::LH_XRight_YUp_ZForward);
+  //engine.set_source_coordsys_convention(src_id, applaudio::a3d::CoordSysConvention::LH_XRight_YUp_ZForward);
   
   // --- 4c. Set listener 3D properties ---
   la::Mtx4 trf_l = la::Mtx4_Identity;
