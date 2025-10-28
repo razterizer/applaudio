@@ -183,6 +183,8 @@ namespace applaudio
       return static_cast<int>(buffer_size);
     }
     
+    virtual std::mutex& get_mutex() override { return m_buffer_mutex; }
+    
     virtual std::string backend_name() const override { return "Linux : ALSA"; }
     
   private:

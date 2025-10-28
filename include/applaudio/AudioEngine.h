@@ -504,6 +504,7 @@ namespace applaudio
     bool set_buffer_data_8u(unsigned int buf_id, const std::vector<unsigned char>& data,
                             int channels, int sample_rate)
     {
+      std::lock_guard<std::mutex> lock(m_backend->get_mutex());
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -518,6 +519,7 @@ namespace applaudio
     bool set_buffer_data_8s(unsigned int buf_id, const std::vector<char>& data,
                             int channels, int sample_rate)
     {
+      std::lock_guard<std::mutex> lock(m_backend->get_mutex());
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -532,6 +534,7 @@ namespace applaudio
     bool set_buffer_data_16s(unsigned int buf_id, const std::vector<short>& data,
                              int channels, int sample_rate)
     {
+      std::lock_guard<std::mutex> lock(m_backend->get_mutex());
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -546,6 +549,7 @@ namespace applaudio
     bool set_buffer_data_32f(unsigned int buf_id, const std::vector<float>& data,
                              int channels, int sample_rate)
     {
+      std::lock_guard<std::mutex> lock(m_backend->get_mutex());
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
