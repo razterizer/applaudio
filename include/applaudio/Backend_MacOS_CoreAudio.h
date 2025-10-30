@@ -29,7 +29,7 @@ namespace applaudio
     std::vector<APL_SAMPLE_TYPE> ring_buffer;
     size_t read_pos = 0;
     size_t write_pos = 0;
-    std::mutex m_buffer_mutex;
+    std::mutex buffer_mutex;
     
     AudioStreamBasicDescription audio_format;
     
@@ -131,7 +131,7 @@ namespace applaudio
     
     virtual bool write_samples(const APL_SAMPLE_TYPE* data, size_t frames) override
     {
-      std::lock_guard<std::mutex> lock(m_buffer_mutex);
+      std::lock_guard<std::mutex> lock(buffer_mutex);
       size_t samples_to_write = frames * m_channels;
       
       for (size_t i = 0; i < samples_to_write; i++)
@@ -176,8 +176,6 @@ namespace applaudio
       return static_cast<int>(buffer_size_frames);
     }
     
-    virtual std::mutex& get_mutex() override { return m_buffer_mutex; }
-    
     virtual std::string backend_name() const override { return "MacOS : CoreAudio"; }
     
   private:
@@ -187,7 +185,7 @@ namespace applaudio
                     UInt32 num_frames,
                     AudioBufferList* io_data)
     {
-      std::lock_guard<std::mutex> lock(m_buffer_mutex);
+      std::lock_guard<std::mutex> lock(buffer_mutex);
       
       // Calculate how many samples we need
       //size_t samples_needed = num_frames * m_channels;

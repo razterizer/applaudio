@@ -8,7 +8,6 @@
 #pragma once
 #include "defines.h"
 #include <string>
-#include <mutex>
 
 namespace applaudio
 {
@@ -23,7 +22,6 @@ namespace applaudio
     virtual int get_num_channels() const = 0;
     virtual int get_bit_format() const = 0;
     virtual int get_buffer_size_frames() const = 0;
-    virtual std::mutex& get_mutex() = 0;
     virtual std::string backend_name() const = 0;
   };
   

@@ -326,8 +326,6 @@ namespace applaudio
       return 512; // fallback
     }
     
-    virtual std::mutex& get_mutex() override { return m_buffer_mutex; }
-    
     virtual std::string backend_name() const override { return "Win : WASAPI (Event-Driven)"; }
     
   private:
