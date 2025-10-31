@@ -251,7 +251,7 @@ namespace applaudio
       const int src_ch = buf.channels;
       const int dst_ch = m_output_channels;
       const size_t buf_size = buf.data.size();
-      bool do_pan = buf.channels == 2 && src.pan.has_value();
+      const bool do_pan = buf.channels == 2 && src.pan.has_value();
       
       float pan_left = 1.f;
       float pan_right = 1.f;
@@ -261,59 +261,68 @@ namespace applaudio
         pan_left = 1.f - pan_right;
       }
       
+      // Dynamic temp to avoid overflow for >2ch sources.
+      std::vector<float> src_samples(src_ch);
+      
       for (int f = 0; f < m_frame_count; ++f)
       {
         size_t i0 = static_cast<size_t>(pos) * src_ch;
         size_t i1 = i0 + src_ch;
-        double frac = pos - floor(pos);
         
-        // Interpolate samples per source channel
-        float src_samples[2] = { 0.f, 0.f };
-        for (int ch_s = 0; ch_s < src_ch; ++ch_s)
+        // ---- EARLY BOUNDS CHECK (like mix_flat) ----
+        if (i0 + src_ch > buf_size)
         {
-          float s1 = buf.data[i0 + ch_s];
-          float s2 = (i1 + ch_s < buf_size) ? buf.data[i1 + ch_s] : s1;
-          auto& src_sample = src_samples[ch_s];
-          src_sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
-          if (do_pan && ch_s == 0)
-            src_sample *= pan_left;
-          if (do_pan && ch_s == 1)
-            src_sample *= pan_right;
-        }
-        
-        // Now project each source channel to each listener channel
-        float doppler_shift = 1.f;
-        for (int ch_l = 0; ch_l < dst_ch; ++ch_l)
-        {
-          float sum = 0.f;
-          for (int ch_s = 0; ch_s < src_ch; ++ch_s)
-          {
-            const auto* state_s = src.object_3d.get_channel_state(ch_s);
-            if (ch_l >= static_cast<int>(state_s->listener_ch_params.size()))
-              continue;
-            const auto& p = state_s->listener_ch_params[ch_l];
-            
-            // Apply doppler shift scaling and attenuation gain
-            if (std::abs(doppler_shift - 1.f) < std::abs(p.doppler_shift - 1.f))
-              doppler_shift = p.doppler_shift;
-            float gain = p.gain;
-            sum += src_samples[ch_s] * gain;
-          }
-          
-          // Mix to output
-          size_t idx = f * dst_ch + ch_l;
-          add_sample(mix_buffer[idx], sum, src);
-        }
-                        
-        pos += pitch_adjusted_step * doppler_shift;
           if (src.looping)
-            pos = 0;
+          {
+            pos = 0.0;    // Wrap and restart this frame.
+            i0 = 0; i1 = src_ch;
+          }
           else
           {
             src.playing = false;
             break;
           }
         }
+        
+        const double frac = pos - std::floor(pos);
+        
+        // Interpolate per source channel.
+        for (int ch_s = 0; ch_s < src_ch; ++ch_s)
+        {
+          const float s1 = buf.data[i0 + ch_s];
+          const float s2 = (i1 + ch_s < buf_size) ? buf.data[i1 + ch_s] : s1;
+          float sample = static_cast<float>((1.0 - frac) * s1 + frac * s2);
+          if (do_pan && ch_s == 0) sample *= pan_left;
+          if (do_pan && ch_s == 1) sample *= pan_right;
+          src_samples[ch_s] = sample;
+        }
+        
+        float doppler_shift = 1.f;
+        
+        // Project each source channel to each listener channel.
+        for (int ch_l = 0; ch_l < dst_ch; ++ch_l)
+        {
+          float sum = 0.f;
+          for (int ch_s = 0; ch_s < src_ch; ++ch_s)
+          {
+            const auto* state_s = src.object_3d.get_channel_state(ch_s);
+            if (!state_s)
+              continue;  // guard null
+            if (ch_l >= static_cast<int>(state_s->listener_ch_params.size()))
+              continue;
+            
+            // Apply doppler shift scaling and attenuation gain.
+            const auto& p = state_s->listener_ch_params[ch_l];
+            if (std::abs(doppler_shift - 1.f) < std::abs(p.doppler_shift - 1.f))
+              doppler_shift = p.doppler_shift;
+            
+            sum += src_samples[ch_s] * p.gain;
+          }
+          
+          add_sample(mix_buffer[f * dst_ch + ch_l], sum, src);
+        }
+        
+        pos += pitch_adjusted_step * doppler_shift;
       }
     }
     
