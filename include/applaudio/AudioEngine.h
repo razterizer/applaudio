@@ -51,6 +51,8 @@ namespace applaudio
     
     std::atomic<bool> m_running { false };
     std::thread m_thread;
+    
+    mutable std::mutex m_state_mutex;
         
     void enter_audio_thread_loop()
     {
@@ -58,8 +60,11 @@ namespace applaudio
       
       while (m_running)
       {
-        update_3d_scene(); // Generate meta data for 3d audio.
-        mix();  // Mix the next chunk.
+        {
+          std::scoped_lock lock(m_state_mutex);
+          update_3d_scene(); // Generate meta data for 3d audio.
+          mix();  // Mix the next chunk.
+        }
         
         // advance time by the chunk duration
         next_frame_time += std::chrono::microseconds(
@@ -301,8 +306,6 @@ namespace applaudio
         }
                         
         pos += pitch_adjusted_step * doppler_shift;
-        if (pos * src_ch >= buf_size)
-        {
           if (src.looping)
             pos = 0;
           else
@@ -418,6 +421,7 @@ namespace applaudio
                  bool request_exclusive_mode_if_supported = false, 
                  bool verbose = false)
     {
+      std::scoped_lock lock(m_state_mutex);
       m_output_sample_rate = request_out_sample_rate;
       m_output_channels = request_out_num_channels;
 
@@ -464,6 +468,7 @@ namespace applaudio
     
     void shutdown()
     {
+      std::scoped_lock lock(m_state_mutex);
       m_running = false;
       if (m_thread.joinable())
         m_thread.join();
@@ -474,6 +479,7 @@ namespace applaudio
 
     unsigned int create_source()
     {
+      std::scoped_lock lock(m_state_mutex);
       unsigned int id = m_next_source_id++;
       m_sources[id] = Source {};
       return id;
@@ -486,11 +492,13 @@ namespace applaudio
     // 5. Resources are freed.
     void destroy_source(unsigned int src_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       m_sources.erase(src_id);
     }
     
     unsigned int create_buffer()
     {
+      std::scoped_lock lock(m_state_mutex);
       unsigned int id = m_next_buffer_id++;
       m_buffers[id] = Buffer {};
       return id;
@@ -498,12 +506,14 @@ namespace applaudio
     
     void destroy_buffer(unsigned int buf_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       m_buffers.erase(buf_id);
     }
     
     bool set_buffer_data_8u(unsigned int buf_id, const std::vector<unsigned char>& data,
                             int channels, int sample_rate)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -518,6 +528,7 @@ namespace applaudio
     bool set_buffer_data_8s(unsigned int buf_id, const std::vector<char>& data,
                             int channels, int sample_rate)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -532,6 +543,7 @@ namespace applaudio
     bool set_buffer_data_16s(unsigned int buf_id, const std::vector<short>& data,
                              int channels, int sample_rate)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -546,6 +558,7 @@ namespace applaudio
     bool set_buffer_data_32f(unsigned int buf_id, const std::vector<float>& data,
                              int channels, int sample_rate)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto buf_it = m_buffers.find(buf_id);
       if (buf_it != m_buffers.end())
       {
@@ -559,6 +572,7 @@ namespace applaudio
     
     bool attach_buffer_to_source(unsigned int src_id, unsigned int buf_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
@@ -577,6 +591,7 @@ namespace applaudio
     // 3. Resets the buffer position.
     bool detach_buffer_from_source(unsigned int src_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto src_it = m_sources.find(src_id);
       if (src_it != m_sources.end())
       {
@@ -593,6 +608,7 @@ namespace applaudio
     // Play the source
     void play_source(unsigned int src_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -607,6 +623,7 @@ namespace applaudio
     // Check if a source is playing
     std::optional<bool> is_source_playing(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.playing;
@@ -616,6 +633,7 @@ namespace applaudio
     // Pause the source
     void pause_source(unsigned int src_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -627,6 +645,7 @@ namespace applaudio
     
     std::optional<bool> is_source_paused(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.paused;
@@ -636,6 +655,7 @@ namespace applaudio
     // Stop the source
     void stop_source(unsigned int src_id)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -649,6 +669,7 @@ namespace applaudio
     // Set volume
     void set_source_volume(unsigned int src_id, float vol)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.volume = vol;
@@ -656,6 +677,7 @@ namespace applaudio
     
     std::optional<float> get_source_volume(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.volume;
@@ -665,6 +687,7 @@ namespace applaudio
     // Set pitch
     void set_source_pitch(unsigned int src_id, float pitch)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.pitch = pitch;
@@ -672,6 +695,7 @@ namespace applaudio
     
     std::optional<float> get_source_pitch(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.pitch;
@@ -681,6 +705,7 @@ namespace applaudio
     // Set looping
     void set_source_looping(unsigned int src_id, bool loop)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.looping = loop;
@@ -688,6 +713,7 @@ namespace applaudio
     
     std::optional<bool> get_source_looping(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.looping;
@@ -696,6 +722,7 @@ namespace applaudio
     
     void set_source_panning(unsigned int src_id, std::optional<float> pan = std::nullopt)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
@@ -708,6 +735,7 @@ namespace applaudio
     
     std::optional<float> get_source_panning(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         return it->second.pan;
@@ -726,6 +754,7 @@ namespace applaudio
     
     void init_3d_scene()
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d != nullptr)
         return;
       scene_3d = std::make_unique<a3d::PositionalAudio>();
@@ -734,6 +763,7 @@ namespace applaudio
     
     void enable_source_3d_audio(unsigned int src_id, bool enable)
     {
+      std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
         it->second.object_3d.enable_3d_audio(enable);
@@ -742,6 +772,7 @@ namespace applaudio
     bool set_source_3d_state_channel(unsigned int src_id, int channel, const la::Mtx3& rot_mtx,
                                      const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -764,6 +795,7 @@ namespace applaudio
     bool get_source_3d_state_channel(unsigned int src_id, int channel, la::Mtx3& rot_mtx,
                                      la::Vec3& pos_world, la::Vec3& vel_world) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -786,6 +818,7 @@ namespace applaudio
                              const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
                              const std::vector<la::Vec3>& channel_pos_offsets_local)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -820,6 +853,7 @@ namespace applaudio
     bool set_listener_3d_state_channel(int channel, const la::Mtx3& rot_mtx,
                                        const la::Vec3& pos_world, const la::Vec3& vel_world)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       if (channel < 0 || channel >= listener.object_3d.num_channels())
@@ -831,6 +865,7 @@ namespace applaudio
     bool get_listener_3d_state_channel(int channel, la::Mtx3& rot_mtx,
                                        la::Vec3& pos_world, la::Vec3& vel_world) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       if (channel < 0 || channel >= listener.object_3d.num_channels())
@@ -844,6 +879,7 @@ namespace applaudio
                                const la::Vec3& vel_world, const la::Vec3& ang_vel_local,
                                const std::vector<la::Vec3>& channel_pos_offsets_local)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       if (static_cast<int>(channel_pos_offsets_local.size()) != listener.object_3d.num_channels())
@@ -866,6 +902,7 @@ namespace applaudio
     
     bool set_source_speed_of_sound(unsigned int src_id, float speed_of_sound)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -880,6 +917,7 @@ namespace applaudio
     
     std::optional<float> get_source_speed_of_sound(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -893,6 +931,7 @@ namespace applaudio
     
     bool set_source_attenuation_min_distance(unsigned int src_id, float min_dist)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -906,6 +945,7 @@ namespace applaudio
     
     std::optional<float> get_source_attenuation_min_distance(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -919,6 +959,7 @@ namespace applaudio
     
     bool set_source_attenuation_max_distance(unsigned int src_id, float max_dist)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -932,6 +973,7 @@ namespace applaudio
     
     std::optional<float> get_source_attenuation_max_distance(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -945,6 +987,7 @@ namespace applaudio
     
     bool set_source_attenuation_constant_falloff(unsigned int src_id, float const_falloff)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -958,6 +1001,7 @@ namespace applaudio
     
     std::optional<float> get_source_attenuation_constant_falloff(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -971,6 +1015,7 @@ namespace applaudio
     
     bool set_source_attenuation_linear_falloff(unsigned int src_id, float lin_falloff)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -984,6 +1029,7 @@ namespace applaudio
     
     std::optional<float> get_source_attenuation_linear_falloff(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -997,6 +1043,7 @@ namespace applaudio
     
     bool set_source_attenuation_quadratic_falloff(unsigned int src_id, float sq_falloff)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1010,6 +1057,7 @@ namespace applaudio
     
     std::optional<float> get_source_attenuation_quadratic_falloff(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -1026,6 +1074,7 @@ namespace applaudio
     // [0, 1].
     bool set_source_directivity_alpha(unsigned int src_id, float directivity_alpha)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1043,6 +1092,7 @@ namespace applaudio
     // [0, 1].
     std::optional<float> get_source_directivity_alpha(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -1057,6 +1107,7 @@ namespace applaudio
     // [1, 8]. 8 = sharpest.
     bool set_source_directivity_sharpness(unsigned int src_id, float directivity_sharpness)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1072,6 +1123,7 @@ namespace applaudio
     // [1, 8]. 8 = sharpest.
     std::optional<float> get_source_directivity_sharpness(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -1086,6 +1138,7 @@ namespace applaudio
     // Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole.
     bool set_source_directivity_type(unsigned int src_id, DirectivityType directivity_type)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1101,6 +1154,7 @@ namespace applaudio
     // Cardioid, SuperCardioid, HalfRectifiedDipole, Dipole.
     std::optional<DirectivityType> get_source_directivity_type(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -1115,6 +1169,7 @@ namespace applaudio
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     bool set_source_rear_attenuation(unsigned int src_id, float rear_attenuation)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1130,6 +1185,7 @@ namespace applaudio
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     std::optional<float> get_source_rear_attenuation(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       auto it = m_sources.find(src_id);
@@ -1144,6 +1200,7 @@ namespace applaudio
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     bool set_listener_rear_attenuation(float rear_attenuation)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       listener.rear_attenuation = std::clamp(rear_attenuation, 0.f, 1.f);
@@ -1153,6 +1210,7 @@ namespace applaudio
     // [0.f, 1.f]. 0 = Silence, 1 = No Attenuation.
     std::optional<float> get_listener_rear_attenuation() const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       return listener.rear_attenuation;
@@ -1160,6 +1218,7 @@ namespace applaudio
     
     bool set_source_coordsys_convention(unsigned int src_id, a3d::CoordSysConvention cs_conv)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       auto it = m_sources.find(src_id);
@@ -1174,6 +1233,7 @@ namespace applaudio
     
     std::optional<a3d::CoordSysConvention> get_source_coordsys_convention(unsigned int src_id) const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return a3d::CoordSysConvention::RH_XLeft_YUp_ZForward;
       auto it = m_sources.find(src_id);
@@ -1187,6 +1247,7 @@ namespace applaudio
     
     bool set_listener_coordsys_convention(a3d::CoordSysConvention cs_conv)
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return false;
       listener.object_3d.set_coordsys_convention(cs_conv);
@@ -1195,6 +1256,7 @@ namespace applaudio
     
     std::optional<a3d::CoordSysConvention> get_listener_coordsys_convention() const
     {
+      std::scoped_lock lock(m_state_mutex);
       if (scene_3d == nullptr)
         return std::nullopt;
       return listener.object_3d.get_coordsys_convention();
