@@ -11,7 +11,8 @@
 #include <optional>
 #include <unordered_map>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+
 
 namespace applaudio
 {
