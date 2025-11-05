@@ -119,6 +119,10 @@ The important part here is c++20.
 * `void stop_source(unsigned int src_id)` : Stops the supplied sound source.
 * `void set_source_gain(unsigned int src_id, float vol)` : Sets the gain for the supplied sound source. Value is normally in the range `[0, 1]`.
 * `std::optional<float> get_source_gain(unsigned int src_id) const` : Queries source gain.
+* `void set_source_volume_dB(unsigned int src_id, float vol_dB)` : Sets the dB volume level for supplied sound source. This function affects the source gain underneath.
+* `std::optional<float> get_source_volume_dB(unsigned int src_id) const` : Queries the dB volume level.
+* `void set_source_volume_slider(unsigned int src_id, float vol01)` : Sets the parametrized (UX) volume level for supplied sound source. Normally the value should be in the range `[0, 1]`. This function affects the source gain underneath.
+* `std::optional<float> get_source_volume_slider(unsigned int src_id) const` : Queries the parametrized (UX) volume level.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `std::optional<float> get_source_pitch(unsigned int src_id) const` : Queries source pitch.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
