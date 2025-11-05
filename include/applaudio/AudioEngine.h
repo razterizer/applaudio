@@ -693,6 +693,46 @@ namespace applaudio
       return std::nullopt;
     }
     
+    void set_source_volume_dB(unsigned int src_id, float vol_dB)
+    {
+      std::scoped_lock lock(m_state_mutex);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        float gain = std::pow(10.f, vol_dB/20.f);
+        it->second.gain = gain;
+      }
+    }
+    
+    std::optional<float> get_source_volume_dB(unsigned int src_id) const
+    {
+      std::scoped_lock lock(m_state_mutex);
+      auto it = m_sources.find(src_id);
+      if (it != m_sources.end())
+      {
+        float vol_dB = 20.f * std::log10(it->second.gain);
+        return vol_dB;
+      }
+      return std::nullopt;
+    }
+    
+    // Perceptually linear mapping: 0 -> -60 dB, 1 -> 0 dB.
+    void set_source_volume_slider(unsigned int src_id, float vol01)
+    {
+      float vol_dB = -60.f + 60.f * vol01;
+      set_source_volume_dB(src_id, vol_dB);
+    }
+    
+    // Perceptually linear mapping: 0 -> -60 dB, 1 -> 0 dB.
+    std::optional<float> get_source_volume_slider(unsigned int src_id) const
+    {
+      auto vol_dB = get_source_volume_dB(src_id);
+      if (!vol_dB.has_value())
+        return std::nullopt;
+      float vol01 = std::clamp(vol_dB.value()/60.f + 1.f, 0.f, 1.f);
+      return vol01;
+    }
+    
     // Set pitch
     void set_source_pitch(unsigned int src_id, float pitch)
     {
