@@ -117,8 +117,8 @@ The important part here is c++20.
 * `void pause_source(unsigned int src_id)` : Pauses the supplied sound source. If it is already paused, then nothing happens.
 * `std::optional<bool> is_source_paused(unsigned int src_id) const` : Queries if given source is paused.
 * `void stop_source(unsigned int src_id)` : Stops the supplied sound source.
-* `void set_source_volume(unsigned int src_id, float vol)` : Sets the volume for the supplied sound source.
-* `std::optional<float> get_source_volume(unsigned int src_id) const` : Queries source volume.
+* `void set_source_gain(unsigned int src_id, float vol)` : Sets the gain for the supplied sound source. Value is normally in the range `[0, 1]`.
+* `std::optional<float> get_source_gain(unsigned int src_id) const` : Queries source gain.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `std::optional<float> get_source_pitch(unsigned int src_id) const` : Queries source pitch.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.

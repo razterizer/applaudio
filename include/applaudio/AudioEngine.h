@@ -87,10 +87,10 @@ namespace applaudio
       //here: std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
 
 #ifdef APL_32
-      sample_sum += st_new_sample * src.volume;
+      sample_sum += st_new_sample * src.gain;
       sample_sum = std::clamp(sample_sum, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
 #else
-      auto f_new_sample = st_new_sample * 1/APL_SHORT_LIMIT_F * src.volume;
+      auto f_new_sample = st_new_sample * 1/APL_SHORT_LIMIT_F * src.gain;
       auto l_sample_sum = static_cast<long>(sample_sum);
       auto l_new_sample = static_cast<long>(f_new_sample * APL_SHORT_LIMIT_F);
       
@@ -675,21 +675,21 @@ namespace applaudio
       }
     }
     
-    // Set volume
-    void set_source_volume(unsigned int src_id, float vol)
+    // Set gain
+    void set_source_gain(unsigned int src_id, float gain)
     {
       std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
-        it->second.volume = vol;
+        it->second.gain = gain;
     }
     
-    std::optional<float> get_source_volume(unsigned int src_id) const
+    std::optional<float> get_source_gain(unsigned int src_id) const
     {
       std::scoped_lock lock(m_state_mutex);
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
-        return it->second.volume;
+        return it->second.gain;
       return std::nullopt;
     }
     
