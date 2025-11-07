@@ -18,6 +18,7 @@ namespace applaudio
     unsigned int buffer_id = 0;
     bool looping = false;
     float gain = 1.0f;
+    float vol_gain = 1.0f;
     float pitch = 1.0f;
     bool playing = false;
     bool paused = false;

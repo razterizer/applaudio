@@ -87,10 +87,10 @@ namespace applaudio
       //here: std::clamp(mix_buffer[f * m_output_channels + c] + sample, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
 
 #ifdef APL_32
-      sample_sum += st_new_sample * src.gain;
+      sample_sum += st_new_sample * src.gain * src.vol_gain;
       sample_sum = std::clamp(sample_sum, APL_SAMPLE_MIN, APL_SAMPLE_MAX);
 #else
-      auto f_new_sample = st_new_sample * 1/APL_SHORT_LIMIT_F * src.gain;
+      auto f_new_sample = st_new_sample * 1/APL_SHORT_LIMIT_F * src.gain * src.vol_gain;
       auto l_sample_sum = static_cast<long>(sample_sum);
       auto l_new_sample = static_cast<long>(f_new_sample * APL_SHORT_LIMIT_F);
       
@@ -700,7 +700,7 @@ namespace applaudio
       if (it != m_sources.end())
       {
         float gain = std::pow(10.f, vol_dB/20.f);
-        it->second.gain = gain;
+        it->second.vol_gain = gain;
       }
     }
     
@@ -710,7 +710,7 @@ namespace applaudio
       auto it = m_sources.find(src_id);
       if (it != m_sources.end())
       {
-        float vol_dB = 20.f * std::log10(it->second.gain);
+        float vol_dB = 20.f * std::log10(it->second.vol_gain);
         return vol_dB;
       }
       return std::nullopt;
