@@ -121,8 +121,8 @@ The important part here is c++20.
 * `std::optional<float> get_source_gain(unsigned int src_id) const` : Queries source gain.
 * `void set_source_volume_dB(unsigned int src_id, float vol_dB)` : Sets the dB volume level for supplied sound source. This function affects the source gain underneath.
 * `std::optional<float> get_source_volume_dB(unsigned int src_id) const` : Queries the dB volume level.
-* `void set_source_volume_slider(unsigned int src_id, float vol01)` : Sets the parametrized (UX) volume level for supplied sound source. Normally the value should be in the range `[0, 1]`. This function affects the source gain underneath.
-* `std::optional<float> get_source_volume_slider(unsigned int src_id) const` : Queries the parametrized (UX) volume level.
+* `void set_source_volume_slider(unsigned int src_id, float vol01, float min_dB = -60.f, std::optional<float> nl_taper = std::nullopt)` : Sets the parametrized (UX) volume level for supplied sound source. Normally the value vol01 should be in the range `[0, 1]`. This function affects the source gain underneath. `min_dB` allows you to adjust the minimum dB level at `vol01 = 0`. At `vol01 = 1` the dB level is always `0`. Optional argument `nl_taper` allows you to tweak the scale nonlinearly. Tweak `min_dB` and `nl_taper` to try to make the volume at `vol01 = 0.5` appear having half the loudness of `vol01 = 1` but twice the loudness of `vol01 = 0.25`.
+* `std::optional<float> get_source_volume_slider(unsigned int src_id, float min_dB = -60.f, std::optional<float> nl_taper = std::nullopt) const` : Queries the parametrized (UX) volume level.
 * `void set_source_pitch(unsigned int src_id, float pitch)` : Sets the pitch for the supplied sound source.
 * `std::optional<float> get_source_pitch(unsigned int src_id) const` : Queries source pitch.
 * `void set_source_looping(unsigned int src_id, bool loop)` : Tells the sound source if it should be looping or not.
