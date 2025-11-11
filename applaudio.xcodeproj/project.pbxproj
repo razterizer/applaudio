@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0733A6482EC321C50045BCFD /* applaudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = applaudio.h; sourceTree = "<group>"; };
 		0756EB1E2E8D8D1F00B0E6FE /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
 		0756EB1F2E8D8E7E00B0E6FE /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
 		0756EB222E8E53A100B0E6FE /* build-test-macos.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "build-test-macos.yml"; sourceTree = "<group>"; };
@@ -121,6 +122,7 @@
 		07BDBBA32E774016002ACC96 /* applaudio */ = {
 			isa = PBXGroup;
 			children = (
+				0733A6482EC321C50045BCFD /* applaudio.h */,
 				07980B632E7D36A1007A0EB4 /* defines.h */,
 				0756EB4C2E9118CF00B0E6FE /* Buffer.h */,
 				0756EB4D2E9118EA00B0E6FE /* Source.h */,
