@@ -721,7 +721,7 @@ namespace applaudio
     {
       float t = vol01;
       if (nl_taper.has_value()) // Non-linear tapering.
-        t = std::pow(vol01, std::clamp(nl_taper.value(), 0.f, 1.f)); // nl_taper < 1 : Brightens mid-range.
+        t = std::pow(std::clamp(vol01, 0.f, 1.f), std::clamp(nl_taper.value(), 0.f, 1.f)); // nl_taper < 1 : Brightens mid-range.
       float vol_dB = min_dB * (1.f - t);
       set_source_volume_dB(src_id, vol_dB);
     }
@@ -735,7 +735,7 @@ namespace applaudio
       float t = 1.f - vol_dB.value()/min_dB;
       float vol01 = t;
       if (nl_taper.has_value())
-        vol01 = std::pow(t, 1.0f / std::clamp(nl_taper.value(), 0.f, 1.f));
+        vol01 = std::pow(std::clamp(t, 0.f, 1.f), 1.0f / std::clamp(nl_taper.value(), 0.f, 1.f));
       return vol01;
     }
     
