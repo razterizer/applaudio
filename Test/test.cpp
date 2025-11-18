@@ -143,7 +143,7 @@ int test_2()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 1.f);
+  engine.set_source_gain(src_id, 0.8f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
@@ -264,7 +264,7 @@ int test_3()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 1.f);
+  engine.set_source_gain(src_id, 0.8f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
@@ -379,7 +379,7 @@ int test_4()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 1.f);
+  engine.set_source_gain(src_id, 0.8f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
