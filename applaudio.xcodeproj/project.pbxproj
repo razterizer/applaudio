@@ -386,7 +386,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HFL2Q84SZB;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = ../include;
+				HEADER_SEARCH_PATHS = include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -398,7 +398,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HFL2Q84SZB;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = ../include;
+				HEADER_SEARCH_PATHS = include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
