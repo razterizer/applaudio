@@ -143,7 +143,7 @@ int test_2()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 0.8f);
+  engine.set_source_gain(src_id, 1.f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
@@ -186,9 +186,9 @@ int test_2()
 
   // --- 6. Let the engine run for a few seconds. Move source ---
   std::cout << "Playing 3D sine wave..." << std::endl;
-  double animation_duration = 3.0;
+  float animation_duration = 3.0f;
   int num_iters = 500;
-  double dt = animation_duration / num_iters;
+  float dt = animation_duration / num_iters;
   auto start_time = std::chrono::steady_clock::now();
   auto next_update = start_time;
   for (int i = 0; i < num_iters; ++i)
@@ -264,7 +264,7 @@ int test_3()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 0.8f);
+  engine.set_source_gain(src_id, 1.f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
@@ -300,9 +300,9 @@ int test_3()
 
   // --- 6. Let the engine run for a few seconds. Move source ---
   std::cout << "Playing 3D sine wave..." << std::endl;
-  double animation_duration = 3.0;
+  float animation_duration = 3.0f;
   int num_iters = 500;
-  double dt = animation_duration / num_iters;
+  float dt = animation_duration / num_iters;
   auto start_time = std::chrono::steady_clock::now();
   auto next_update = start_time;
   for (int i = 0; i < num_iters; ++i)
@@ -379,7 +379,7 @@ int test_4()
   // --- 4a. Create a source and attach buffer ---
   unsigned int src_id = engine.create_source();
   engine.attach_buffer_to_source(src_id, buf_id);
-  engine.set_source_gain(src_id, 0.8f);
+  engine.set_source_gain(src_id, 1.f);
   engine.set_source_looping(src_id, true);
   engine.set_source_pitch(src_id, 1.f);
   
@@ -414,9 +414,9 @@ int test_4()
 
   // --- 6. Let the engine run for a few seconds. Move source ---
   std::cout << "Playing 3D sine wave..." << std::endl;
-  double animation_duration = 3.0;
-  int num_iters = 500;
-  double dt = animation_duration / num_iters;
+  float animation_duration = 5.0f;
+  int num_iters = 1000;
+  float dt = animation_duration / num_iters;
   auto start_time = std::chrono::steady_clock::now();
   auto next_update = start_time;
   for (int i = 0; i < num_iters; ++i)
