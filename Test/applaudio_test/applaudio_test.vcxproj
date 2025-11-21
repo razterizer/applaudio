@@ -138,13 +138,22 @@
     <ClCompile Include="..\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\applaudio\applaudio.h" />
     <ClInclude Include="..\..\include\applaudio\AudioEngine.h" />
     <ClInclude Include="..\..\include\applaudio\Backend_Linux_ALSA.h" />
     <ClInclude Include="..\..\include\applaudio\Backend_MacOS_CoreAudio.h" />
     <ClInclude Include="..\..\include\applaudio\Backend_NoAudio.h" />
     <ClInclude Include="..\..\include\applaudio\Backend_Windows_WASAPI.h" />
+    <ClInclude Include="..\..\include\applaudio\Buffer.h" />
     <ClInclude Include="..\..\include\applaudio\defines.h" />
     <ClInclude Include="..\..\include\applaudio\IBackend.h" />
+    <ClInclude Include="..\..\include\applaudio\LinAlg.h" />
+    <ClInclude Include="..\..\include\applaudio\Listener.h" />
+    <ClInclude Include="..\..\include\applaudio\Object3D.h" />
+    <ClInclude Include="..\..\include\applaudio\PositionalAudio.h" />
+    <ClInclude Include="..\..\include\applaudio\Source.h" />
+    <ClInclude Include="..\..\include\applaudio\StringUtils.h" />
+    <ClInclude Include="..\..\include\applaudio\System.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
