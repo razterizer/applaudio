@@ -23,7 +23,7 @@ namespace apl_sys
       if (!version_file || !std::getline(version_file, version))
         return false;
       
-      auto version_lower = str::to_lower(version);
+      auto version_lower = apl_str::to_lower(version);
       return version_lower.find("microsoft") != std::string::npos
           || version_lower.find("wsl") != std::string::npos;
     }();
