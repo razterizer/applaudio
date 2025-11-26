@@ -1,0 +1,25 @@
+name: build test macos
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Change to the correct directory and build
+      - name: Build
+        run: |
+          cd Test
+          ./build_macos.sh
+        continue-on-error: false # Ensure errors are not bypassed
