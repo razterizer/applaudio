@@ -1,72 +1,56 @@
-#
-#  CMakeLists.txt
-#  applaudio
-#
-#  Disclaimer: AI-generated script. Not tested at all.
-#
-#  Created by Rasmus Anthin on 2025-09-15.
-#
+cmake_minimum_required(VERSION 3.24)
 
-cmake_minimum_required(VERSION 3.12)
-project(applaudio VERSION 1.0.0 LANGUAGES CXX DESCRIPTION "Header-only cross-platform audio library")
+project(applaudio VERSION 1.0.0 LANGUAGES CXX)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(GNUInstallDirs)
 
-# Create interface library for header-only
 add_library(applaudio INTERFACE)
 add_library(applaudio::applaudio ALIAS applaudio)
 
-# Add include directories
+target_compile_features(applaudio INTERFACE cxx_std_20)
 target_include_directories(applaudio INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# Platform-specific system libraries
 if(APPLE)
-    target_link_libraries(applaudio INTERFACE 
-        "-framework AudioToolbox -framework CoreAudio -framework CoreFoundation"
-    )
-    
+  find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
+  find_library(COREAUDIO_FRAMEWORK CoreAudio REQUIRED)
+  find_library(COREFOUNDATION_FRAMEWORK CoreFoundation REQUIRED)
+  target_link_libraries(applaudio INTERFACE
+    "${AUDIOTOOLBOX_FRAMEWORK}"
+    "${COREAUDIO_FRAMEWORK}"
+    "${COREFOUNDATION_FRAMEWORK}"
+  )
 elseif(WIN32)
-    target_link_libraries(applaudio INTERFACE ole32)
-    
-elseif(UNIX AND NOT APPLE)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(ALSA REQUIRED alsa)
-    
-    target_include_directories(applaudio INTERFACE ${ALSA_INCLUDE_DIRS})
-    target_link_libraries(applaudio INTERFACE ${ALSA_LIBRARIES})
-    
+  target_link_libraries(applaudio INTERFACE ole32)
+elseif(UNIX)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(ALSA REQUIRED IMPORTED_TARGET alsa)
+  target_link_libraries(applaudio INTERFACE PkgConfig::ALSA)
 endif()
 
-# Install headers
-install(DIRECTORY include/ DESTINATION include)
-
-# Export for other projects
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/applaudioConfigVersion.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
-
+install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 install(TARGETS applaudio EXPORT applaudioTargets)
 install(EXPORT applaudioTargets
-    FILE applaudioTargets.cmake
-    DESTINATION lib/cmake/applaudio
+  FILE applaudioTargets.cmake
+  NAMESPACE applaudio::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/applaudio"
 )
 
-# Create config file
-configure_file(cmake/applaudioConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/applaudioConfig.cmake
-    @ONLY
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  cmake/applaudioConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/applaudioConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/applaudio"
 )
-
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/applaudioConfigVersion.cmake"
+  VERSION "${PROJECT_VERSION}"
+  COMPATIBILITY SameMajorVersion
+)
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/applaudioConfig.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/applaudioConfigVersion.cmake
-    DESTINATION lib/cmake/applaudio
+  "${CMAKE_CURRENT_BINARY_DIR}/applaudioConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/applaudioConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/applaudio"
 )
