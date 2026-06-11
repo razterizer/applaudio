@@ -15,6 +15,7 @@ A simple cross-platform audio library that is not GPL-based.
 ![Commit Activity](https://img.shields.io/github/commit-activity/t/razterizer/applaudio)
 ![Last Commit](https://img.shields.io/github/last-commit/razterizer/applaudio?color=blue)
 ![Contributors](https://img.shields.io/github/contributors/razterizer/applaudio?color=blue)
+![Static Badge](https://img.shields.io/badge/ai_usage-some_(advisory_only)-lightblue)
 
 The idea with this library is to have a library that has the following properties:
 
