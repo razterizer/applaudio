@@ -1,0 +1,39 @@
+#:schema https://raw.githubusercontent.com/razterizer/forge/main/schemas/forge.recipe.schema.json
+
+[project]
+name = "applaudio"
+version = "1.0.0"
+
+[target.applaudio]
+type = "header_only"
+cpp_std = 20
+sources = []
+public_headers = ["include/applaudio/AudioEngine.h", "include/applaudio/Backend_Linux_ALSA.h", "include/applaudio/Backend_MacOS_CoreAudio.h", "include/applaudio/Backend_NoAudio.h", "include/applaudio/Backend_Windows_WASAPI.h", "include/applaudio/Buffer.h", "include/applaudio/IBackend.h", "include/applaudio/LinAlg.h", "include/applaudio/Listener.h", "include/applaudio/Object3D.h", "include/applaudio/PositionalAudio.h", "include/applaudio/Source.h", "include/applaudio/StringUtils.h", "include/applaudio/System.h", "include/applaudio/applaudio.h", "include/applaudio/defines.h", "include/applaudio/version.h"]
+include_dirs = ["include"]
+macos_frameworks = ["AudioToolbox", "CoreAudio", "CoreFoundation"]
+linux_libraries = ["alsa"]
+windows_libraries = ["ole32"]
+
+[target.test]
+type = "executable"
+cpp_std = 20
+sources = ["Test/test.cpp"]
+dependencies = ["applaudio"]
+test = true
+
+[build]
+number = 1
+
+[release]
+build_number_format = "dotted"
+
+[version_header]
+path = "include/applaudio/version.h"
+prefix = "APPLAUDIO"
+
+[profile.Debug.build]
+configuration = "Debug"
+defines = ["DEBUG=1"]
+
+[profile.Release.build]
+configuration = "Release"
