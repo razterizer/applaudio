@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07202B8A2FDD8DCC00161B6F /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 07202B892FDD8DCC00161B6F /* version.h */; };
 		07980B5E2E7BEAB3007A0EB4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07BDBBB52E77495D002ACC96 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07202B892FDD8DCC00161B6F /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		0733A6482EC321C50045BCFD /* applaudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = applaudio.h; sourceTree = "<group>"; };
 		0756EB1E2E8D8D1F00B0E6FE /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
 		0756EB1F2E8D8E7E00B0E6FE /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				0756EB272E8FB95100B0E6FE /* LinAlg.h */,
 				0756EB4F2E911A0700B0E6FE /* Object3D.h */,
 				0756EB4B2E9115E200B0E6FE /* PositionalAudio.h */,
+				07202B892FDD8DCC00161B6F /* version.h */,
 			);
 			name = applaudio;
 			path = include/applaudio;
@@ -158,6 +161,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07202B8A2FDD8DCC00161B6F /* version.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
