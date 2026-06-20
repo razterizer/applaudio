@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.0.0.2
+
+- Publish target-specific Forge cboxes carrying system audio requirements.
+
 ## 1.0.0.1
 
 - Initial release.
