@@ -11,7 +11,7 @@ sources = []
 public_headers = ["include/applaudio/AudioEngine.h", "include/applaudio/Backend_Linux_ALSA.h", "include/applaudio/Backend_MacOS_CoreAudio.h", "include/applaudio/Backend_NoAudio.h", "include/applaudio/Backend_Windows_WASAPI.h", "include/applaudio/Buffer.h", "include/applaudio/IBackend.h", "include/applaudio/LinAlg.h", "include/applaudio/Listener.h", "include/applaudio/Object3D.h", "include/applaudio/PositionalAudio.h", "include/applaudio/Source.h", "include/applaudio/StringUtils.h", "include/applaudio/System.h", "include/applaudio/applaudio.h", "include/applaudio/defines.h", "include/applaudio/version.h"]
 include_dirs = ["include"]
 macos_frameworks = ["AudioToolbox", "CoreAudio", "CoreFoundation"]
-linux_libraries = ["alsa"]
+linux_libraries = ["asound"]
 windows_libraries = ["ole32"]
 
 [target.test]
@@ -22,7 +22,7 @@ dependencies = ["applaudio"]
 test = true
 
 [build]
-number = 2
+number = 3
 
 [release]
 build_number_format = "dotted"
