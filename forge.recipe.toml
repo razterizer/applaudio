@@ -12,7 +12,7 @@ public_headers = ["include/applaudio/AudioEngine.h", "include/applaudio/Backend_
 include_dirs = ["include"]
 macos_frameworks = ["AudioToolbox", "CoreAudio", "CoreFoundation"]
 linux_libraries = ["asound"]
-windows_libraries = ["ole32", "ksguid"]
+windows_libraries = ["ole32"]
 
 [target.test]
 type = "executable"

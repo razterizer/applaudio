@@ -28,6 +28,11 @@
 
 namespace applaudio
 {
+  inline constexpr GUID WASAPI_SUBTYPE_PCM =
+  { 0x00000001, 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 } };
+
+  inline constexpr GUID WASAPI_SUBTYPE_IEEE_FLOAT =
+  { 0x00000003, 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 } };
   
   class Backend_Windows_WASAPI : public IBackend
   {
@@ -98,9 +103,9 @@ namespace applaudio
         wf.Format.nAvgBytesPerSec = wf.Format.nSamplesPerSec * wf.Format.nBlockAlign;
         wf.Format.cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
 #ifdef APL_32
-        wf.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+        wf.SubFormat = WASAPI_SUBTYPE_IEEE_FLOAT;
 #else
-        wf.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+        wf.SubFormat = WASAPI_SUBTYPE_PCM;
 #endif
         wf.Samples.wValidBitsPerSample = wf.Format.wBitsPerSample;
         wf.dwChannelMask = (request_channels == 2) ? (SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT) : 0;
@@ -143,7 +148,7 @@ namespace applaudio
         return false;
       }
       if (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE ||
-        reinterpret_cast<WAVEFORMATEXTENSIBLE*>(format)->SubFormat != KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+        reinterpret_cast<WAVEFORMATEXTENSIBLE*>(format)->SubFormat != WASAPI_SUBTYPE_IEEE_FLOAT)
       {
         std::cerr << "WASAPI: Expected 32-bit float format, but got something else.\n";
         return false;
@@ -156,7 +161,7 @@ namespace applaudio
       }
       if (format->wFormatTag != WAVE_FORMAT_PCM &&
         (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE ||
-          reinterpret_cast<WAVEFORMATEXTENSIBLE*>(format)->SubFormat != KSDATAFORMAT_SUBTYPE_PCM))
+          reinterpret_cast<WAVEFORMATEXTENSIBLE*>(format)->SubFormat != WASAPI_SUBTYPE_PCM))
       {
         std::cerr << "WASAPI: Expected 16-bit PCM format, but got something else.\n";
         return false;

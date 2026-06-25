@@ -2,7 +2,7 @@
 
 ## 1.0.1.4
 
-- Added dependency ksguid to windows_libraries in the forge recipe.
+- Removed the ksguid link dependency by defining WASAPI subformat GUIDs in the header.
 
 ## 1.0.0.3
 
