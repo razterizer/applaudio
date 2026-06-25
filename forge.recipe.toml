@@ -2,7 +2,7 @@
 
 [project]
 name = "applaudio"
-version = "1.0.0"
+version = "1.0.1"
 
 [target.applaudio]
 type = "header_only"
@@ -12,7 +12,7 @@ public_headers = ["include/applaudio/AudioEngine.h", "include/applaudio/Backend_
 include_dirs = ["include"]
 macos_frameworks = ["AudioToolbox", "CoreAudio", "CoreFoundation"]
 linux_libraries = ["asound"]
-windows_libraries = ["ole32"]
+windows_libraries = ["ole32", "ksguid"]
 
 [target.test]
 type = "executable"
@@ -22,7 +22,7 @@ dependencies = ["applaudio"]
 test = true
 
 [build]
-number = 3
+number = 4
 
 [release]
 build_number_format = "dotted"

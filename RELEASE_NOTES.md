@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.0.1.4
+
+- Added dependency ksguid to windows_libraries in the forge recipe.
+
 ## 1.0.0.3
 
 - Correct the Linux system library link name to `asound`.
