@@ -31,13 +31,6 @@ build_number_format = "dotted"
 path = "include/applaudio/version.h"
 prefix = "APPLAUDIO"
 
-[profile.Debug.build]
-configuration = "Debug"
-defines = ["DEBUG=1"]
-
-[profile.Release.build]
-configuration = "Release"
-
 [build.config.debug]
 configuration = "Debug"
 defines = ["DEBUG=1"]
