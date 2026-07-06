@@ -37,3 +37,10 @@ defines = ["DEBUG=1"]
 
 [profile.Release.build]
 configuration = "Release"
+
+[build.config.debug]
+configuration = "Debug"
+defines = ["DEBUG=1"]
+
+[build.config.release]
+configuration = "Release"
