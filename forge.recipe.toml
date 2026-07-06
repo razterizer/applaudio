@@ -2,7 +2,7 @@
 
 [project]
 name = "applaudio"
-version = "1.0.1"
+version = "1.0.2"
 
 [target.applaudio]
 type = "header_only"
@@ -22,7 +22,7 @@ dependencies = ["applaudio"]
 test = true
 
 [build]
-number = 4
+number = 5
 
 [release]
 build_number_format = "dotted"

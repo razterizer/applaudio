@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.0.2.5
+
+- Updating forge recipe due to new selector system in forge 0.13.
+
 ## 1.0.1.4
 
 - Removed the ksguid link dependency by defining WASAPI subformat GUIDs in the header.
