@@ -17,6 +17,8 @@ A simple cross-platform audio library that is not GPL-based.
 ![Contributors](https://img.shields.io/github/contributors/razterizer/applaudio?color=blue)
 <!-- ![Static Badge](https://img.shields.io/badge/ai_usage-some_(advisory_only)-lightblue) -->
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/razterizer/applaudio/total)
+
 The idea with this library is to have a library that has the following properties:
 
 * Permissive license. Unlike `OpenAL` / `OpenAL_Soft` which is GPL, this library is MIT and gives you much more freedom to use the lib where you want to use it. Just a little credit somewhere is enough.
